@@ -130,4 +130,1022 @@
 
     /* Indicatore Premio In Palio in Regia */
     .current-stage-badge {
+      background: #111a28;
+      border: 2px solid var(--gold);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--gold-light);
+    }
+
+    /* Alert Notifica Regia */
+    .regia-alert-box {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+      display: none;
+      animation: pulseAlert 0.8s infinite alternate;
+    }
+    @keyframes pulseAlert {
+      0% { transform: scale(0.99); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); }
+      100% { transform: scale(1.02); box-shadow: 0 0 35px rgba(243, 156, 18, 1); }
+    }
+
+    /* Interfaccia Giocatore Mobile-Friendly */
+    #view-giocatore, #view-regia, #view-stampa { max-width: 900px; margin: 0 auto; }
+    
+    .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
+    .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
+    
+    .card-digital { 
+      background: #1c283a; 
+      border: 2px solid var(--gold); 
+      border-radius: 12px; 
+      padding: 12px; 
+      margin-bottom: 25px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; font-size: 0.95rem; }
+    
+    .tombola-classic-grid { 
+      display: grid !important; 
+      grid-template-columns: repeat(9, 1fr) !important; 
+      gap: 3px; 
+      background: #0a0e17; 
+      padding: 6px; 
+      border-radius: 8px; 
+      border: 1px solid #2c3e59; 
+    }
+    .tombola-cell {
+      aspect-ratio: 1; 
+      background: #162232; 
+      border-radius: 4px; 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      font-size: 0.95rem;
+      color: #fff; 
+      cursor: pointer; 
+      border: 1px solid #2c3e59; 
+      user-select: none;
+    }
+    .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
+    .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
+
+    /* Modalità Cartella a Tutto Schermo PERFETTAMENTE OTTIMIZZATA */
+    #fullscreen-card-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 14, 23, 0.98); z-index: 9999;
+      display: none; flex-direction: column; padding: 10px;
+      justify-content: center; align-items: center; overflow: hidden;
+    }
+    .fullscreen-card-box {
+      width: 98vw; max-width: 900px;
+      background: #1c283a; border: 3px solid var(--gold); border-radius: 12px;
+      padding: 12px; text-align: center; display: flex; flex-direction: column;
+      max-height: 96vh; justify-content: space-between;
+    }
+    .fullscreen-card-box .tombola-classic-grid {
+      gap: 4px; padding: 8px; margin: 10px 0; flex-grow: 1;
+      display: grid !important; grid-template-columns: repeat(9, 1fr) !important;
+      align-content: center;
+    }
+    .fullscreen-card-box .tombola-cell {
+      font-size: clamp(0.9rem, 3.5vw, 1.8rem);
+      aspect-ratio: 1;
+      border-radius: 6px;
+    }
+
+    /* Controlli Regia */
+    .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; margin-bottom: 20px; }
+    .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
+    .btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 1rem; }
+    .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-success { background: #2ecc71; color: #fff; }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
+
+    /* Overlay Estrazione e Vincita */
+    #extraction-overlay, #winner-modal {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 14, 23, 0.96); backdrop-filter: blur(12px);
+      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; text-align: center;
+    }
+    .giant-ball { width: 160px; height: 160px; font-size: 4.5rem; border-width: 8px; }
+    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 10px 20px; border-radius: 20px; font-size: 1.3rem; font-weight: bold; transform: rotate(-2deg); }
+    
+    .winner-box {
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(22, 31, 48, 0.98);
+      padding: 25px; border-radius: 20px; border: 4px solid var(--gold);
+      box-shadow: 0 0 50px rgba(243, 156, 18, 0.7);
+      max-width: 95%; width: 1000px; max-height: 90vh; overflow-y: auto;
+    }
+    .winners-flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .winner-card-item {
+      background: #0e1622;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      flex: 1;
+      min-width: 240px;
+      max-width: 300px;
+    }
+    .winner-photo {
+      width: 110px; height: 110px; border-radius: 50%;
+      border: 3px solid var(--gold); object-fit: cover;
+      margin: 8px auto; display: block;
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); } }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .fullscreen-card-box { padding: 5px; }
+      .fullscreen-card-box .tombola-cell { font-size: clamp(0.7rem, 2.5vh, 1.2rem); }
+      #fs-card-title { font-size: 0.9rem !important; margin-bottom: 2px !important; }
+      .fullscreen-card-box .btn-danger { padding: 6px !important; font-size: 0.85rem !important; margin-top: 2px !important; }
+    }
+
+    @media (max-width: 768px) {
+      .regia-grid { grid-template-columns: 1fr; }
+      .tombola-cell { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
+      <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Le mie Cartelle</button>
+      <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
+    </div>
+  </header>
+
+  <!-- TABELLONE MAXISCHERMO -->
+  <div id="view-tabellone" class="view-section active">
+    <div class="top-banner">
+      <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
+    </div>
+    <div class="grid-90" id="board-grid"></div>
+    <div class="last-extracted-box">
+      <span style="font-size: 1.1rem; color: #aaa;">ULTIMO NUMERO ESTRATTO:</span>
+      <div id="last-ball-display" class="billiard-ball drawn" style="width: 48px; height: 48px; font-size: 1.3rem;">--</div>
+    </div>
+
+    <!-- Banner Scorrevole Vincitori Convalidati -->
+    <div id="board-winners-ticker" class="winners-ticker-container">
+      <div id="board-winners-ticker-text" class="winners-ticker-text"></div>
+    </div>
+  </div>
+
+  <!-- REGIA CONTROL DASHBOARD -->
+  <div id="view-regia" class="view-section">
+    <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
+      <h3 class="panel-title">Accesso Regia</h3>
+      <div class="form-group">
+        <input type="password" id="regia-pass" placeholder="Password">
+      </div>
+      <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
+    </div>
+
+    <div id="regia-content" style="display: none;">
       
+      <!-- Indicatore del Premio Corrente in Palio -->
+      <div class="current-stage-badge">
+        🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span>
+      </div>
+
+      <!-- Alert visivo in Regia -->
+      <div id="regia-win-alert" class="regia-alert-box">
+        <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
+        <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
+        <button class="btn btn-sm btn-success" style="padding: 10px 20px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
+      </div>
+
+      <!-- Configurazione Organizzatori -->
+      <div class="panel-card" style="margin-bottom: 20px;">
+        <h3 class="panel-title">👥 Organizzatori e Collaboratori</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group"><label>Titolo Testata / Brand</label><input type="text" id="cfg-brand" value="PMU & The Galleon"></div>
+          <div class="form-group"><label>Titolo Banner Maxischermo</label><input type="text" id="cfg-banner" value="Pallavolo Media Umbra & The Galleon Pizzeria"></div>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="saveOrganizersConfig()">Salva Nomi Organizzatori</button>
+      </div>
+
+      <!-- Configurazione Premi -->
+      <div class="panel-card" style="margin-bottom: 20px;">
+        <h3 class="panel-title">🎁 Personalizzazione Premi in Palio</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+          <div class="form-group"><label>Premio AMBO</label><input type="text" id="prize-ambo" value="Buono Caffè"></div>
+          <div class="form-group"><label>Premio TERNO</label><input type="text" id="prize-terno" value="Birra Media"></div>
+          <div class="form-group"><label>Premio QUATERNA</label><input type="text" id="prize-quaterna" value="Pizza Omaggio"></div>
+          <div class="form-group"><label>Premio CINQUINA</label><input type="text" id="prize-cinquina" value="Menu Cena per 2"></div>
+          <div class="form-group"><label>Premio TOMBOLINO</label><input type="text" id="prize-tombolino" value="Cesto Natalizio / Speciale"></div>
+          <div class="form-group"><label>Premio TOMBOLA</label><input type="text" id="prize-tombola" value="Super Premio Finale"></div>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="savePrizesConfig()">Salva Configurazione Premi</button>
+      </div>
+
+      <div class="regia-grid">
+        <div class="panel-card">
+          <h3 class="panel-title">Controllo Estrazione</h3>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn btn-sm btn-success" onclick="drawNumber()">Estrai Numero</button>
+            <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
+          </div>
+          
+          <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4>
+          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Il sistema controlla automaticamente ad ogni estrazione. Puoi anche eseguire una verifica manuale qui sotto.</p>
+          <button class="btn btn-success" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
+        </div>
+
+        <div class="panel-card">
+          <h3 class="panel-title">Partecipanti Registrati <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
+          <div id="regia-cards-list" style="max-height: 400px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERFACCIA GIOCATORE -->
+  <div id="view-giocatore" class="view-section">
+    <div id="player-form-container" class="player-header">
+      <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
+      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
+      
+      <div style="margin-bottom: 12px;">
+        <label for="camera-input" class="btn btn-sm" style="display: inline-block; cursor: pointer; width: auto; background: #e74c3c; color: #fff;">📸 Scatta Selfie (Obbligatorio)</label>
+        <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
+      </div>
+
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 12px auto;">
+        <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
+      </div>
+
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;">
+        <label style="color: var(--gold); font-weight: bold;">Modalità di Marcatura Cartella:</label>
+        <select id="play-mode" style="margin-top: 4px;">
+          <option value="auto">🤖 Automatica (Segna il sistema)</option>
+          <option value="manual">✍️ Manuale (Segno io con un tocco)</option>
+        </select>
+      </div>
+
+      <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
+    </div>
+
+    <div id="add-more-container" style="text-align: center; margin-bottom: 20px; display: none;">
+      <button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button>
+    </div>
+
+    <div id="player-cards-list"></div>
+  </div>
+
+  <!-- GENERATORE PASS QR -->
+  <div id="view-stampa" class="view-section" style="text-align: center;">
+    <div class="panel-card" style="display: inline-block;">
+      <h3 class="panel-title">QR Code Tavolo Cliente</h3>
+      <p style="margin-bottom: 15px; color: #ccc;">Scansionando questo QR Code, il cliente accederà direttamente alla schermata per generare le sue cartelle.</p>
+      <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY CARTELLA A TUTTO SCHERMO PER IL CLIENTE -->
+  <div id="fullscreen-card-overlay">
+    <div class="fullscreen-card-box">
+      <h3 id="fs-card-title" style="color: var(--gold); font-size: 1.2rem;">--</h3>
+      <div id="fs-card-grid-container"></div>
+      <button class="btn btn-danger" style="padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY ESTRAZIONE -->
+  <div id="extraction-overlay">
+    <div id="overlay-ball" class="billiard-ball giant-ball drawn">--</div>
+    <div id="overlay-smorfia" class="smorfia-sticker">--</div>
+  </div>
+
+  <!-- MODALE VINCITORE AUTOMATICO PER MAXISCHERMO -->
+  <div id="winner-modal">
+    <div class="winner-box">
+      <h1 style="color: var(--gold); font-size: 1.8rem; text-shadow: 0 0 15px rgba(243,156,18,0.8);">🎉 VINCITA/E RILEVATA/E! 🎉</h1>
+      <p style="color: #ccc; margin-top: 5px; font-size: 0.9rem;">I vincitori attuali compaiono qui sotto affiancati per la verifica:</p>
+      
+      <div id="winners-container" class="winners-flex-row"></div>
+      
+      <button class="btn btn-sm btn-success" style="margin-top: 20px; width: 100%; padding: 12px; font-size: 1.1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://tombola-galleon-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const smorfia = {
+      1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
+      11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
+      21: "La donna nuda", 22: "'O pazzo", 23: "'O scemo", 24: "Le guardie", 25: "Natale", 26: "Ninetta", 27: "Il vaso", 28: "I zizie", 29: "Il padre dei bimbi", 30: "Le palle del tenente",
+      31: "Il padrone di casa", 32: "Il capitone", 33: "L'anni 'e Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le castagnette", 37: "Il monaco", 38: "Le mazzate", 39: "La corda al collo", 40: "Il secchio",
+      41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte che parla", 49: "La carne", 50: "Il pane",
+      51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento",
+      61: "Il cacciatore", 62: "Il morto acciso", 63: "La sposa", 64: "La marsina", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa cotta", 69: "Sott'e 'ncoppa", 70: "Il palazzo",
+      71: "L'uomo di merda", 72: "La meraviglia", 73: "L'ospedale", 74: "La grotta", 75: "Pullecenella", 76: "La fontana", 77: "'E diavule", 78: "La bella figliola", 79: "Il ladro", 80: "La bocca",
+      81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
+    };
+
+    const PRIZE_STAGES = ['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA', 'TOMBOLINO', 'TOMBOLA'];
+    let currentStageIndex = 0;
+
+    let drawnNumbers = [];
+    let activeCards = {};
+    let confirmedWinnersList = [];
+    let prizesConfig = {
+      AMBO: "Buono Caffè",
+      TERNO: "Birra Media",
+      QUATERNA: "Pizza Omaggio",
+      CINQUINA: "Menu Cena per 2",
+      TOMBOLINO: "Cesto Natalizio / Speciale",
+      TOMBOLA: "Super Premio Finale"
+    };
+
+    let regiaAuth = false;
+    let currentPlayerPhoto = "";
+    let confettiInterval = null;
+    let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + viewId).classList.add('active');
+      document.getElementById('btn-' + viewId).classList.add('active');
+    }
+
+    function initBoard() {
+      const grid = document.getElementById('board-grid');
+      if(!grid) return;
+      grid.innerHTML = '';
+      for(let i = 1; i <= 90; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.id = 'cell-' + i;
+        cell.innerText = i;
+        grid.appendChild(cell);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
+    }
+
+    function playAlertBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e){}
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+            ctx.drawImage(img, 0, 0, 200, 200);
+            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('player-photo-preview').src = currentPlayerPhoto;
+            document.querySelector("label[for='camera-input']").style.background = "#2ecc71";
+            document.querySelector("label[for='camera-input']").innerText = "✓ Selfie Acquisito";
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function showPlayerForm() {
+      document.getElementById('player-form-container').style.display = 'block';
+      document.getElementById('add-more-container').style.display = 'none';
+    }
+
+    function generateTombolaClassicGrid() {
+      let grid = Array(3).fill(null).map(() => Array(9).fill(null));
+      let rowCols = [];
+      for(let r = 0; r < 3; r++) {
+        let cols = [];
+        while(cols.length < 5) {
+          let c = Math.floor(Math.random() * 9);
+          if(!cols.includes(c)) cols.push(c);
+        }
+        cols.sort((a,b) => a - b);
+        rowCols.push(cols);
+      }
+
+      let colRows = Array(9).fill(null).map(() => []);
+      for(let r = 0; r < 3; r++) {
+        rowCols[r].forEach(c => colRows[c].push(r));
+      }
+
+      for(let c = 0; c < 9; c++) {
+        let count = colRows[c].length;
+        if(count === 0) continue;
+        let min = (c === 0) ? 1 : c * 10;
+        let max = (c === 8) ? 90 : (c * 10 + 9);
+        let nums = [];
+        while(nums.length < count) {
+          let n = Math.floor(Math.random() * (max - min + 1)) + min;
+          if(!nums.includes(n)) nums.push(n);
+        }
+        nums.sort((a, b) => a - b);
+        colRows[c].sort((a, b) => a - b);
+        colRows[c].forEach((r, idx) => {
+          grid[r][c] = nums[idx];
+        });
+      }
+
+      let flatObj = {};
+      let index = 0;
+      for(let r = 0; r < 3; r++) {
+        for(let c = 0; c < 9; c++) {
+          flatObj[index] = grid[r][c] !== null ? grid[r][c] : 0;
+          index++;
+        }
+      }
+      return flatObj;
+    }
+
+    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
+    db.ref('game/currentStageIndex').on('value', (snapshot) => {
+      currentStageIndex = snapshot.val() || 0;
+      const stageName = PRIZE_STAGES[currentStageIndex] || 'COMPLETATO';
+      const displayEl = document.getElementById('current-stage-display');
+      if(displayEl) displayEl.innerText = stageName;
+    });
+
+    db.ref('game/drawnNumbers').on('value', (snapshot) => {
+      drawnNumbers = snapshot.val() || [];
+      updateBoardVisuals();
+    });
+
+    db.ref('cards').on('value', (snapshot) => {
+      activeCards = snapshot.val() || {};
+      renderPlayerCards();
+      if(regiaAuth) updateRegiaCardList();
+    });
+
+    db.ref('game/config').on('value', (snapshot) => {
+      const config = snapshot.val();
+      if(config) {
+        if(config.brand) {
+          document.getElementById('brand-header-title').innerText = config.brand;
+          document.getElementById('cfg-brand').value = config.brand;
+        }
+        if(config.banner) {
+          document.getElementById('banner-main-title').innerText = config.banner;
+          document.getElementById('cfg-banner').value = config.banner;
+        }
+      }
+    });
+
+    db.ref('game/prizes').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if(data) {
+        prizesConfig = data;
+        document.getElementById('prize-ambo').value = prizesConfig.AMBO || '';
+        document.getElementById('prize-terno').value = prizesConfig.TERNO || '';
+        document.getElementById('prize-quaterna').value = prizesConfig.QUATERNA || '';
+        document.getElementById('prize-cinquina').value = prizesConfig.CINQUINA || '';
+        document.getElementById('prize-tombolino').value = prizesConfig.TOMBOLINO || '';
+        document.getElementById('prize-tombola').value = prizesConfig.TOMBOLA || '';
+      }
+    });
+
+    db.ref('game/lastExtraction').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if(data && data.number) {
+        showExtractionAnimation(data.number);
+      }
+    });
+
+    db.ref('game/winners').on('value', (snapshot) => {
+      const winners = snapshot.val();
+      const alertBox = document.getElementById('regia-win-alert');
+      const alertText = document.getElementById('regia-win-alert-text');
+
+      if(winners && Object.keys(winners).length > 0) {
+        showWinnersOnScreen(winners);
+        playAlertBeep();
+        
+        let names = Object.values(winners).map(w => `🏆 ${w.prizeType}: ${w.name} (Cartella #${w.cardId}) - Premio: ${w.prizeDesc}`).join('<br>');
+        if(alertText) alertText.innerHTML = names;
+        if(alertBox) alertBox.style.display = 'block';
+      } else {
+        hideWinnerScreen();
+        if(alertBox) alertBox.style.display = 'none';
+      }
+    });
+
+    db.ref('game/confirmedWinners').on('value', (snapshot) => {
+      confirmedWinnersList = snapshot.val() || [];
+      updateWinnersTicker();
+    });
+
+    function saveOrganizersConfig() {
+      const brand = document.getElementById('cfg-brand').value;
+      const banner = document.getElementById('cfg-banner').value;
+      db.ref('game/config').set({ brand: brand, banner: banner })
+        .then(() => alert('Nomi organizzatori aggiornati con successo!'));
+    }
+
+    function savePrizesConfig() {
+      prizesConfig = {
+        AMBO: document.getElementById('prize-ambo').value,
+        TERNO: document.getElementById('prize-terno').value,
+        QUATERNA: document.getElementById('prize-quaterna').value,
+        CINQUINA: document.getElementById('prize-cinquina').value,
+        TOMBOLINO: document.getElementById('prize-tombolino').value,
+        TOMBOLA: document.getElementById('prize-tombola').value
+      };
+      db.ref('game/prizes').set(prizesConfig)
+        .then(() => alert('Configurazione premi salvata con successo!'));
+    }
+
+    function updateBoardVisuals() {
+      for(let i = 1; i <= 90; i++) {
+        const cell = document.getElementById('cell-' + i);
+        if(cell) {
+          cell.className = 'grid-cell';
+          cell.innerText = i;
+        }
+      }
+      drawnNumbers.forEach(n => {
+        const cell = document.getElementById('cell-' + n);
+        if(cell) {
+          cell.classList.add('active');
+          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+        }
+      });
+      if(drawnNumbers.length > 0) {
+        const last = drawnNumbers[drawnNumbers.length - 1];
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = last;
+      } else {
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = '--';
+      }
+      renderPlayerCards();
+    }
+
+    function updateWinnersTicker() {
+      const tickerContainer = document.getElementById('board-winners-ticker');
+      const tickerText = document.getElementById('board-winners-ticker-text');
+      if(!tickerContainer || !tickerText) return;
+
+      if(confirmedWinnersList && confirmedWinnersList.length > 0) {
+        let uniqueMap = {};
+        confirmedWinnersList.forEach(w => {
+          let key = w.cardId + '_' + w.prizeType;
+          uniqueMap[key] = w;
+        });
+
+        let textParts = Object.values(uniqueMap).map(w => `🏆 ${w.prizeType}: ${w.name} (Cartella #${w.cardId}) - Premio: ${w.prizeDesc}`);
+        tickerText.innerText = textParts.join('   ---   ');
+        tickerContainer.style.display = 'block';
+      } else {
+        tickerContainer.style.display = 'none';
+      }
+    }
+
+    function addPlayerCard() {
+      if(!currentPlayerPhoto) {
+        alert('Attenzione: Devi scattare o caricare un selfie obbligatorio prima di generare la cartella!');
+        return;
+      }
+
+      const nameInput = document.getElementById('player-name');
+      const name = nameInput.value.trim();
+      if(!name) return alert('Inserisci il tuo Nome e Cognome!');
+
+      const playMode = document.getElementById('play-mode').value;
+
+      const btn = document.getElementById('generate-card-btn');
+      btn.disabled = true;
+      btn.innerText = 'Generazione in corso...';
+
+      const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      const cardId = Math.floor(Math.random() * 9000) + 1000;
+      const cardGridObj = generateTombolaClassicGrid();
+
+      const cardData = { 
+        uniqueKey: uniqueKey, 
+        id: cardId, 
+        name: name, 
+        photo: currentPlayerPhoto, 
+        grid: cardGridObj, 
+        mode: playMode,
+        status: 'IN ATTESA' 
+      };
+      
+      db.ref('cards/' + uniqueKey).set(cardData)
+        .then(() => {
+          btn.disabled = false;
+          btn.innerText = '+ Genera Nuova Cartella';
+          
+          localMyCardsKeys.push(uniqueKey);
+          localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
+
+          document.getElementById('player-form-container').style.display = 'none';
+          document.getElementById('add-more-container').style.display = 'block';
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          renderPlayerCards();
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerText = '+ Genera Nuova Cartella';
+          alert('Errore di connessione. Verifica la rete e riprova.');
+        });
+    }
+
+    function renderPlayerCards() {
+      const container = document.getElementById('player-cards-list');
+      if(!container) return;
+      container.innerHTML = '';
+
+      const cardsArray = Object.values(activeCards).filter(c => localMyCardsKeys.includes(c.uniqueKey));
+
+      if(cardsArray.length === 0) {
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Non hai ancora generato alcuna cartella. Compila il modulo sopra per iniziare!</div>';
+        return;
+      }
+
+      if(localMyCardsKeys.length > 0) {
+        document.getElementById('player-form-container').style.display = 'none';
+        document.getElementById('add-more-container').style.display = 'block';
+      }
+
+      cardsArray.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-digital';
+
+        let gridHTML = '<div class="tombola-classic-grid">';
+        let gridArray = [];
+        if (card.grid) {
+          if (Array.isArray(card.grid)) gridArray = card.grid;
+          else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
+        }
+
+        if(gridArray.length < 27) {
+          gridArray = Array(27).fill(null);
+          if(card.numbers) {
+            card.numbers.forEach((n, idx) => { if(idx < 27) gridArray[idx] = n; });
+          }
+        }
+
+        gridArray.forEach(num => {
+          if(!num || num === 0) {
+            gridHTML += `<div class="tombola-cell empty"></div>`;
+          } else {
+            const isDrawn = drawnNumbers.includes(num);
+            let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
+            gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
+          }
+        });
+        gridHTML += '</div>';
+
+        const statusColor = card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f';
+        const statusText = card.status === 'ATTIVA' ? `✓ ATTIVA (${card.mode === 'auto' ? 'Auto' : 'Manuale'})` : '⏳ IN ATTESA DI CONVALIDA';
+        
+        let fullscreenBtnHTML = '';
+        if (card.status === 'ATTIVA') {
+          fullscreenBtnHTML = `<button class="btn btn-sm" style="background:var(--gold); color:#000; width:100%; margin-top:8px;" onclick="openFullscreenCard('${card.uniqueKey}')">🔍 Ingrandisci a Tutto Schermo</button>`;
+        }
+
+        cardDiv.innerHTML = `
+          <div class="card-header-info">
+            <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
+            <div style="color: ${statusColor}; font-size:0.8rem; font-weight:bold;">${statusText}</div>
+          </div>
+          ${gridHTML}
+          ${fullscreenBtnHTML}
+        `;
+        container.appendChild(cardDiv);
+      });
+    }
+
+    function openFullscreenCard(cardKey) {
+      const card = activeCards[cardKey];
+      if(!card) return;
+
+      document.getElementById('fs-card-title').innerText = `Cartella #${card.id} - ${card.name}`;
+      
+      let gridHTML = '<div class="tombola-classic-grid">';
+      let gridArray = [];
+      if (card.grid) {
+        if (Array.isArray(card.grid)) gridArray = card.grid;
+        else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
+      }
+
+      gridArray.forEach(num => {
+        if(!num || num === 0) {
+          gridHTML += `<div class="tombola-cell empty"></div>`;
+        } else {
+          const isDrawn = drawnNumbers.includes(num);
+          let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
+          gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
+        }
+      });
+      gridHTML += '</div>';
+
+      document.getElementById('fs-card-grid-container').innerHTML = gridHTML;
+      document.getElementById('fullscreen-card-overlay').style.display = 'flex';
+    }
+
+    function closeFullscreenCard() {
+      document.getElementById('fullscreen-card-overlay').style.display = 'none';
+    }
+
+    function checkRegiaAuth() {
+      const pass = document.getElementById('regia-pass').value;
+      if(pass === '27') {
+        regiaAuth = true;
+        document.getElementById('regia-login').style.display = 'none';
+        document.getElementById('regia-content').style.display = 'block';
+        updateRegiaCardList();
+      } else { alert('Password errata!'); }
+    }
+
+    function updateRegiaCardList() {
+      if(!regiaAuth) return;
+      const list = document.getElementById('regia-cards-list');
+      const countEl = document.getElementById('participants-count');
+      
+      const cardsArray = Object.values(activeCards);
+      if(countEl) countEl.innerText = `(Totale: ${cardsArray.length})`;
+
+      if(cardsArray.length === 0) {
+        if(list) list.innerHTML = '<i>Nessun partecipante registrato.</i>';
+        return;
+      }
+
+      if(list) list.innerHTML = '';
+
+      cardsArray.forEach(card => {
+        const cardKey = card.uniqueKey || card.id;
+        if(list) {
+          const item = document.createElement('div');
+          item.style.cssText = 'padding: 10px; margin-bottom: 8px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;';
+          const isAttiva = card.status === 'ATTIVA';
+          item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+              <img src="${card.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+              <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status} (${card.mode})</small></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard('${cardKey}')">✓ Convalida</button>` : `<span style="color:#2ecc71; font-weight:bold; font-size:0.85rem;">In Gioco</span>`}
+              <button class="btn btn-sm btn-danger" onclick="removeCard('${cardKey}')">Elimina</button>
+            </div>
+          `;
+          list.appendChild(item);
+        }
+      });
+    }
+
+    function regiaActivateSpecificCard(cardKey) {
+      db.ref('cards/' + cardKey + '/status').set('ATTIVA');
+    }
+
+    function checkAutomaticWins() {
+      if (currentStageIndex >= PRIZE_STAGES.length) return;
+
+      const targetPrize = PRIZE_STAGES[currentStageIndex];
+      let detectedWinners = {};
+
+      Object.values(activeCards).forEach(card => {
+        if (card.status !== 'ATTIVA') return;
+
+        let gridArray = [];
+        if (card.grid) {
+          if (Array.isArray(card.grid)) gridArray = card.grid;
+          else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
+        }
+
+        if (['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA'].includes(targetPrize)) {
+          let neededCount = 2;
+          if (targetPrize === 'TERNO') neededCount = 3;
+          if (targetPrize === 'QUATERNA') neededCount = 4;
+          if (targetPrize === 'CINQUINA') neededCount = 5;
+
+          for (let r = 0; r < 3; r++) {
+            let rowMatched = 0;
+            for (let c = 0; c < 9; c++) {
+              let num = gridArray[r * 9 + c];
+              if (num && num !== 0 && drawnNumbers.includes(num)) {
+                rowMatched++;
+              }
+            }
+
+            if (rowMatched === neededCount) {
+              let winKey = card.uniqueKey + '_r' + r + '_' + targetPrize;
+              detectedWinners[winKey] = {
+                winKey: winKey,
+                name: card.name,
+                photo: card.photo,
+                prizeType: targetPrize,
+                prizeDesc: prizesConfig[targetPrize] || targetPrize,
+                cardId: card.id,
+                customDesc: `Riga ${r+1} - Cartella #${card.id}`
+              };
+            }
+          }
+        }
+
+        if (targetPrize === 'TOMBOLINO') {
+          let allCardNums = gridArray.filter(n => n && n !== 0);
+          let matchedCount = allCardNums.filter(n => drawnNumbers.includes(n)).length;
+          if (matchedCount >= 10) {
+            let winKey = card.uniqueKey + '_tombolino';
+            detectedWinners[winKey] = {
+              winKey: winKey,
+              name: card.name,
+              photo: card.photo,
+              prizeType: 'TOMBOLINO',
+              prizeDesc: prizesConfig['TOMBOLINO'] || 'Tombolino',
+              cardId: card.id,
+              customDesc: `10 Numeri - Cartella #${card.id}`
+            };
+          }
+        }
+
+        if (targetPrize === 'TOMBOLA') {
+          let allCardNums = gridArray.filter(n => n && n !== 0);
+          let allMatched = allCardNums.length > 0 && allCardNums.every(n => drawnNumbers.includes(n));
+          if (allMatched) {
+            let winKey = card.uniqueKey + '_tombola';
+            detectedWinners[winKey] = {
+              winKey: winKey,
+              name: card.name,
+              photo: card.photo,
+              prizeType: 'TOMBOLA',
+              prizeDesc: prizesConfig['TOMBOLA'] || 'Tombola',
+              cardId: card.id,
+              customDesc: `Cartella #${card.id} Completa!`
+            };
+          }
+        }
+      });
+
+      if (Object.keys(detectedWinners).length > 0) {
+        db.ref('game/winners').set(detectedWinners);
+      }
+    }
+
+    function removeCard(cardKey) {
+      if(confirm('Vuoi eliminare questa scheda?')) {
+        db.ref('cards/' + cardKey).remove();
+        localMyCardsKeys = localMyCardsKeys.filter(k => k !== cardKey);
+        localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
+        renderPlayerCards();
+      }
+    }
+
+    function drawNumber() {
+      if(drawnNumbers.length >= 90) return alert('Tutti i numeri sono stati estratti!');
+      let n;
+      do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
+      
+      drawnNumbers.push(n);
+      db.ref('game/drawnNumbers').set(drawnNumbers);
+      db.ref('game/lastExtraction').set({ number: n, time: Date.now() });
+
+      setTimeout(() => {
+        checkAutomaticWins();
+      }, 500);
+    }
+
+    function showExtractionAnimation(n) {
+      const overlay = document.getElementById('extraction-overlay');
+      document.getElementById('overlay-ball').innerText = n;
+      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
+      overlay.style.display = 'flex';
+      setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+    }
+
+    function showWinnersOnScreen(winnersObj) {
+      const container = document.getElementById('winners-container');
+      container.innerHTML = '';
+
+      Object.values(winnersObj).forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'winner-card-item';
+        item.innerHTML = `
+          <img src="${w.photo}" class="winner-photo" alt="Foto Vincitore">
+          <h2 style="font-size: 1.2rem; color: #fff; margin-top: 6px;">${w.name}</h2>
+          <p style="font-size: 1.1rem; color: var(--gold-light); font-weight: bold; margin-top: 2px;">${w.prizeType}!</p>
+          <div style="font-size: 0.95rem; color: #fff; font-weight: bold; margin-top: 4px;">🎁 Premio: ${w.prizeDesc}</div>
+          <div style="font-size: 0.8rem; color: #aaa; margin-top: 2px;">${w.customDesc}</div>
+        `;
+        container.appendChild(item);
+      });
+
+      document.getElementById('winner-modal').style.display = 'flex';
+
+      if(confettiInterval) clearInterval(confettiInterval);
+      confettiInterval = setInterval(() => {
+        confetti({ particleCount: 60, spread: 120, origin: { y: 0.5 } });
+      }, 500);
+    }
+
+    function hideWinnerScreen() {
+      document.getElementById('winner-modal').style.display = 'none';
+      if(confettiInterval) {
+        clearInterval(confettiInterval);
+        confettiInterval = null;
+      }
+    }
+
+    function confirmAndCloseWinnerModal() {
+      db.ref('game/winners').once('value', snapshot => {
+        const currentWinners = snapshot.val();
+        if(currentWinners) {
+          let updatedList = [...confirmedWinnersList];
+          Object.values(currentWinners).forEach(w => {
+            if(!updatedList.some(item => item.cardId === w.cardId && item.prizeType === w.prizeType)) {
+              updatedList.push(w);
+            }
+          });
+          db.ref('game/confirmedWinners').set(updatedList);
+        }
+
+        currentStageIndex++;
+        db.ref('game/currentStageIndex').set(currentStageIndex);
+        db.ref('game/winners').remove();
+      });
+    }
+
+    function resetGame() {
+      if(confirm('Vuoi resettare la partita corrente e azzerare tutto?')) {
+        db.ref('game').remove();
+        db.ref('cards').remove();
+        localStorage.removeItem('my_tombola_cards');
+        localMyCardsKeys = [];
+        confirmedWinnersList = [];
+        currentStageIndex = 0;
+        updateWinnersTicker();
+        showPlayerForm();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initBoard();
+      
+      if (window.location.hash === '#giocatore') {
+        switchView('giocatore');
+      }
+
+      try {
+        const qrUrl = window.location.href.split('#')[0] + '#giocatore';
+        new QRCode(document.getElementById("qrcode-global"), { text: qrUrl, width: 140, height: 140 });
+      } catch(e){}
+    });
+  </script>
+</body>
+</html>
