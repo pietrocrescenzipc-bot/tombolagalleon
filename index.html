@@ -98,21 +98,23 @@
       100% { transform: translate3d(-100%, 0, 0); }
     }
 
-    /* Alert Notifica Regia Visibile */
+    /* Alert Notifica Regia Super Visibile */
     .regia-alert-box {
-      background: #e74c3c;
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
       color: #fff;
-      padding: 15px;
-      border-radius: 8px;
+      padding: 20px;
+      border-radius: 12px;
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
       font-weight: bold;
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       display: none;
-      animation: pulseAlert 1s infinite alternate;
+      animation: pulseAlert 0.8s infinite alternate;
     }
     @keyframes pulseAlert {
-      0% { transform: scale(0.98); opacity: 0.9; }
-      100% { transform: scale(1.01); opacity: 1; }
+      0% { transform: scale(0.99); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); }
+      100% { transform: scale(1.02); box-shadow: 0 0 35px rgba(243, 156, 18, 1); }
     }
 
     /* Interfaccia Giocatore Mobile-Friendly */
@@ -234,23 +236,11 @@
     @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); } }
 
-    /* Modalità Orizzontale (Landscape) per Smartphone */
     @media (orientation: landscape) and (max-height: 500px) {
-      .fullscreen-card-box {
-        padding: 5px;
-      }
-      .fullscreen-card-box .tombola-cell {
-        font-size: clamp(0.7rem, 2.5vh, 1.2rem);
-      }
-      #fs-card-title {
-        font-size: 0.9rem !important;
-        margin-bottom: 2px !important;
-      }
-      .fullscreen-card-box .btn-danger {
-        padding: 6px !important;
-        font-size: 0.85rem !important;
-        margin-top: 2px !important;
-      }
+      .fullscreen-card-box { padding: 5px; }
+      .fullscreen-card-box .tombola-cell { font-size: clamp(0.7rem, 2.5vh, 1.2rem); }
+      #fs-card-title { font-size: 0.9rem !important; margin-bottom: 2px !important; }
+      .fullscreen-card-box .btn-danger { padding: 6px !important; font-size: 0.85rem !important; margin-top: 2px !important; }
     }
 
     @media (max-width: 768px) {
@@ -303,8 +293,9 @@
       
       <!-- Alert visivo in Regia quando c'è una vincita da convalidare -->
       <div id="regia-win-alert" class="regia-alert-box">
-        🚨 ATTENZIONE: NUOVA VINCITA RILEVATA DALLA SCANSIONE! 
-        <br><small>I vincitori sono mostrati sul Maxischermo. Clicca sotto su "Convalida e Mostra sul Banner" per spostarli nella fascia in basso.</small>
+        <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
+        <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
+        <button class="btn btn-sm btn-success" style="padding: 10px 20px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Prosegui</button>
       </div>
 
       <!-- Configurazione Organizzatori / Collaboratori -->
@@ -413,7 +404,7 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
-  <!-- MODALE VINCITORE AUTOMATICO A TUTTO SCHERMO -->
+  <!-- MODALE VINCITORE AUTOMATICO A TUTTO SCHERMO PER MAXISCHERMO -->
   <div id="winner-modal">
     <div class="winner-box">
       <h1 style="color: var(--gold); font-size: 1.8rem; text-shadow: 0 0 15px rgba(243,156,18,0.8);">🎉 VINCITA/E RILEVATA/E! 🎉</h1>
@@ -484,6 +475,18 @@
     function toggleFullscreen() {
       if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
       else { if (document.exitFullscreen) document.exitFullscreen(); }
+    }
+
+    function playAlertBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } catch(e){}
     }
 
     function handlePhotoUpload(event) {
@@ -609,8 +612,14 @@
     db.ref('game/winners').on('value', (snapshot) => {
       const winners = snapshot.val();
       const alertBox = document.getElementById('regia-win-alert');
+      const alertText = document.getElementById('regia-win-alert-text');
+
       if(winners && Object.keys(winners).length > 0) {
         showWinnersOnScreen(winners);
+        playAlertBeep();
+        
+        let names = Object.values(winners).map(w => `${w.prizeType}: ${w.name} (#${w.cardId})`).join(' | ');
+        if(alertText) alertText.innerText = names;
         if(alertBox) alertBox.style.display = 'block';
       } else {
         hideWinnerScreen();
