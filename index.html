@@ -251,7 +251,7 @@
       text-shadow: 0 2px 8px #000;
     }
 
-    /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) CON TESTO LAMPEGGIANTE */
+    /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #1a2638 0%, #0a0e17 90%);
@@ -291,21 +291,30 @@
       padding: 3px 10px; border-radius: 12px; margin-top: 5px;
     }
 
-    /* BOX CALLOUT CON SCRITTA LAMPEGGIANTE */
+    /* NUOVA SCHERMATA ATTESA PROSSIMA PARTITA */
+    #next-game-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(circle at center, #162232 0%, #0a0e17 90%);
+      display: none; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 10001; padding: 25px; text-align: center;
+    }
+
+    /* BOX CALLOUT CON SCRITTA LAMPEGGIANTE (FREQUENZA MEDIA) */
     .rejoin-callout-box {
       background: linear-gradient(135deg, #162232, #0e1622);
       border: 3px dashed var(--gold);
-      border-radius: 18px; padding: 20px 35px;
-      font-size: clamp(1.3rem, 2.5vw, 2.2rem); font-weight: 900; color: var(--gold-light);
-      box-shadow: 0 0 30px rgba(243, 156, 18, 0.5);
+      border-radius: 20px; padding: 30px 40px;
+      font-size: clamp(1.4rem, 3vw, 2.5rem); font-weight: 900; color: var(--gold-light);
+      box-shadow: 0 0 35px rgba(243, 156, 18, 0.5);
       animation: smoothBlink 2.2s infinite ease-in-out;
-      margin-bottom: 25px;
+      margin-bottom: 40px;
+      max-width: 900px;
     }
 
     @keyframes smoothBlink {
-      0% { opacity: 1; transform: scale(1); box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); }
+      0% { opacity: 1; transform: scale(1); box-shadow: 0 0 35px rgba(243, 156, 18, 0.5); }
       50% { opacity: 0.35; transform: scale(0.98); box-shadow: 0 0 10px rgba(243, 156, 18, 0.1); }
-      100% { opacity: 1; transform: scale(1); box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); }
+      100% { opacity: 1; transform: scale(1); box-shadow: 0 0 35px rgba(243, 156, 18, 0.5); }
     }
 
     /* Indicatore Premio In Palio in Regia */
@@ -409,7 +418,7 @@
     
     <div class="grid-90" id="board-grid"></div>
     
-    <!-- Banner In Palio Ora ORA VISIBILE SUL MAXISCHERMO -->
+    <!-- Banner In Palio Ora sul Maxischermo -->
     <div class="current-prize-banner-box">
       <div class="current-prize-text" id="board-current-prize-display">
         🎯 SI GIOCA PER: <span style="color: #fff;">AMBO</span> — PREMIO: <span style="color: var(--gold-light);">Buono Caffè</span>
@@ -566,19 +575,25 @@
     </div>
   </div>
 
-  <!-- SCHERMATA SPETTACOLARE DI FINE PARITA (GAME OVER) CON RESTART PER LA REGIA -->
+  <!-- SCHERMATA SPETTACOLARE DI FINE PARITA (GAME OVER) -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
     <div class="game-over-subtitle">Che Partita Eccezionale! Ecco i Nostri Grandi Vincitori:</div>
     
     <div id="final-winners-container" class="final-winners-grid"></div>
 
+    <!-- PULSANTE PER PASSARE ALLA SCHERMATA DI ATTESA -->
+    <button class="btn btn-sm btn-success" style="max-width: 420px; padding: 15px; font-size: 1.2rem; border-radius: 12px; cursor: pointer;" onclick="goToNextGameOverlay()">➡️ Vai all'Attesa Prossima Partita</button>
+  </div>
+
+  <!-- NUOVA SCHERMATA D'ATTESA E RIPARTENZA REGIA -->
+  <div id="next-game-overlay">
     <div class="rejoin-callout-box">
       ⏳ La prossima partita inizierà tra pochissimo, acquista subito la tua scheda vincente.
     </div>
 
-    <!-- PULSANTE PER RIPARTIRE DALLA REGIA SENZA BLOCCHI -->
-    <button class="btn btn-sm btn-danger" style="max-width: 380px; padding: 14px; font-size: 1.1rem; background: #900C3F; border-radius: 12px; cursor: pointer; border: 2px solid var(--gold);" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
+    <!-- PULSANTE REGIA PER INIZIARE LA NUOVA PARITA -->
+    <button class="btn btn-sm btn-danger" style="max-width: 400px; padding: 15px; font-size: 1.1rem; background: #900C3F; border-radius: 12px; cursor: pointer; border: 2px solid var(--gold);" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
   </div>
 
   <script>
@@ -754,12 +769,34 @@
       updateStageVisuals();
 
       if(currentStageIndex >= PRIZE_STAGES.length) {
-        showGameOverScreen();
+        db.ref('game/overlayState').once('value', snap => {
+          const state = snap.val();
+          if (state === 'next_game') {
+            document.getElementById('game-over-overlay').style.display = 'none';
+            document.getElementById('next-game-overlay').style.display = 'flex';
+          } else {
+            showGameOverScreen();
+          }
+        });
       } else {
         document.getElementById('game-over-overlay').style.display = 'none';
+        document.getElementById('next-game-overlay').style.display = 'none';
         if(confettiInterval && currentStageIndex === 0) {
           clearInterval(confettiInterval);
           confettiInterval = null;
+        }
+      }
+    });
+
+    db.ref('game/overlayState').on('value', (snapshot) => {
+      const state = snapshot.val();
+      if (currentStageIndex >= PRIZE_STAGES.length) {
+        if (state === 'next_game') {
+          document.getElementById('game-over-overlay').style.display = 'none';
+          document.getElementById('next-game-overlay').style.display = 'flex';
+        } else {
+          document.getElementById('next-game-overlay').style.display = 'none';
+          showGameOverScreen();
         }
       }
     });
@@ -832,7 +869,14 @@
       confirmedWinnersList = snapshot.val() || [];
       updateWinnersTicker();
       if(currentStageIndex >= PRIZE_STAGES.length) {
-        showGameOverScreen();
+        db.ref('game/overlayState').once('value', snap => {
+          if (snap.val() === 'next_game') {
+            document.getElementById('game-over-overlay').style.display = 'none';
+            document.getElementById('next-game-overlay').style.display = 'flex';
+          } else {
+            showGameOverScreen();
+          }
+        });
       }
     });
 
@@ -1282,12 +1326,19 @@
       });
 
       document.getElementById('game-over-overlay').style.display = 'flex';
+      document.getElementById('next-game-overlay').style.display = 'none';
 
       if(!confettiInterval) {
         confettiInterval = setInterval(() => {
           confetti({ particleCount: 80, spread: 140, origin: { y: 0.4 } });
         }, 600);
       }
+    }
+
+    function goToNextGameOverlay() {
+      db.ref('game/overlayState').set('next_game');
+      document.getElementById('game-over-overlay').style.display = 'none';
+      document.getElementById('next-game-overlay').style.display = 'flex';
     }
 
     function resetGame() {
@@ -1300,6 +1351,7 @@
             currentStageIndex = 0;
             updateWinnersTicker();
             document.getElementById('game-over-overlay').style.display = 'none';
+            document.getElementById('next-game-overlay').style.display = 'none';
             if(confettiInterval) {
               clearInterval(confettiInterval);
               confettiInterval = null;
