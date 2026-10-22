@@ -98,12 +98,35 @@
     /* Overlay Estrazione e Vincita Automatica a Tutto Schermo */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.95); backdrop-filter: blur(12px);
-      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 1000; text-align: center;
+      background: rgba(10, 14, 23, 0.96); backdrop-filter: blur(12px);
+      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 2000; text-align: center;
     }
     .giant-ball { width: 180px; height: 180px; font-size: 5rem; border-width: 10px; }
     .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; transform: rotate(-2deg); }
-    .winner-photo { width: 240px; height: 240px; border-radius: 50%; border: 6px solid var(--gold); object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(243, 156, 18, 0.8); }
+    
+    /* Animazioni Vincitore */
+    .winner-box {
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(22, 31, 48, 0.9);
+      padding: 30px; border-radius: 20px; border: 3px solid var(--gold);
+      box-shadow: 0 0 50px rgba(243, 156, 18, 0.5);
+      max-width: 90%; width: 500px;
+    }
+    .winner-photo {
+      width: 180px; height: 180px; border-radius: 50%;
+      border: 5px solid var(--gold); object-fit: cover;
+      margin: 15px auto; display: block;
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); }
+      100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); }
+    }
 
     @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } }
   </style>
@@ -151,9 +174,10 @@
             <button class="btn btn-sm btn-success" onclick="drawNumber()">Estrai Numero</button>
             <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
           </div>
-          <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
+          
+          <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore Manuale</h4>
           <div class="form-group">
-            <label>Seleziona Vincitore Convalidato</label>
+            <label>Seleziona Giocatore</label>
             <select id="winner-select"></select>
           </div>
           <div class="form-group">
@@ -175,7 +199,7 @@
 
         <div class="panel-card">
           <h3 class="panel-title">Partecipanti Registrati in Sala</h3>
-          <div id="regia-cards-list" style="max-height: 350px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
+          <div id="regia-cards-list" style="max-height: 400px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
         </div>
       </div>
     </div>
@@ -216,18 +240,19 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
-  <!-- MODALE VINCITORE AUTOMATICO -->
+  <!-- MODALE VINCITORE AUTOMATICO A TUTTO SCHERMO -->
   <div id="winner-modal">
-    <h1 style="color: var(--gold); font-size: 3.5rem; margin-bottom: 15px; text-shadow: 0 0 20px rgba(243,156,18,0.5);">VINCITA CONVALIDATA!</h1>
-    <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
-    <h2 id="winner-name" style="font-size: 3rem; color: #fff; margin-bottom: 10px;">--</h2>
-    <p id="winner-prize" style="font-size: 2.2rem; color: var(--gold-light);">--</p>
-    <div id="winner-custom-desc" style="font-size: 1.6rem; color: #fff; margin-top: 10px;"></div>
-    <button class="btn btn-sm" style="margin-top: 30px; width: auto; padding: 12px 30px; font-size: 1.1rem;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
+    <div class="winner-box">
+      <h1 style="color: var(--gold); font-size: 2.2rem; text-shadow: 0 0 15px rgba(243,156,18,0.8);">🎉 VINCITA CONVALIDATA! 🎉</h1>
+      <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
+      <h2 id="winner-name" style="font-size: 2rem; color: #fff; margin-bottom: 5px;">--</h2>
+      <p id="winner-prize" style="font-size: 1.6rem; color: var(--gold-light); font-weight: bold;">--</p>
+      <div id="winner-custom-desc" style="font-size: 1.2rem; color: #fff; margin-top: 10px;"></div>
+      <button class="btn btn-sm btn-danger" style="margin-top: 25px; width: 100%; padding: 12px; font-size: 1rem;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
+    </div>
   </div>
 
   <script>
-    // Configurazione aggiornata al tuo database Firebase "tombola-galleon"
     const firebaseConfig = {
       databaseURL: "https://tombola-galleon-default-rtdb.firebaseio.com"
     };
@@ -250,6 +275,7 @@
     let activeCards = {};
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/100/162232/ffffff?text=Selfie";
+    let confettiInterval = null;
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -306,7 +332,7 @@
       return nums.sort((a,b) => a - b);
     }
 
-    // SINCRONIZZAZIONE REALTIME CLOUD
+    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
     db.ref('game/drawnNumbers').on('value', (snapshot) => {
       drawnNumbers = snapshot.val() || [];
       updateBoardVisuals();
@@ -329,6 +355,8 @@
       const winner = snapshot.val();
       if(winner && winner.name) {
         showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
+      } else {
+        hideWinnerScreen();
       }
     });
 
@@ -375,7 +403,7 @@
         .then(() => {
           btn.disabled = false;
           btn.innerText = '+ Genera Cartella';
-          alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
+          alert(`Cartella creata con successo! ID Scheda #${cardId}.`);
           nameInput.value = '';
         })
         .catch(err => {
@@ -447,15 +475,15 @@
       cardsArray.forEach(card => {
         if(list) {
           const item = document.createElement('div');
-          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between;';
+          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;';
           const isAttiva = card.status === 'ATTIVA';
           item.innerHTML = `
             <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${card.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+              <img src="${card.photo}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
               <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
             </div>
             <div style="display: flex; gap: 6px;">
-              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard(${card.id})">✓ Convalida</button>` : '<b style="color:#2ecc71; font-size:0.85rem;">ATTIVA</b>'}
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard(${card.id})">✓ Convalida</button>` : `<button class="btn btn-sm" style="background:var(--gold); color:#000;" onclick="quickProclaimWinner(${card.id})">🎉 Proclama Vincitore</button>`}
               <button class="btn btn-sm btn-danger" onclick="removeCard(${card.id})">Elimina</button>
             </div>
           `;
@@ -473,6 +501,22 @@
 
     function regiaActivateSpecificCard(cardId) {
       db.ref('cards/' + cardId + '/status').set('ATTIVA');
+    }
+
+    function quickProclaimWinner(cardId) {
+      const card = activeCards[cardId];
+      if(!card) return;
+      const winType = prompt(`Quale vincita ha fatto ${card.name}? (AMBO, TERNO, QUATERNA, CINQUINA, TOMBOLA)`, "CINQUINA");
+      if(!winType) return;
+      const desc = prompt("Descrizione premio (opzionale):", "Buono Spesa / Premio speciale");
+      
+      db.ref('game/winner').set({
+        photo: card.photo,
+        name: card.name,
+        prize: winType.toUpperCase(),
+        customDesc: desc || '',
+        time: Date.now()
+      });
     }
 
     function removeCard(cardId) {
@@ -514,15 +558,26 @@
     function showWinnerOnScreen(photo, name, prize, customDesc) {
       document.getElementById('winner-img').src = photo;
       document.getElementById('winner-name').innerText = name;
-      document.getElementById('winner-prize').innerText = `Ha vinto l' ${prize}!`;
+      document.getElementById('winner-prize').innerText = `Ha realizzato: ${prize}!`;
       document.getElementById('winner-custom-desc').innerText = customDesc ? `🎁 Premio: ${customDesc}` : '';
       document.getElementById('winner-modal').style.display = 'flex';
 
-      confetti({ particleCount: 300, spread: 150, origin: { y: 0.5 } });
+      // Pioggia continua di coriandoli
+      if(confettiInterval) clearInterval(confettiInterval);
+      confettiInterval = setInterval(() => {
+        confetti({ particleCount: 50, spread: 100, origin: { y: 0.6 } });
+      }, 500);
+    }
+
+    function hideWinnerScreen() {
+      document.getElementById('winner-modal').style.display = 'none';
+      if(confettiInterval) {
+        clearInterval(confettiInterval);
+        confettiInterval = null;
+      }
     }
 
     function closeWinnerModal() {
-      document.getElementById('winner-modal').style.display = 'none';
       db.ref('game/winner').remove();
     }
 
