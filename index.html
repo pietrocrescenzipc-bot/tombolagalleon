@@ -160,7 +160,7 @@
       100% { transform: translate3d(-100%, 0, 0); }
     }
 
-    /* OVERLAY NUMERO ESTRATTO MOLTO PIÙ GRANDE (A TUTTO SCHERMO) */
+    /* OVERLAY NUMERO ESTRATTO MOLTO PIÙ GRANDE */
     #extraction-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.97); backdrop-filter: blur(15px);
@@ -187,7 +187,7 @@
       border: 3px solid var(--gold);
     }
 
-    /* MODALE VINCITORE A TUTTO SCHERMO CON FOTO CHE OCCUPA LA CORNICE PRINCIPALE */
+    /* MODALE VINCITORE A TUTTO SCHERMO CON FOTO FULLSCREEN */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.98); backdrop-filter: blur(20px);
@@ -225,7 +225,6 @@
       border: 2px solid rgba(243, 156, 18, 0.5);
     }
     
-    /* FOTO A TUTTO SCHERMO NELLA CORNICE */
     .winner-photo-fullscreen {
       width: 100%; height: 100%;
       object-fit: contain;
@@ -233,7 +232,6 @@
       border-radius: 14px;
     }
     
-    /* OVERLAY DEL NOME E DEL PREMIO IN BASSO SULLA FOTO */
     .winner-info-overlay {
       position: absolute; bottom: 0; left: 0; right: 0;
       background: linear-gradient(0deg, rgba(10, 14, 23, 0.95) 0%, rgba(10, 14, 23, 0.75) 70%, transparent 100%);
@@ -253,7 +251,7 @@
       text-shadow: 0 2px 8px #000;
     }
 
-    /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) */
+    /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) CON TESTO LAMPEGGIANTE */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #1a2638 0%, #0a0e17 90%);
@@ -274,7 +272,7 @@
     
     .final-winners-grid {
       display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
-      max-width: 1200px; width: 100%; margin-bottom: 30px;
+      max-width: 1200px; width: 100%; margin-bottom: 25px;
     }
     .final-winner-card {
       background: rgba(22, 31, 48, 0.9);
@@ -293,12 +291,21 @@
       padding: 3px 10px; border-radius: 12px; margin-top: 5px;
     }
 
+    /* BOX CALLOUT CON SCRITTA LAMPEGGIANTE */
     .rejoin-callout-box {
       background: linear-gradient(135deg, #162232, #0e1622);
-      border: 2px dashed var(--gold);
-      border-radius: 15px; padding: 15px 30px;
-      font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: bold; color: var(--gold-light);
-      box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+      border: 3px dashed var(--gold);
+      border-radius: 18px; padding: 20px 35px;
+      font-size: clamp(1.3rem, 2.5vw, 2.2rem); font-weight: 900; color: var(--gold-light);
+      box-shadow: 0 0 30px rgba(243, 156, 18, 0.5);
+      animation: smoothBlink 2.2s infinite ease-in-out;
+      margin-bottom: 25px;
+    }
+
+    @keyframes smoothBlink {
+      0% { opacity: 1; transform: scale(1); box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); }
+      50% { opacity: 0.35; transform: scale(0.98); box-shadow: 0 0 10px rgba(243, 156, 18, 0.1); }
+      100% { opacity: 1; transform: scale(1); box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); }
     }
 
     /* Indicatore Premio In Palio in Regia */
@@ -466,14 +473,21 @@
       <div class="regia-grid">
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
-          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn btn-sm btn-success" onclick="drawNumber()">Estrai Numero</button>
-            <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
+          
+          <!-- PULSANTE ESTRAZIONE GRANDE E SICURO -->
+          <div style="margin-bottom: 25px;">
+            <button class="btn btn-success" style="padding: 16px; font-size: 1.2rem; width: 100%;" onclick="drawNumber()">🎲 ESTRAI NUMERO</button>
           </div>
           
           <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4>
           <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Il sistema controlla automaticamente ad ogni estrazione. Puoi anche eseguire una verifica manuale qui sotto.</p>
-          <button class="btn btn-success" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
+          <button class="btn btn-sm" style="background:#222e42; color:#fff; border:1px solid #3a4b68; margin-bottom: 25px;" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
+
+          <!-- BOX SICUREZZA SEPARATO PER NUOVA PARTITA -->
+          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c; margin-top: 20px;">
+            <div style="font-size: 0.85rem; color: #e74c3c; font-weight: bold; margin-bottom: 8px;">⚠️ ZONA PERICOLOSA</div>
+            <button class="btn btn-danger" style="background: #900C3F; opacity: 0.85;" onclick="resetGame()">🔄 Azzera e Inizia Nuova Partita</button>
+          </div>
         </div>
 
         <div class="panel-card">
@@ -552,7 +566,7 @@
     </div>
   </div>
 
-  <!-- SCHERMATA SPETTACOLARE DI FINE PARITA (GAME OVER) -->
+  <!-- SCHERMATA SPETTACOLARE DI FINE PARITA (GAME OVER) CON RESTART PER LA REGIA -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
     <div class="game-over-subtitle">Che Partita Eccezionale! Ecco i Nostri Grandi Vincitori:</div>
@@ -560,8 +574,11 @@
     <div id="final-winners-container" class="final-winners-grid"></div>
 
     <div class="rejoin-callout-box">
-      ⏳ La prossima partita inizierà tra pochissimo... Riacquista e prepara subito le tue schede!
+      ⏳ La prossima partita inizierà tra pochissimo, acquista subito la tua scheda vincente.
     </div>
+
+    <!-- PULSANTE PER RIPARTIRE DALLA REGIA SENZA RICARICARE LA PAGINA -->
+    <button class="btn btn-sm btn-danger" style="max-width: 380px; padding: 12px; font-size: 1.05rem; background: #900C3F; border-radius: 10px;" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
   </div>
 
   <script>
@@ -1186,7 +1203,6 @@
       setTimeout(() => { overlay.style.display = 'none'; }, 2800);
     }
 
-    /* MOSTRA VINCITORE CON FOTO FULLSCREEN NELLA CORNICE PRINCIPALE */
     function showWinnersOnScreen(winnersObj) {
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -1271,7 +1287,7 @@
     }
 
     function resetGame() {
-      if(confirm('Vuoi resettare la partita corrente e azzerare tutto?')) {
+      if(confirm('Vuoi resettare la partita corrente e azzerare tutto per iniziare un nuovo gioco?')) {
         db.ref('game').remove();
         db.ref('cards').remove();
         localStorage.removeItem('my_tombola_cards');
