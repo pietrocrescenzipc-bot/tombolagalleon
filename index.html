@@ -38,7 +38,7 @@
     }
     .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
 
-    .view-section { display: none; padding: 15px; max-width: 800px; margin: 0 auto; }
+    .view-section { display: none; padding: 15px; max-width: 900px; margin: 0 auto; }
     .view-section.active { display: block; }
 
     /* Pallina Biliardo 3D */
@@ -132,7 +132,7 @@
 
     /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; }
+    .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; margin-bottom: 20px; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
     .btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 1rem; }
     .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
@@ -194,7 +194,7 @@
 <body>
 
   <header>
-    <div class="brand-title">PMU & The Galleon</div>
+    <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
     <div class="nav-tabs">
       <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
@@ -206,7 +206,7 @@
   <!-- TABELLONE MAXISCHERMO -->
   <div id="view-tabellone" class="view-section">
     <div class="top-banner">
-      <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
+      <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
     </div>
     <div class="grid-90" id="board-grid"></div>
@@ -227,6 +227,30 @@
     </div>
 
     <div id="regia-content" style="display: none;">
+      <!-- Configurazione Organizzatori / Collaboratori -->
+      <div class="panel-card" style="margin-bottom: 20px;">
+        <h3 class="panel-title">👥 Organizzatori e Collaboratori</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group"><label>Titolo Testata / Brand</label><input type="text" id="cfg-brand" value="PMU & The Galleon"></div>
+          <div class="form-group"><label>Titolo Banner Maxischermo</label><input type="text" id="cfg-banner" value="Pallavolo Media Umbra & The Galleon Pizzeria"></div>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="saveOrganizersConfig()">Salva Nomi Organizzatori</button>
+      </div>
+
+      <!-- Configurazione Premi -->
+      <div class="panel-card" style="margin-bottom: 20px;">
+        <h3 class="panel-title">🎁 Personalizzazione Premi in Palio</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+          <div class="form-group"><label>Premio AMBO</label><input type="text" id="prize-ambo" value="Buono Caffè"></div>
+          <div class="form-group"><label>Premio TERNO</label><input type="text" id="prize-terno" value="Birra Media"></div>
+          <div class="form-group"><label>Premio QUATERNA</label><input type="text" id="prize-quaterna" value="Pizza Omaggio"></div>
+          <div class="form-group"><label>Premio CINQUINA</label><input type="text" id="prize-cinquina" value="Menu Cena per 2"></div>
+          <div class="form-group"><label>Premio TOMBOLINO</label><input type="text" id="prize-tombolino" value="Cesto Natalizio / Speciale"></div>
+          <div class="form-group"><label>Premio TOMBOLA</label><input type="text" id="prize-tombola" value="Super Premio Finale"></div>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="savePrizesConfig()">Salva Configurazione Premi</button>
+      </div>
+
       <div class="regia-grid">
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
@@ -333,7 +357,7 @@
       11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
       21: "La donna nuda", 22: "'O pazzo", 23: "'O scemo", 24: "Le guardie", 25: "Natale", 26: "Ninetta", 27: "Il vaso", 28: "I zizie", 29: "Il padre dei bimbi", 30: "Le palle del tenente",
       31: "Il padrone di casa", 32: "Il capitone", 33: "L'anni 'e Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le castagnette", 37: "Il monaco", 38: "Le mazzate", 39: "La corda al collo", 40: "Il secchio",
-      41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte che parla", 49: "La carne", 50: "Il pane",
+      41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte que parla", 49: "La carne", 50: "Il pane",
       51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento",
       61: "Il cacciatore", 62: "Il morto acciso", 63: "La sposa", 64: "La marsina", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa cotta", 69: "Sott'e 'ncoppa", 70: "Il palazzo",
       71: "L'uomo di merda", 72: "La meraviglia", 73: "L'ospedale", 74: "La grotta", 75: "Pullecenella", 76: "La fontana", 77: "'E diavule", 78: "La bella figliola", 79: "Il ladro", 80: "La bocca",
@@ -342,6 +366,15 @@
 
     let drawnNumbers = [];
     let activeCards = {};
+    let prizesConfig = {
+      AMBO: "Buono Caffè",
+      TERNO: "Birra Media",
+      QUATERNA: "Pizza Omaggio",
+      CINQUINA: "Menu Cena per 2",
+      TOMBOLINO: "Cesto Natalizio / Speciale",
+      TOMBOLA: "Super Premio Finale"
+    };
+
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let confettiInterval = null;
@@ -458,6 +491,33 @@
       if(regiaAuth) updateRegiaCardList();
     });
 
+    db.ref('game/config').on('value', (snapshot) => {
+      const config = snapshot.val();
+      if(config) {
+        if(config.brand) {
+          document.getElementById('brand-header-title').innerText = config.brand;
+          document.getElementById('cfg-brand').value = config.brand;
+        }
+        if(config.banner) {
+          document.getElementById('banner-main-title').innerText = config.banner;
+          document.getElementById('cfg-banner').value = config.banner;
+        }
+      }
+    });
+
+    db.ref('game/prizes').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if(data) {
+        prizesConfig = data;
+        document.getElementById('prize-ambo').value = prizesConfig.AMBO || '';
+        document.getElementById('prize-terno').value = prizesConfig.TERNO || '';
+        document.getElementById('prize-quaterna').value = prizesConfig.QUATERNA || '';
+        document.getElementById('prize-cinquina').value = prizesConfig.CINQUINA || '';
+        document.getElementById('prize-tombolino').value = prizesConfig.TOMBOLINO || '';
+        document.getElementById('prize-tombola').value = prizesConfig.TOMBOLA || '';
+      }
+    });
+
     db.ref('game/lastExtraction').on('value', (snapshot) => {
       const data = snapshot.val();
       if(data && data.number) {
@@ -473,6 +533,26 @@
         hideWinnerScreen();
       }
     });
+
+    function saveOrganizersConfig() {
+      const brand = document.getElementById('cfg-brand').value;
+      const banner = document.getElementById('cfg-banner').value;
+      db.ref('game/config').set({ brand: brand, banner: banner })
+        .then(() => alert('Nomi organizzatori aggiornati con successo!'));
+    }
+
+    function savePrizesConfig() {
+      prizesConfig = {
+        AMBO: document.getElementById('prize-ambo').value,
+        TERNO: document.getElementById('prize-terno').value,
+        QUATERNA: document.getElementById('prize-quaterna').value,
+        CINQUINA: document.getElementById('prize-cinquina').value,
+        TOMBOLINO: document.getElementById('prize-tombolino').value,
+        TOMBOLA: document.getElementById('prize-tombola').value
+      };
+      db.ref('game/prizes').set(prizesConfig)
+        .then(() => alert('Configurazione premi salvata con successo!'));
+    }
 
     function updateBoardVisuals() {
       for(let i = 1; i <= 90; i++) {
@@ -541,7 +621,6 @@
           document.getElementById('player-form-container').style.display = 'none';
           document.getElementById('add-more-container').style.display = 'block';
 
-          // Mostra subito la sezione delle cartelle in primo piano
           window.scrollTo({ top: 0, behavior: 'smooth' });
           renderPlayerCards();
         })
@@ -700,6 +779,7 @@
       db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
+    // CONTROLLO AUTOMATICO DELLE VINCITE
     function checkAutomaticWins() {
       let detectedWinners = {};
 
@@ -736,7 +816,8 @@
               detectedWinners[winKey] = {
                 name: card.name,
                 photo: card.photo,
-                prize: winName,
+                prizeType: winName,
+                prizeDesc: prizesConfig[winName] || winName,
                 cardId: card.id,
                 customDesc: `Riga ${r+1} - Cartella #${card.id}`
               };
@@ -745,12 +826,26 @@
         }
 
         let allCardNums = gridArray.filter(n => n && n !== 0);
+        let matchedCount = allCardNums.filter(n => drawnNumbers.includes(n)).length;
+        if (matchedCount >= 10) {
+          let winKey = card.uniqueKey + '_tombolino';
+          detectedWinners[winKey] = {
+            name: card.name,
+            photo: card.photo,
+            prizeType: 'TOMBOLINO',
+            prizeDesc: prizesConfig['TOMBOLINO'] || 'Tombolino',
+            cardId: card.id,
+            customDesc: `10 Numeri - Cartella #${card.id}`
+          };
+        }
+
         let allMatched = allCardNums.every(n => drawnNumbers.includes(n));
         if (allCardNums.length > 0 && allMatched) {
           detectedWinners[card.uniqueKey + '_tombola'] = {
             name: card.name,
             photo: card.photo,
-            prize: 'TOMBOLA',
+            prizeType: 'TOMBOLA',
+            prizeDesc: prizesConfig['TOMBOLA'] || 'Tombola',
             cardId: card.id,
             customDesc: `Cartella #${card.id} Completa!`
           };
@@ -801,8 +896,9 @@
         item.innerHTML = `
           <img src="${w.photo}" class="winner-photo" alt="Foto Vincitore">
           <h2 style="font-size: 1.2rem; color: #fff; margin-top: 6px;">${w.name}</h2>
-          <p style="font-size: 1.1rem; color: var(--gold-light); font-weight: bold; margin-top: 2px;">${w.prize}!</p>
-          <div style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">🎁 ${w.customDesc}</div>
+          <p style="font-size: 1.1rem; color: var(--gold-light); font-weight: bold; margin-top: 2px;">${w.prizeType}!</p>
+          <div style="font-size: 0.95rem; color: #fff; font-weight: bold; margin-top: 4px;">🎁 Premio: ${w.prizeDesc}</div>
+          <div style="font-size: 0.8rem; color: #aaa; margin-top: 2px;">${w.customDesc}</div>
         `;
         container.appendChild(item);
       });
