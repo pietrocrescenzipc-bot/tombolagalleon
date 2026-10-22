@@ -343,63 +343,55 @@
       }
     }
 
-    // ALGORITMO DI GENERAZIONE 3x9 SICURO E CORRETTO
+    // ALGORITMO TRADIZIONALE 3x9 PERFETTO E GARANTITO
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
-      let rowCounts = [0, 0, 0];
-
-      for (let c = 0; c < 9; c++) {
-        let min = c === 0 ? 1 : c * 10;
-        let max = c === 8 ? 90 : c * 10 + 9;
-        let colNums = [];
-        while(colNums.length < 2) {
-          let rNum = Math.floor(Math.random() * (max - min + 1)) + min;
-          if(!colNums.includes(rNum)) colNums.push(rNum);
-        }
-        colNums.sort((a,b) => a - b);
-
-        let rows = [0, 1, 2].sort(() => Math.random() - 0.5);
-        for(let i = 0; i < 2; i++) {
-          let r = rows[i];
-          if(rowCounts[r] < 5) {
-            grid[r][c] = colNums[i];
-            rowCounts[r]++;
-          } else {
-            let altR = rowCounts.findIndex(rc => rc < 5);
-            if(altR !== -1) {
-              grid[altR][c] = colNums[i];
-              rowCounts[altR]++;
-            }
-          }
-        }
-      }
-
+      
+      // Scegliamo esattamente 5 colonne per ogni riga in modo casuale
+      let rowCols = [];
       for(let r = 0; r < 3; r++) {
-        while(rowCounts[r] < 5) {
-          let emptyCols = [];
-          for(let c = 0; c < 9; c++) {
-            if(grid[r][c] === null) emptyCols.push(c);
-          }
-          if(emptyCols.length === 0) break;
-          let c = emptyCols[Math.floor(Math.random() * emptyCols.length)];
-          let min = c === 0 ? 1 : c * 10;
-          let max = c === 8 ? 90 : c * 10 + 9;
-          let rNum;
-          do {
-            rNum = Math.floor(Math.random() * (max - min + 1)) + min;
-          } while(grid[r].includes(rNum));
-
-          grid[r][c] = rNum;
-          rowCounts[r]++;
+        let cols = [];
+        while(cols.length < 5) {
+          let c = Math.floor(Math.random() * 9);
+          if(!cols.includes(c)) cols.push(c);
         }
+        cols.sort((a,b) => a - b);
+        rowCols.push(cols);
       }
 
-      // Convertiamo la matrice in un oggetto con chiavi stringa (0 a 26) per Firebase
+      // Mappiamo quali righe occupano ciascuna colonna
+      let colRows = Array(9).fill(null).map(() => []);
+      for(let r = 0; r < 3; r++) {
+        rowCols[r].forEach(c => colRows[c].push(r));
+      }
+
+      // Generiamo i numeri per ogni colonna rispettando le decine e ordinandoli verticalmente
+      for(let c = 0; c < 9; c++) {
+        let count = colRows[c].length;
+        if(count === 0) continue;
+
+        let min = (c === 0) ? 1 : c * 10;
+        let max = (c === 8) ? 90 : (c * 10 + 9);
+
+        let nums = [];
+        while(nums.length < count) {
+          let n = Math.floor(Math.random() * (max - min + 1)) + min;
+          if(!nums.includes(n)) nums.push(n);
+        }
+        nums.sort((a, b) => a - b);
+
+        colRows[c].sort((a, b) => a - b);
+        colRows[c].forEach((r, idx) => {
+          grid[r][c] = nums[idx];
+        });
+      }
+
+      // Trasformiamo in un oggetto indicizzato da 0 a 26 per Firebase
       let flatObj = {};
       let index = 0;
       for(let r = 0; r < 3; r++) {
         for(let c = 0; c < 9; c++) {
-          flatObj[index] = grid[r][c];
+          flatObj[index] = grid[r][c] !== null ? grid[r][c] : 0;
           index++;
         }
       }
@@ -479,6 +471,7 @@
           btn.disabled = false;
           btn.innerText = '+ Genera Nuova Cartella';
           alert(`Cartella #${cardId} creata con successo! Puoi generarne altre se vuoi.`);
+          nameInput.value = '';
         })
         .catch(err => {
           btn.disabled = false;
@@ -504,13 +497,11 @@
 
         let gridHTML = '<div class="tombola-classic-grid">';
         
-        // Trasformiamo la griglia da Firebase (oggetto o array) in un array pulito di 27 elementi
         let gridArray = [];
         if (card.grid) {
           if (Array.isArray(card.grid)) {
             gridArray = card.grid;
           } else {
-            // Se è un oggetto salvato da Firebase, lo ordiniamo per indice da 0 a 26
             gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
           }
         }
@@ -523,7 +514,7 @@
         }
 
         gridArray.forEach(num => {
-          if(!num) {
+          if(!num || num === 0) {
             gridHTML += `<div class="tombola-cell empty"></div>`;
           } else {
             const isDrawn = drawnNumbers.includes(num);
@@ -653,6 +644,11 @@
       const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
       db.ref('game/winner').set(winnerData);
     }
+
+    String.prototype.replaceAll = String.prototype.replaceAll || function(search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+    };
 
     function showWinnerOnScreen(photo, name, prize, customDesc) {
       document.getElementById('winner-img').src = photo;
