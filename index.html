@@ -95,7 +95,7 @@
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
-    /* Overlay Estrazione e Vincita */
+    /* Overlay Estrazione e Vincita Automatica a Tutto Schermo */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.95); backdrop-filter: blur(12px);
@@ -195,7 +195,7 @@
       <div class="form-group" style="max-width: 340px; margin: 0 auto 15px auto;">
         <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
       </div>
-      <button class="btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Cartella</button>
+      <button class="btn" id="generate-card-btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Cartella</button>
     </div>
 
     <div id="player-cards-list"></div>
@@ -227,8 +227,9 @@
   </div>
 
   <script>
+    // Configurazione aggiornata al tuo database Firebase "tombola-galleon"
     const firebaseConfig = {
-      databaseURL: "https://tombolagalleon-default-rtdb.europe-west1.firebasedatabase.app/"
+      databaseURL: "https://tombola-galleon-default-rtdb.firebaseio.com"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -280,8 +281,17 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          currentPlayerPhoto = e.target.result;
-          document.getElementById('player-photo-preview').src = currentPlayerPhoto;
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+            ctx.drawImage(img, 0, 0, 200, 200);
+            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('player-photo-preview').src = currentPlayerPhoto;
+          };
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -296,7 +306,7 @@
       return nums.sort((a,b) => a - b);
     }
 
-    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
+    // SINCRONIZZAZIONE REALTIME CLOUD
     db.ref('game/drawnNumbers').on('value', (snapshot) => {
       drawnNumbers = snapshot.val() || [];
       updateBoardVisuals();
@@ -348,20 +358,31 @@
     }
 
     function addPlayerCard() {
-      const name = document.getElementById('player-name').value.trim();
+      const nameInput = document.getElementById('player-name');
+      const name = nameInput.value.trim();
       if(!name) return alert('Inserisci il tuo Nome e Cognome!');
+
+      const btn = document.getElementById('generate-card-btn');
+      btn.disabled = true;
+      btn.innerText = 'Generazione in corso...';
 
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardNumbers = generateTombolaCardNumbers();
 
       const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA' };
       
-      db.ref('cards/' + cardId).set(cardData).then(() => {
-        alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
-        document.getElementById('player-name').value = '';
-      }).catch(err => {
-        alert('Errore di connessione al database. Riprova.');
-      });
+      db.ref('cards/' + cardId).set(cardData)
+        .then(() => {
+          btn.disabled = false;
+          btn.innerText = '+ Genera Cartella';
+          alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
+          nameInput.value = '';
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerText = '+ Genera Cartella';
+          alert('Errore di connessione. Verifica la rete e riprova.');
+        });
     }
 
     function renderPlayerCards() {
@@ -515,12 +536,10 @@
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
       
-      // Se l'URL contiene #giocatore, apre direttamente la schermata della scheda cliente
       if (window.location.hash === '#giocatore') {
         switchView('giocatore');
       }
 
-      // Genera il QR code puntando direttamente all'ancora #giocatore
       try {
         const qrUrl = window.location.href.split('#')[0] + '#giocatore';
         new QRCode(document.getElementById("qrcode-global"), { text: qrUrl, width: 140, height: 140 });
