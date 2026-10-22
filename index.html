@@ -63,7 +63,7 @@
     .banner-text { font-size: 1.3rem; color: var(--gold); font-weight: bold; }
     .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
     .grid-90 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; background: #111a28; padding: 15px; border-radius: 12px; border: 2px solid #2a3b54; }
-    .grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; background: #1a2638; border-radius: 8px; font-weight: bold; color: #556b8d; border: 1px solid #2c3e59; }
+    .grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; background: #1a2638; border-radius: 8px; font-weight: bold; color: #556b8d; border: 1px solid #2c3e59; font-size: 1.2rem; }
     .grid-cell.active { background: transparent; border: none; }
     
     .last-extracted-box {
@@ -155,3 +155,284 @@
             <label>Tipo di Vincita</label>
             <select id="win-type">
               <option value="AMBO">AMBO</option>
+              <option value="TERNO">TERNO</option>
+              <option value="QUATERNA">QUATERNA</option>
+              <option value="CINQUINA">CINQUINA</option>
+              <option value="TOMBOLA">TOMBOLA</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Descrizione Premio (opzionale)</label>
+            <input type="text" id="prize-description" placeholder="Es. Buono Cena / Cesto Natalizio">
+          </div>
+          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione sul Maxischermo</button>
+        </div>
+
+        <div class="panel-card">
+          <h3 class="panel-title">Elenco Schede Create</h3>
+          <div id="regia-cards-list" style="max-height: 280px; overflow-y: auto;"><i>Nessuna scheda creata al momento.</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERFACCIA GIOCATORE -->
+  <div id="view-giocatore" class="view-section">
+    <div class="player-header">
+      <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Giocatore</h3>
+      <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
+      
+      <div style="margin-bottom: 15px;">
+        <label for="camera-input" class="btn" style="display: inline-block; cursor: pointer; font-size: 0.85rem;">📸 Scatta Selfie / Scegli Foto</label>
+        <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
+      </div>
+
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto;">
+        <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
+      </div>
+      <button class="btn" onclick="addPlayerCard()">+ Genera Nuova Scheda Cartella</button>
+    </div>
+
+    <div id="player-cards-list"></div>
+  </div>
+
+  <!-- GENERATORE PASS QR -->
+  <div id="view-stampa" class="view-section" style="text-align: center;">
+    <div class="panel-card" style="display: inline-block;">
+      <h3 class="panel-title">QR Code Tavolo Cliente</h3>
+      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per farli accedere alla tombola.</p>
+      <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY ESTRAZIONE -->
+  <div id="extraction-overlay">
+    <div id="overlay-ball" class="billiard-ball giant-ball drawn">--</div>
+    <div id="overlay-smorfia" class="smorfia-sticker">--</div>
+  </div>
+
+  <!-- MODALE VINCITORE -->
+  <div id="winner-modal">
+    <h1 style="color: var(--gold); font-size: 2.8rem; margin-bottom: 10px;">VINCITA CONVALIDATA!</h1>
+    <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
+    <h2 id="winner-name" style="font-size: 2rem; color: #fff;">--</h2>
+    <p id="winner-prize" style="font-size: 1.5rem; color: var(--gold-light); margin-top: 10px;">--</p>
+    <div id="winner-custom-desc" style="font-size: 1.2rem; color: #fff; margin-top: 8px;"></div>
+    <button class="btn" style="margin-top: 20px;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
+  </div>
+
+  <script>
+    const smorfia = { 1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 10: "'A fasula", 22: "'O pazzo", 33: "L'anni 'e Cristo", 48: "'O morte che parla", 77: "'E diavule", 90: "'A paura" };
+    let drawnNumbers = [];
+    let regiaAuth = false;
+    let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
+    let activeCards = [];
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + viewId).classList.add('active');
+    }
+
+    function initBoard() {
+      const grid = document.getElementById('board-grid');
+      if(!grid) return;
+      grid.innerHTML = '';
+      for(let i = 1; i <= 90; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.id = 'cell-' + i;
+        cell.innerText = i;
+        grid.appendChild(cell);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentPlayerPhoto = e.target.result;
+          document.getElementById('player-photo-preview').src = currentPlayerPhoto;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function generateTombolaCardNumbers() {
+      let nums = [];
+      while(nums.length < 15) {
+        let r = Math.floor(Math.random() * 90) + 1;
+        if(!nums.includes(r)) nums.push(r);
+      }
+      return nums.sort((a,b) => a - b);
+    }
+
+    function addPlayerCard() {
+      const name = document.getElementById('player-name').value.trim();
+      if(!name) return alert('Inserisci il tuo Nome e Cognome prima di generare la scheda!');
+
+      const cardId = Math.floor(Math.random() * 9000) + 1000;
+      const cardNumbers = generateTombolaCardNumbers();
+
+      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA ATTIVAZIONE' };
+      activeCards.push(cardData);
+
+      renderPlayerCards();
+      updateRegiaCardList();
+    }
+
+    function renderPlayerCards() {
+      const container = document.getElementById('player-cards-list');
+      if(!container) return;
+      container.innerHTML = '';
+
+      activeCards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-digital';
+
+        let gridHTML = '<div class="card-grid">';
+        card.numbers.forEach(num => {
+          const isDrawn = drawnNumbers.includes(num);
+          gridHTML += `<div class="card-cell ${isDrawn ? 'marked' : ''}" onclick="this.classList.toggle('marked')">${num}</div>`;
+        });
+        gridHTML += '</div>';
+
+        cardDiv.innerHTML = `
+          <div class="card-header-info">
+            <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
+            <div style="color: ${card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f'}; font-size:0.85rem; font-weight:bold;">${card.status}</div>
+          </div>
+          ${gridHTML}
+        `;
+        container.appendChild(cardDiv);
+      });
+    }
+
+    function checkRegiaAuth() {
+      const pass = document.getElementById('regia-pass').value;
+      if(pass === 'PMU2026' || pass === '') {
+        regiaAuth = true;
+        document.getElementById('regia-login').style.display = 'none';
+        document.getElementById('regia-content').style.display = 'block';
+        updateRegiaCardList();
+      } else { alert('Password Errata'); }
+    }
+
+    function updateRegiaCardList() {
+      if(!regiaAuth) return;
+      const list = document.getElementById('regia-cards-list');
+      const winSelect = document.getElementById('winner-select');
+      
+      if(activeCards.length === 0) {
+        if(list) list.innerHTML = '<i>Nessuna scheda creata al momento.</i>';
+        if(winSelect) winSelect.innerHTML = '<option value="">Nessun giocatore</option>';
+        return;
+      }
+
+      if(list) list.innerHTML = '';
+      if(winSelect) winSelect.innerHTML = '';
+
+      activeCards.forEach(card => {
+        if(list) {
+          const item = document.createElement('div');
+          item.style.cssText = 'padding:8px; border-bottom:1px solid #2a3b54; display:flex; justify-content:space-between; align-items:center;';
+          item.innerHTML = `
+            <div><strong>#${card.id}</strong> - ${card.name} <span style="color:${card.status === 'ATTIVA' ? '#2ecc71':'#f1c40f'};">(${card.status})</span></div>
+            ${card.status !== 'ATTIVA' ? `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="activateCard(${card.id})">Attiva</button>` : '<b>ATTIVA</b>'}
+          `;
+          list.appendChild(item);
+        }
+
+        if(winSelect) {
+          const opt = document.createElement('option');
+          opt.value = card.id;
+          opt.innerText = `#${card.id} - ${card.name}`;
+          winSelect.appendChild(opt);
+        }
+      });
+    }
+
+    function activateCard(cardId) {
+      const card = activeCards.find(c => c.id === cardId);
+      if(card) {
+        card.status = 'ATTIVA';
+        updateRegiaCardList();
+        renderPlayerCards();
+        alert(`Scheda #${cardId} Attivata!`);
+      }
+    }
+
+    function drawNumber() {
+      if(drawnNumbers.length >= 90) return alert('Tutti i numeri sono stati estratti!');
+      let n;
+      do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
+      processDrawnNumber(n);
+    }
+
+    function processDrawnNumber(n) {
+      drawnNumbers.push(n);
+      const cell = document.getElementById('cell-' + n);
+      if(cell) {
+        cell.classList.add('active');
+        cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+      }
+      document.getElementById('last-ball-display').innerText = n;
+
+      const overlay = document.getElementById('extraction-overlay');
+      document.getElementById('overlay-ball').innerText = n;
+      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
+      overlay.style.display = 'flex';
+
+      setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+      renderPlayerCards();
+    }
+
+    function triggerWinnerFromRegia() {
+      const selectedId = parseInt(document.getElementById('winner-select').value);
+      const card = activeCards.find(c => c.id === selectedId);
+      if(!card) return alert('Seleziona un giocatore valido dall\'elenco!');
+
+      const prize = document.getElementById('win-type').value;
+      const customDesc = document.getElementById('prize-description').value.trim();
+
+      showWinnerOnScreen(card.photo, card.name, prize, customDesc);
+    }
+
+    function showWinnerOnScreen(photo, name, prize, customDesc) {
+      document.getElementById('winner-img').src = photo;
+      document.getElementById('winner-name').innerText = name;
+      document.getElementById('winner-prize').innerText = `Ha vinto l' ${prize}!`;
+      document.getElementById('winner-custom-desc').innerText = customDesc ? `🎁 Premio: ${customDesc}` : '';
+      document.getElementById('winner-modal').style.display = 'flex';
+
+      confetti({ particleCount: 180, spread: 90, origin: { y: 0.6 } });
+    }
+
+    function closeWinnerModal() {
+      document.getElementById('winner-modal').style.display = 'none';
+    }
+
+    function resetGame() {
+      if(confirm('Vuoi resettare la partita corrente?')) {
+        drawnNumbers = [];
+        initBoard();
+        document.getElementById('last-ball-display').innerText = '--';
+        renderPlayerCards();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initBoard();
+      try {
+        new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
+      } catch(e){}
+    });
+  </script>
+</body>
+</html>
