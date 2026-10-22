@@ -228,7 +228,7 @@
   <!-- INTERFACCIA GIOCATORE -->
   <div id="view-giocatore" class="view-section active">
     <div class="player-header">
-      <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea la tua Cartella della Tombola</h3>
+      <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea le tue Cartelle della Tombola</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
       
       <div style="margin-bottom: 15px;">
@@ -239,7 +239,7 @@
       <div class="form-group" style="max-width: 340px; margin: 0 auto 15px auto;">
         <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
       </div>
-      <button class="btn" id="generate-card-btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Cartella</button>
+      <button class="btn" id="generate-card-btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
     </div>
 
     <div id="player-cards-list"></div>
@@ -249,7 +249,7 @@
   <div id="view-stampa" class="view-section" style="text-align: center;">
     <div class="panel-card" style="display: inline-block;">
       <h3 class="panel-title">QR Code Tavolo Cliente</h3>
-      <p style="margin-bottom: 15px; color: #ccc;">Scansionando questo QR Code, il cliente accederà direttamente alla schermata della scheda.</p>
+      <p style="margin-bottom: 15px; color: #ccc;">Scansionando questo QR Code, il cliente accederà direttamente alla schermata per generare le sue cartelle.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
     </div>
   </div>
@@ -343,16 +343,14 @@
       }
     }
 
-    // ALGORITMO TRADIZIONALE PERFETTO 3x9 DELLA TOMBOLA NAPOLETANA
+    // ALGORITMO CLASSICO 3x9 DELLA TOMBOLA NAPOLETANA
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
       let rowCounts = [0, 0, 0];
 
-      // Definiamo i range delle colonne (0: 1-9, 1: 10-19, ..., 8: 80-90)
       for (let c = 0; c < 9; c++) {
         let min = c === 0 ? 1 : c * 10;
         let max = c === 8 ? 90 : c * 10 + 9;
-        
         let colNums = [];
         while(colNums.length < 2) {
           let rNum = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -376,7 +374,6 @@
         }
       }
 
-      // Bilanciamo esattamente a 5 numeri per riga (totale 15)
       for(let r = 0; r < 3; r++) {
         while(rowCounts[r] < 5) {
           let emptyCols = [];
@@ -442,7 +439,7 @@
           cell.innerText = i;
         }
       }
-      drawnNumbers.forEach(n => {
+      drawnNumbers.exports?.forEach?.(n => {}) || drawnNumbers.forEach(n => {
         const cell = document.getElementById('cell-' + n);
         if(cell) {
           cell.classList.add('active');
@@ -468,21 +465,22 @@
       btn.disabled = true;
       btn.innerText = 'Generazione in corso...';
 
+      // Genera una chiave univoca basata su timestamp e numero casuale per permettere più cartelle allo stesso utente
+      const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardGrid27 = generateTombolaClassicGrid();
 
-      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGrid27, status: 'IN ATTESA' };
+      const cardData = { uniqueKey: uniqueKey, id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGrid27, status: 'IN ATTESA' };
       
-      db.ref('cards/' + cardId).set(cardData)
+      db.ref('cards/' + uniqueKey).set(cardData)
         .then(() => {
           btn.disabled = false;
-          btn.innerText = '+ Genera Cartella';
-          alert(`Cartella creata con successo! ID Scheda #${cardId}.`);
-          nameInput.value = '';
+          btn.innerText = '+ Genera Nuova Cartella';
+          alert(`Cartella #${cardId} creata con successo! Puoi generarne altre se vuoi.`);
         })
         .catch(err => {
           btn.disabled = false;
-          btn.innerText = '+ Genera Cartella';
+          btn.innerText = '+ Genera Nuova Cartella';
           alert('Errore di connessione. Verifica la rete e riprova.');
         });
     }
@@ -503,8 +501,8 @@
         cardDiv.className = 'card-digital';
 
         let gridHTML = '<div class="tombola-classic-grid">';
-        
         let gridArray = card.grid;
+        
         if(!gridArray || gridArray.length < 27) {
           gridArray = Array(27).fill(null);
           if(card.numbers) {
@@ -513,7 +511,7 @@
         }
 
         gridArray.forEach(num => {
-          if(num === null || num === undefined) {
+          if(!num) {
             gridHTML += `<div class="tombola-cell empty"></div>`;
           } else {
             const isDrawn = drawnNumbers.includes(num);
@@ -523,6 +521,7 @@
         gridHTML += '</div>';
 
         const statusColor = card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f';
+        const cardKey = card.uniqueKey || card.id;
         cardDiv.innerHTML = `
           <div class="card-header-info">
             <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
@@ -560,6 +559,7 @@
       if(winSelect) winSelect.innerHTML = '';
 
       cardsArray.forEach(card => {
+        const cardKey = card.uniqueKey || card.id;
         if(list) {
           const item = document.createElement('div');
           item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;';
@@ -570,8 +570,8 @@
               <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
             </div>
             <div style="display: flex; gap: 6px;">
-              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard(${card.id})">✓ Convalida</button>` : `<button class="btn btn-sm" style="background:var(--gold); color:#000;" onclick="quickProclaimWinner(${card.id})">🎉 Proclama Vincitore</button>`}
-              <button class="btn btn-sm btn-danger" onclick="removeCard(${card.id})">Elimina</button>
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard('${cardKey}')">✓ Convalida</button>` : `<button class="btn btn-sm" style="background:var(--gold); color:#000;" onclick="quickProclaimWinner('${cardKey}')">🎉 Proclama Vincitore</button>`}
+              <button class="btn btn-sm btn-danger" onclick="removeCard('${cardKey}')">Elimina</button>
             </div>
           `;
           list.appendChild(item);
@@ -579,19 +579,19 @@
 
         if(card.status === 'ATTIVA' && winSelect) {
           const opt = document.createElement('option');
-          opt.value = card.id;
+          opt.value = cardKey;
           opt.innerText = `#${card.id} - ${card.name}`;
           winSelect.appendChild(opt);
         }
       });
     }
 
-    function regiaActivateSpecificCard(cardId) {
-      db.ref('cards/' + cardId + '/status').set('ATTIVA');
+    function regiaActivateSpecificCard(cardKey) {
+      db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
-    function quickProclaimWinner(cardId) {
-      const card = activeCards[cardId];
+    function quickProclaimWinner(cardKey) {
+      const card = activeCards[cardKey];
       if(!card) return;
       const winType = prompt(`Quale vincita ha fatto ${card.name}? (AMBO, TERNO, QUATERNA, CINQUINA, TOMBOLA)`, "CINQUINA");
       if(!winType) return;
@@ -606,9 +606,9 @@
       });
     }
 
-    function removeCard(cardId) {
+    function removeCard(cardKey) {
       if(confirm('Vuoi eliminare questa scheda?')) {
-        db.ref('cards/' + cardId).remove();
+        db.ref('cards/' + cardKey).remove();
       }
     }
 
@@ -631,8 +631,8 @@
     }
 
     function triggerWinnerFromRegia() {
-      const selectedId = parseInt(document.getElementById('winner-select').value);
-      const card = activeCards[selectedId];
+      const selectedKey = document.getElementById('winner-select').value;
+      const card = activeCards[selectedKey];
       if(!card) return alert('Seleziona un giocatore attivo dall\'elenco!');
 
       const prize = document.getElementById('win-type').value;
