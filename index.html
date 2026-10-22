@@ -78,10 +78,17 @@
     .player-header { background: #161f30; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
     .photo-preview { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 12px auto; display: block; background: #0a0e17; }
     .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
-    .card-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; }
-    .card-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; }
-    .card-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
+    
+    /* Layout Classico Tombola 3x9 */
+    .tombola-classic-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; border: 1px solid #2c3e59; }
+    .tombola-cell {
+      aspect-ratio: 1.1; background: #162232; border-radius: 4px; display: flex;
+      align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;
+      color: #fff; cursor: pointer; border: 1px solid #2c3e59; user-select: none;
+    }
+    .tombola-cell.empty { background: #0e1622; border-color: transparent; cursor: default; }
+    .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 8px rgba(0,0,0,0.5); }
 
     /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -95,7 +102,7 @@
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
-    /* Overlay Estrazione e Vincita Automatica a Tutto Schermo */
+    /* Overlay Estrazione e Vincita */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.96); backdrop-filter: blur(12px);
@@ -104,10 +111,9 @@
     .giant-ball { width: 180px; height: 180px; font-size: 5rem; border-width: 10px; }
     .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; transform: rotate(-2deg); }
     
-    /* Animazioni Vincitore */
     .winner-box {
       animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      background: rgba(22, 31, 48, 0.9);
+      background: rgba(22, 31, 48, 0.95);
       padding: 30px; border-radius: 20px; border: 3px solid var(--gold);
       box-shadow: 0 0 50px rgba(243, 156, 18, 0.5);
       max-width: 90%; width: 500px;
@@ -119,16 +125,13 @@
       animation: pulseGlow 2s infinite alternate;
     }
 
-    @keyframes popIn {
-      0% { transform: scale(0.3); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); }
-      100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); }
-    }
+    @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); } }
 
-    @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .regia-grid { grid-template-columns: 1fr; }
+      .tombola-cell { font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
@@ -323,13 +326,63 @@
       }
     }
 
-    function generateTombolaCardNumbers() {
-      let nums = [];
-      while(nums.length < 15) {
-        let r = Math.floor(Math.random() * 90) + 1;
-        if(!nums.includes(r)) nums.push(r);
+    // GENERATORE TRADIZIONALE 3x9 (15 NUMERI SU 27 CASELLE, 5 PER RIGA)
+    function generateTombolaClassicGrid() {
+      let grid = Array(3).fill(null).map(() => Array(9).fill(null));
+      let selectedCols = [0,1,2,3,4,5,6,7,8];
+      let rowCounts = [0, 0, 0];
+      
+      // Estraiamo 15 numeri divisi per decine
+      let numbersByCol = {};
+      let totalAssigned = 0;
+
+      while(totalAssigned < 15) {
+        let col = Math.floor(Math.random() * 9);
+        let countInCol = Object.keys(numbersByCol).filter(k => Math.floor(k / 10) === col || (col===8 && k>=80)).length;
+        if(countInCol < 2) {
+          let min = col === 0 ? 1 : col * 10;
+          let max = col === 8 ? 90 : col * 10 + 9;
+          let num = Math.floor(Math.random() * (max - min + 1)) + min;
+          if(!numbersByCol[num]) {
+            numbersByCol[num] = col;
+            totalAssigned++;
+          }
+        }
       }
-      return nums.sort((a,b) => a - b);
+
+      // Distribuzione sulle 3 righe (5 per riga)
+      let numList = Object.keys(numbersByCol).map(Number).sort((a,b) => a - b);
+      
+      numList.forEach(num => {
+        let col = num === 90 ? 8 : Math.floor(num / 10);
+        let placed = false;
+        for(let r = 0; r < 3; r++) {
+          if(rowCounts[r] < 5 && grid[r][col] === null) {
+            grid[r][col] = num;
+            rowCounts[r]++;
+            placed = true;
+            break;
+          }
+        }
+        if(!placed) {
+          for(let r = 0; r < 3; r++) {
+            if(grid[r][col] === null) {
+              grid[r][col] = num;
+              placed = true;
+              break;
+            }
+          }
+        }
+      });
+
+      // Flatten grid di 27 elementi
+      let flatGrid = [];
+      for(let r=0; r<3; r++) {
+        for(let c=0; c<9; c++) {
+          flatGrid.push(grid[r][c]);
+        }
+      }
+      return flatGrid;
     }
 
     // --- SINCRONIZZAZIONE REALTIME CLOUD ---
@@ -395,9 +448,9 @@
       btn.innerText = 'Generazione in corso...';
 
       const cardId = Math.floor(Math.random() * 9000) + 1000;
-      const cardNumbers = generateTombolaCardNumbers();
+      const cardGrid27 = generateTombolaClassicGrid();
 
-      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA' };
+      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGrid27, status: 'IN ATTESA' };
       
       db.ref('cards/' + cardId).set(cardData)
         .then(() => {
@@ -428,10 +481,22 @@
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-digital';
 
-        let gridHTML = '<div class="card-grid">';
-        card.numbers.forEach(num => {
-          const isDrawn = drawnNumbers.includes(num);
-          gridHTML += `<div class="card-cell ${isDrawn ? 'marked' : ''}" onclick="this.classList.toggle('marked')">${num}</div>`;
+        let gridHTML = '<div class="tombola-classic-grid">';
+        
+        // Se vecchia scheda con soli 15 numeri, adattamento morbido
+        let gridArray = card.grid || [];
+        if(gridArray.length < 27 && card.numbers) {
+          gridArray = Array(27).fill(null);
+          card.numbers.forEach((n, idx) => { gridArray[idx] = n; });
+        }
+
+        gridArray.forEach(num => {
+          if(num === null || num === undefined) {
+            gridHTML += `<div class="tombola-cell empty"></div>`;
+          } else {
+            const isDrawn = drawnNumbers.includes(num);
+            gridHTML += `<div class="tombola-cell ${isDrawn ? 'marked' : ''}" onclick="this.classList.toggle('marked')">${num}</div>`;
+          }
         });
         gridHTML += '</div>';
 
@@ -562,7 +627,6 @@
       document.getElementById('winner-custom-desc').innerText = customDesc ? `🎁 Premio: ${customDesc}` : '';
       document.getElementById('winner-modal').style.display = 'flex';
 
-      // Pioggia continua di coriandoli
       if(confettiInterval) clearInterval(confettiInterval);
       confettiInterval = setInterval(() => {
         confetti({ particleCount: 50, spread: 100, origin: { y: 0.6 } });
