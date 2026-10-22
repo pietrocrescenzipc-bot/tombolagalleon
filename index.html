@@ -187,49 +187,71 @@
       border: 3px solid var(--gold);
     }
 
-    /* MODALE VINCITORE IN SALA (SELFIE A TUTTO SCHERMO A IMPATTO TOTALE) */
+    /* MODALE VINCITORE A TUTTO SCHERMO CON FOTO CHE OCCUPA LA CORNICE PRINCIPALE */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.98); backdrop-filter: blur(20px);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; text-align: center;
-      padding: 15px;
+      padding: 10px;
     }
     .winner-box {
       animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       background: linear-gradient(145deg, rgba(22, 31, 48, 0.98), rgba(14, 22, 34, 0.98));
-      padding: 20px 30px; border-radius: 25px; border: 4px solid var(--gold);
+      padding: 15px; border-radius: 20px; border: 4px solid var(--gold);
       box-shadow: 0 0 80px rgba(243, 156, 18, 0.9);
-      width: 95vw; max-width: 1300px; max-height: 96vh;
+      width: 95vw; height: 92vh;
       display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-      overflow-y: auto;
     }
     .winner-title-header {
-      font-size: clamp(1.2rem, 2.2vw, 2rem);
+      font-size: clamp(1.2rem, 2.5vw, 2.2rem);
       color: var(--gold);
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 1px;
       text-shadow: 0 0 15px rgba(243,156,18,0.8);
+      flex-shrink: 0;
     }
-    .winners-flex-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; margin: 10px 0; }
+    
+    .winners-flex-row {
+      display: flex; justify-content: center; align-items: center;
+      width: 100%; flex-grow: 1; margin: 10px 0; overflow: hidden;
+    }
+    
     .winner-card-item {
-      background: rgba(14, 22, 34, 0.9); border: 2px solid var(--gold); border-radius: 20px;
-      padding: 15px 25px; text-align: center; flex: 1; min-width: 280px; max-width: 650px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+      width: 100%; height: 100%;
+      border-radius: 16px; overflow: hidden;
+      display: flex; justify-content: center; align-items: center;
+      border: 2px solid rgba(243, 156, 18, 0.5);
     }
-    /* PHOTO SELFIE IMPONENTE A TUTTO SCHERMO */
-    .winner-photo {
-      width: clamp(240px, 38vh, 420px) !important;
-      height: clamp(240px, 38vh, 420px) !important;
-      border-radius: 50%;
-      border: 6px solid var(--gold); object-fit: cover;
-      margin: 10px auto; display: block;
-      box-shadow: 0 0 50px rgba(243, 156, 18, 0.9);
-      animation: pulseGlow 2s infinite alternate;
+    
+    /* FOTO A TUTTO SCHERMO NELLA CORNICE */
+    .winner-photo-fullscreen {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      background: #000;
+      border-radius: 14px;
     }
-    .winner-name-text { font-size: clamp(1.4rem, 2.8vw, 2.2rem); font-weight: 900; color: #fff; margin-top: 4px; }
-    .winner-prize-text { font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: var(--gold-light); font-weight: bold; margin-top: 2px; }
-    .winner-desc-text { font-size: clamp(0.9rem, 1.4vw, 1.2rem); color: #ccc; margin-top: 2px; }
+    
+    /* OVERLAY DEL NOME E DEL PREMIO IN BASSO SULLA FOTO */
+    .winner-info-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(0deg, rgba(10, 14, 23, 0.95) 0%, rgba(10, 14, 23, 0.75) 70%, transparent 100%);
+      padding: 20px 15px 15px 15px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    
+    .winner-name-text {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 900; color: #fff;
+      text-shadow: 0 2px 10px #000;
+    }
+    .winner-prize-text {
+      font-size: clamp(1.3rem, 2.5vw, 2.2rem);
+      color: var(--gold-light); font-weight: 800;
+      text-shadow: 0 2px 8px #000;
+    }
 
     /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) */
     #game-over-overlay {
@@ -350,7 +372,6 @@
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
     @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes pulseGlow { 0% { box-shadow: 0 0 30px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 70px rgba(243, 156, 18, 1); } }
     @keyframes pulseTitle { 0% { transform: scale(0.98); } 100% { transform: scale(1.03); } }
     @keyframes pulseAlert { 0% { transform: scale(0.99); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1.02); box-shadow: 0 0 35px rgba(243, 156, 18, 1); } }
 
@@ -520,14 +541,14 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
-  <!-- MODALE VINCITORE AUTOMATICO A IMPATTO VISIVO TOTALE -->
+  <!-- MODALE VINCITORE CON FOTO INGRANDITA A TUTTO SCHERMO -->
   <div id="winner-modal">
     <div class="winner-box">
       <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
       
       <div id="winners-container" class="winners-flex-row"></div>
       
-      <button class="btn btn-sm btn-success" style="padding: 12px; font-size: 1.1rem; width: 100%; border-radius: 12px;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
+      <button class="btn btn-sm btn-success" style="padding: 12px; font-size: 1.1rem; width: 100%; border-radius: 12px; flex-shrink: 0;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
     </div>
   </div>
 
@@ -628,9 +649,9 @@
           img.onload = function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 300;
-            canvas.height = 300;
-            ctx.drawImage(img, 0, 0, 300, 300);
+            canvas.width = 600;
+            canvas.height = 600;
+            ctx.drawImage(img, 0, 0, 600, 600);
             currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.85);
             document.getElementById('player-photo-preview').src = currentPlayerPhoto;
             document.querySelector("label[for='camera-input']").style.background = "#2ecc71";
@@ -1165,7 +1186,7 @@
       setTimeout(() => { overlay.style.display = 'none'; }, 2800);
     }
 
-    /* MOSTRA VINCITORE CON PHOTO SELFIE GIGANTE IMPONENTE */
+    /* MOSTRA VINCITORE CON FOTO FULLSCREEN NELLA CORNICE PRINCIPALE */
     function showWinnersOnScreen(winnersObj) {
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -1174,10 +1195,11 @@
         const item = document.createElement('div');
         item.className = 'winner-card-item';
         item.innerHTML = `
-          <img src="${w.photo}" class="winner-photo" alt="${w.name}">
-          <div class="winner-name-text">${w.name}</div>
-          <div class="winner-prize-text">🏆 Vinto: ${w.prizeType}!</div>
-          <div class="winner-desc-text">🎁 Premio: ${w.prizeDesc}</div>
+          <img src="${w.photo}" class="winner-photo-fullscreen" alt="${w.name}">
+          <div class="winner-info-overlay">
+            <div class="winner-name-text">${w.name}</div>
+            <div class="winner-prize-text">🏆 Vinto: ${w.prizeType}! (${w.prizeDesc})</div>
+          </div>
         `;
         container.appendChild(item);
       });
