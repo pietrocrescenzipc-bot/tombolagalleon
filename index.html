@@ -251,7 +251,7 @@
       text-shadow: 0 2px 8px #000;
     }
 
-    /* SCHERMATA SPETTACOLARE DI FINE GIOCO (GAME OVER) */
+    /* SCHERMATA VINCITORI FINALI (VISIBILE PER 10 SECONDI) */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #1a2638 0%, #0a0e17 90%);
@@ -291,7 +291,7 @@
       padding: 3px 10px; border-radius: 12px; margin-top: 5px;
     }
 
-    /* NUOVA SCHERMATA ATTESA PROSSIMA PARTITA */
+    /* SCHERMATA FINALE D'ATTESA E RIPARTENZA REGIA */
     #next-game-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #162232 0%, #0a0e17 90%);
@@ -575,18 +575,16 @@
     </div>
   </div>
 
-  <!-- SCHERMATA SPETTACOLARE DI FINE PARITA (GAME OVER) -->
+  <!-- SCHERMATA VINCITORI FINALI (MOSTRATA PER 10 SECONDI) -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
     <div class="game-over-subtitle">Che Partita Eccezionale! Ecco i Nostri Grandi Vincitori:</div>
     
     <div id="final-winners-container" class="final-winners-grid"></div>
-
-    <!-- PULSANTE PER PASSARE ALLA SCHERMATA DI ATTESA -->
-    <button class="btn btn-sm btn-success" style="max-width: 420px; padding: 15px; font-size: 1.2rem; border-radius: 12px; cursor: pointer;" onclick="goToNextGameOverlay()">➡️ Vai all'Attesa Prossima Partita</button>
+    <p style="color: var(--gold-light); font-size: 1.1rem; margin-top: 10px;">⏳ Reindirizzamento tra pochi secondi...</p>
   </div>
 
-  <!-- NUOVA SCHERMATA D'ATTESA E RIPARTENZA REGIA -->
+  <!-- UNICA SCHERMATA FINALE D'ATTESA E RIPARTENZA REGIA -->
   <div id="next-game-overlay">
     <div class="rejoin-callout-box">
       ⏳ La prossima partita inizierà tra pochissimo, acquista subito la tua scheda vincente.
@@ -633,6 +631,7 @@
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let confettiInterval = null;
+    let gameOverTimer = null;
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
 
     function switchView(viewId) {
@@ -769,34 +768,17 @@
       updateStageVisuals();
 
       if(currentStageIndex >= PRIZE_STAGES.length) {
-        db.ref('game/overlayState').once('value', snap => {
-          const state = snap.val();
-          if (state === 'next_game') {
-            document.getElementById('game-over-overlay').style.display = 'none';
-            document.getElementById('next-game-overlay').style.display = 'flex';
-          } else {
-            showGameOverScreen();
-          }
-        });
+        triggerGameOverSequence();
       } else {
         document.getElementById('game-over-overlay').style.display = 'none';
         document.getElementById('next-game-overlay').style.display = 'none';
-        if(confettiInterval && currentStageIndex === 0) {
+        if(confettiInterval) {
           clearInterval(confettiInterval);
           confettiInterval = null;
         }
-      }
-    });
-
-    db.ref('game/overlayState').on('value', (snapshot) => {
-      const state = snapshot.val();
-      if (currentStageIndex >= PRIZE_STAGES.length) {
-        if (state === 'next_game') {
-          document.getElementById('game-over-overlay').style.display = 'none';
-          document.getElementById('next-game-overlay').style.display = 'flex';
-        } else {
-          document.getElementById('next-game-overlay').style.display = 'none';
-          showGameOverScreen();
+        if(gameOverTimer) {
+          clearTimeout(gameOverTimer);
+          gameOverTimer = null;
         }
       }
     });
@@ -869,14 +851,7 @@
       confirmedWinnersList = snapshot.val() || [];
       updateWinnersTicker();
       if(currentStageIndex >= PRIZE_STAGES.length) {
-        db.ref('game/overlayState').once('value', snap => {
-          if (snap.val() === 'next_game') {
-            document.getElementById('game-over-overlay').style.display = 'none';
-            document.getElementById('next-game-overlay').style.display = 'flex';
-          } else {
-            showGameOverScreen();
-          }
-        });
+        triggerGameOverSequence();
       }
     });
 
@@ -1303,28 +1278,30 @@
       });
     }
 
-    function showGameOverScreen() {
+    // GESTIONE DELLA SEQUENZA DI FINE PARITA CON TIMER AUTOMATICO DI 10 SECONDI
+    function triggerGameOverSequence() {
       const container = document.getElementById('final-winners-container');
-      if(!container) return;
-      container.innerHTML = '';
+      if(container) {
+        container.innerHTML = '';
+        let uniqueMap = {};
+        confirmedWinnersList.forEach(w => {
+          let key = w.name + '_' + w.prizeType;
+          uniqueMap[key] = w;
+        });
 
-      let uniqueMap = {};
-      confirmedWinnersList.forEach(w => {
-        let key = w.name + '_' + w.prizeType;
-        uniqueMap[key] = w;
-      });
+        Object.values(uniqueMap).forEach(w => {
+          const card = document.createElement('div');
+          card.className = 'final-winner-card';
+          card.innerHTML = `
+            <img src="${w.photo}" class="final-winner-photo" alt="${w.name}">
+            <div class="final-winner-name">${w.name}</div>
+            <div class="final-winner-badge">🏆 ${w.prizeType}</div>
+          `;
+          container.appendChild(card);
+        });
+      }
 
-      Object.values(uniqueMap).forEach(w => {
-        const card = document.createElement('div');
-        card.className = 'final-winner-card';
-        card.innerHTML = `
-          <img src="${w.photo}" class="final-winner-photo" alt="${w.name}">
-          <div class="final-winner-name">${w.name}</div>
-          <div class="final-winner-badge">🏆 ${w.prizeType}</div>
-        `;
-        container.appendChild(card);
-      });
-
+      // Mostra la schermata dei vincitori
       document.getElementById('game-over-overlay').style.display = 'flex';
       document.getElementById('next-game-overlay').style.display = 'none';
 
@@ -1333,12 +1310,17 @@
           confetti({ particleCount: 80, spread: 140, origin: { y: 0.4 } });
         }, 600);
       }
-    }
 
-    function goToNextGameOverlay() {
-      db.ref('game/overlayState').set('next_game');
-      document.getElementById('game-over-overlay').style.display = 'none';
-      document.getElementById('next-game-overlay').style.display = 'flex';
+      // Dopo esattamente 10 secondi passa automaticamente alla schermata d'attesa e reset
+      if(gameOverTimer) clearTimeout(gameOverTimer);
+      gameOverTimer = setTimeout(() => {
+        document.getElementById('game-over-overlay').style.display = 'none';
+        document.getElementById('next-game-overlay').style.display = 'flex';
+        if(confettiInterval) {
+          clearInterval(confettiInterval);
+          confettiInterval = null;
+        }
+      }, 10000); // 10000 ms = 10 secondi
     }
 
     function resetGame() {
@@ -1355,6 +1337,10 @@
             if(confettiInterval) {
               clearInterval(confettiInterval);
               confettiInterval = null;
+            }
+            if(gameOverTimer) {
+              clearTimeout(gameOverTimer);
+              gameOverTimer = null;
             }
             showPlayerForm();
             window.location.reload();
