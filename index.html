@@ -78,7 +78,6 @@
     .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
     .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
     
-    /* Disposizione verticale comoda per smartphone */
     .card-digital { 
       background: #1c283a; 
       border: 2px solid var(--gold); 
@@ -89,7 +88,6 @@
     }
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; font-size: 0.95rem; }
     
-    /* Griglia Tombola adattata agli schermi piccoli */
     .tombola-classic-grid { 
       display: grid !important; 
       grid-template-columns: repeat(9, 1fr) !important; 
@@ -207,7 +205,7 @@
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
       <div class="form-group">
-        <input type="password" id="regia-pass" placeholder="Password (27)">
+        <input type="password" id="regia-pass" placeholder="Password">
       </div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
     </div>
@@ -227,7 +225,7 @@
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Partecipanti Registrati in Sala</h3>
+          <h3 class="panel-title">Partecipanti Registrati <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
           <div id="regia-cards-list" style="max-height: 400px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
         </div>
       </div>
@@ -267,7 +265,7 @@
       <button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button>
     </div>
 
-    <!-- Elenco delle cartelle del giocatore disposte verticalmente e comodamente leggibili -->
+    <!-- Elenco delle cartelle del giocatore -->
     <div id="player-cards-list"></div>
   </div>
 
@@ -377,7 +375,7 @@
       document.getElementById('add-more-container').style.display = 'none';
     }
 
-    // ALGORITMO TRADIZIONALE 3x9 PERFETTO
+    // ALGORITMO TRADIZIONALE 3x9 PERFETTO (Infinita Rigenerazione)
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
       let rowCols = [];
@@ -475,7 +473,7 @@
         const lastBall = document.getElementById('last-ball-display');
         if(lastBall) lastBall.innerText = '--';
       }
-      renderPlayerCards(); // Aggiorna anche lo stato visivo automatico sulle cartelle
+      renderPlayerCards();
     }
 
     function addPlayerCard() {
@@ -494,7 +492,7 @@
       btn.disabled = true;
       btn.innerText = 'Generazione in corso...';
 
-      const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardGridObj = generateTombolaClassicGrid();
 
@@ -572,7 +570,6 @@
             gridHTML += `<div class="tombola-cell empty"></div>`;
           } else {
             const isDrawn = drawnNumbers.includes(num);
-            // Se modalità automatica si illumina da sola, se manuale l'utente può cliccarla
             let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
             gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
           }
@@ -600,14 +597,17 @@
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
         updateRegiaCardList();
-      } else { alert('Password errata. Inserisci 27'); }
+      } else { alert('Password errata!'); }
     }
 
     function updateRegiaCardList() {
       if(!regiaAuth) return;
       const list = document.getElementById('regia-cards-list');
+      const countEl = document.getElementById('participants-count');
       
       const cardsArray = Object.values(activeCards);
+      if(countEl) countEl.innerText = `(Totale: ${cardsArray.length})`;
+
       if(cardsArray.length === 0) {
         if(list) list.innerHTML = '<i>Nessun partecipante registrato.</i>';
         return;
