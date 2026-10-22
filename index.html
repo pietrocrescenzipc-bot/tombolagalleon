@@ -95,7 +95,7 @@
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
-    /* Overlay Estrazione e Vincita Automatica a Tutto Schermo */
+    /* Overlay Estrazione e Vincita */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.95); backdrop-filter: blur(12px);
@@ -113,15 +113,15 @@
   <header>
     <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
-      <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
 
   <!-- TABELLONE MAXISCHERMO -->
-  <div id="view-tabellone" class="view-section active">
+  <div id="view-tabellone" class="view-section">
     <div class="top-banner">
       <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
@@ -182,7 +182,7 @@
   </div>
 
   <!-- INTERFACCIA GIOCATORE -->
-  <div id="view-giocatore" class="view-section">
+  <div id="view-giocatore" class="view-section active">
     <div class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea la tua Cartella della Tombola</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
@@ -205,7 +205,7 @@
   <div id="view-stampa" class="view-section" style="text-align: center;">
     <div class="panel-card" style="display: inline-block;">
       <h3 class="panel-title">QR Code Tavolo Cliente</h3>
-      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per aprire direttamente la scheda.</p>
+      <p style="margin-bottom: 15px; color: #ccc;">Scansionando questo QR Code, il cliente accederà direttamente alla schermata della scheda.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
     </div>
   </div>
@@ -296,7 +296,7 @@
       return nums.sort((a,b) => a - b);
     }
 
-    // --- SINCRONIZZAZIONE REALTIME CLOUD ROBUSTA ---
+    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
     db.ref('game/drawnNumbers').on('value', (snapshot) => {
       drawnNumbers = snapshot.val() || [];
       updateBoardVisuals();
@@ -315,7 +315,6 @@
       }
     });
 
-    // Ascolto automatico e immediato della vittoria su qualsiasi dispositivo
     db.ref('game/winner').on('value', (snapshot) => {
       const winner = snapshot.val();
       if(winner && winner.name) {
@@ -360,6 +359,8 @@
       db.ref('cards/' + cardId).set(cardData).then(() => {
         alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
         document.getElementById('player-name').value = '';
+      }).catch(err => {
+        alert('Errore di connessione al database. Riprova.');
       });
     }
 
@@ -486,8 +487,6 @@
       const customDesc = document.getElementById('prize-description').value.trim();
 
       const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
-      
-      // Scrive sul database cloud: aprirà in automatico la schermata della vittoria ovunque
       db.ref('game/winner').set(winnerData);
     }
 
@@ -503,7 +502,6 @@
 
     function closeWinnerModal() {
       document.getElementById('winner-modal').style.display = 'none';
-      // Pulisce il vincitore sul database così non resta bloccato in loop se si ricarica
       db.ref('game/winner').remove();
     }
 
@@ -516,8 +514,16 @@
 
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
+      
+      // Se l'URL contiene #giocatore, apre direttamente la schermata della scheda cliente
+      if (window.location.hash === '#giocatore') {
+        switchView('giocatore');
+      }
+
+      // Genera il QR code puntando direttamente all'ancora #giocatore
       try {
-        new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
+        const qrUrl = window.location.href.split('#')[0] + '#giocatore';
+        new QRCode(document.getElementById("qrcode-global"), { text: qrUrl, width: 140, height: 140 });
       } catch(e){}
     });
   </script>
