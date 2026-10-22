@@ -84,8 +84,10 @@
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
-    .btn { background: var(--gold); color: #000; border: none; padding: 10px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+    .btn { background: var(--gold); color: #000; border: none; padding: 10px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 5px; }
+    .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
     .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-success { background: #2ecc71; color: #fff; }
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; }
@@ -143,8 +145,8 @@
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
           <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn" onclick="drawNumber()">Estrai Numero</button>
-            <button class="btn btn-danger" onclick="resetGame()">Nuova Partita</button>
+            <button class="btn btn-sm" onclick="drawNumber()">Estrai Numero</button>
+            <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
           </div>
           <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
           <div class="form-group">
@@ -163,21 +165,14 @@
           </div>
           <div class="form-group">
             <label>Descrizione Premio</label>
-            <input type="text" id="prize-description" placeholder="Es. Buono Pizza / Cesto Natalizio">
+            <input type="text" id="prize-description" placeholder="Es. Buono Cena / Cesto Natalizio">
           </div>
           <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione sul Maxischermo</button>
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Convalida Scheda in Cassa</h3>
-          <div class="form-group">
-            <label>Inserisci ID Scheda del Cliente</label>
-            <input type="number" id="regia-card-id-input" placeholder="Es. 4582">
-          </div>
-          <button class="btn" onclick="regiaActivateCardById()">✓ Convalida e Attiva Scheda</button>
-          
-          <h3 class="panel-title" style="margin-top: 20px;">Elenco Schede Registrate</h3>
-          <div id="regia-cards-list" style="max-height: 180px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
+          <h3 class="panel-title">Gestione Schede Registrate</h3>
+          <div id="regia-cards-list" style="max-height: 380px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
         </div>
       </div>
     </div>
@@ -190,14 +185,14 @@
       <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
       
       <div style="margin-bottom: 15px;">
-        <label for="camera-input" class="btn" style="display: inline-block; cursor: pointer; font-size: 0.85rem;">📸 Scatta Selfie / Scegli Foto</label>
+        <label for="camera-input" class="btn btn-sm" style="display: inline-block; cursor: pointer; width: auto;">📸 Scatta Selfie / Scegli Foto</label>
         <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
       </div>
 
       <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto;">
         <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
       </div>
-      <button class="btn" onclick="addPlayerCard()">+ Genera la mia Cartella</button>
+      <button class="btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera la mia Cartella</button>
     </div>
 
     <div id="player-cards-list"></div>
@@ -225,11 +220,22 @@
     <h2 id="winner-name" style="font-size: 2rem; color: #fff;">--</h2>
     <p id="winner-prize" style="font-size: 1.5rem; color: var(--gold-light); margin-top: 10px;">--</p>
     <div id="winner-custom-desc" style="font-size: 1.2rem; color: #fff; margin-top: 8px;"></div>
-    <button class="btn" style="margin-top: 20px;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
+    <button class="btn btn-sm" style="margin-top: 20px; width: auto;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
   </div>
 
   <script>
-    const smorfia = { 1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 10: "'A fasula", 22: "'O pazzo", 33: "L'anni 'e Cristo", 48: "'O morte che parla", 77: "'E diavule", 90: "'A paura" };
+    const smorfia = {
+      1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
+      11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
+      21: "La donna nuda", 22: "'O pazzo", 23: "'O scemo", 24: "Le guardie", 25: "Natale", 26: "Ninetta", 27: "Il vaso", 28: "I zizie", 29: "Il padre dei bimbi", 30: "Le palle del tenente",
+      31: "Il padrone di casa", 32: "Il capitone", 33: "L'anni 'e Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le castagnette", 37: "Il monaco", 38: "Le mazzate", 39: "La corda al collo", 40: "Il secchio",
+      41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte che parla", 49: "La carne", 50: "Il pane",
+      51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento",
+      61: "Il cacciatore", 62: "Il morto acciso", 63: "La sposa", 64: "La marsina", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa cotta", 69: "Sott'e 'ncoppa", 70: "Il palazzo",
+      71: "L'uomo di merda", 72: "La meraviglia", 73: "L'ospedale", 74: "La grotta", 75: "Pullecenella", 76: "La fontana", 77: "'E diavule", 78: "La bella figliola", 79: "Il ladro", 80: "La bocca",
+      81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
+    };
+
     let drawnNumbers = [];
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
@@ -290,12 +296,12 @@
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardNumbers = generateTombolaCardNumbers();
 
-      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA DI CONVALIDA' };
+      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA' };
       activeCards.push(cardData);
       localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
 
       renderPlayerCards();
-      alert(`Cartella creata con successo! Il tuo ID Scheda è #${cardId}. Mostralo in cassa per l'attivazione.`);
+      alert(`Cartella creata! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
     }
 
     function renderPlayerCards() {
@@ -305,7 +311,7 @@
       container.innerHTML = '';
 
       if(activeCards.length === 0) {
-        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata su questo dispositivo.</div>';
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata.</div>';
         return;
       }
 
@@ -360,13 +366,13 @@
       activeCards.forEach(card => {
         if(list) {
           const item = document.createElement('div');
-          item.style.cssText = 'padding:8px; border-bottom:1px solid #2a3b54; display:flex; justify-content:space-between; align-items:center;';
+          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54;';
           const isAttiva = card.status === 'ATTIVA';
           item.innerHTML = `
-            <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">${card.status}</small></div>
-            <div>
-              ${!isAttiva ? `<button class="btn" style="padding:4px 8px; font-size:0.75rem; margin-right:4px;" onclick="regiaActivateSpecificCard(${card.id})">Attiva</button>` : ''}
-              <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="removeCard(${card.id})">Elimina</button>
+            <div style="margin-bottom: 8px;"><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
+            <div style="display: flex; gap: 10px;">
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" style="flex:1;" onclick="regiaActivateSpecificCard(${card.id})">✓ CONVALIDA</button>` : '<div style="flex:1; padding:8px; text-align:center; color:#2ecc71; font-weight:bold;">CONVALIDATA</div>'}
+              <button class="btn btn-sm btn-danger" style="flex:1;" onclick="removeCard(${card.id})">Elimina</button>
             </div>
           `;
           list.appendChild(item);
@@ -379,29 +385,6 @@
           winSelect.appendChild(opt);
         }
       });
-    }
-
-    function regiaActivateCardById() {
-      const idInput = parseInt(document.getElementById('regia-card-id-input').value);
-      if(!idInput) return alert('Inserisci un ID Scheda valido!');
-      
-      let found = false;
-      activeCards.forEach(c => {
-        if(c.id === idInput) {
-          c.status = 'ATTIVA';
-          found = true;
-        }
-      });
-
-      if(found) {
-        localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
-        document.getElementById('regia-card-id-input').value = '';
-        updateRegiaCardList();
-        renderPlayerCards();
-        alert(`Scheda #${idInput} convalidata e attivata con successo!`);
-      } else {
-        alert(`Nessuna scheda trovata con ID #${idInput}.`);
-      }
     }
 
     function regiaActivateSpecificCard(cardId) {
@@ -449,7 +432,7 @@
     function triggerWinnerFromRegia() {
       const selectedId = parseInt(document.getElementById('winner-select').value);
       const card = activeCards.find(c => c.id === selectedId);
-      if(!card) return alert('Seleziona un giocatore convalidato dall\'elenco!');
+      if(!card) return alert('Seleziona un giocatore attivo dall\'elenco!');
 
       const prize = document.getElementById('win-type').value;
       const customDesc = document.getElementById('prize-description').value.trim();
