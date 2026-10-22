@@ -6,7 +6,7 @@
   <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
       --bg-dark: #0a0e17;
@@ -89,7 +89,7 @@
     .btn-danger { background: #e74c3c; color: #fff; }
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
-    .form-group input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; }
 
     /* Overlay Estrazione e Vincita */
     #extraction-overlay, #winner-modal {
@@ -150,17 +150,21 @@
           <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
           <div class="form-group">
             <label>Seleziona Giocatore Vincente</label>
-            <select id="winner-select" style="width:100%; padding:8px; background:#0e1622; color:#fff; border:1px solid #3a4b68; border-radius:4px; margin-bottom:10px;"></select>
+            <select id="winner-select"></select>
           </div>
           <div class="form-group">
             <label>Tipo di Vincita</label>
-            <select id="win-type" style="width:100%; padding:8px; background:#0e1622; color:#fff; border:1px solid #3a4b68; border-radius:4px;">
+            <select id="win-type">
               <option value="AMBO">AMBO</option>
               <option value="TERNO">TERNO</option>
               <option value="QUATERNA">QUATERNA</option>
               <option value="CINQUINA">CINQUINA</option>
               <option value="TOMBOLA">TOMBOLA</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>Descrizione Premio (opzionale)</label>
+            <input type="text" id="prize-description" placeholder="Es. Buono Cena x2 / Cesto Natalizio">
           </div>
           <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione sul Maxischermo</button>
         </div>
@@ -214,6 +218,7 @@
     <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
     <h2 id="winner-name" style="font-size: 2rem; color: #fff;">--</h2>
     <p id="winner-prize" style="font-size: 1.5rem; color: var(--gold-light); margin-top: 10px;">--</p>
+    <div id="winner-custom-desc" style="font-size: 1.2rem; color: #fff; margin-top: 8px;"></div>
     <button class="btn" style="margin-top: 20px;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
   </div>
 
@@ -232,7 +237,6 @@
     function initNetwork() {
       peer = new Peer();
       peer.on('open', (id) => {
-        // Try connecting as player to Regia
         peerConn = peer.connect(REGIA_PEER_ID);
         if(peerConn) {
           peerConn.on('data', (data) => handleNetworkData(data));
@@ -258,7 +262,7 @@
         const c = activeCards.find(x => x.id === data.cardId);
         if(c) { c.status = 'ATTIVA'; renderPlayerCards(); }
       } else if(data.type === 'WINNER') {
-        showWinnerOnScreen(data.photo, data.name, data.prize);
+        showWinnerOnScreen(data.photo, data.name, data.prize, data.customDesc);
       }
     }
 
@@ -318,11 +322,9 @@
 
       renderPlayerCards();
       
-      // Send card to Regia via network
       if(peerConn && peerConn.open) {
         peerConn.send({ type: 'NEW_CARD', card: cardData });
       } else {
-        // Re-try opening host as fallback
         const hostConn = peer.connect(REGIA_PEER_ID);
         setTimeout(() => { if(hostConn.open) hostConn.send({ type: 'NEW_CARD', card: cardData }); }, 1000);
       }
@@ -361,7 +363,6 @@
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
         
-        // Start Host Regia Peer
         if(peer) peer.destroy();
         peer = new Peer(REGIA_PEER_ID);
         peer.on('connection', (conn) => {
@@ -385,7 +386,7 @@
       
       if(activeCards.length === 0) {
         list.innerHTML = '<i>Nessuna scheda creata al momento.</i>';
-        winSelect.innerHTML = '<option>Nessun giocatore</option>';
+        winSelect.innerHTML = '<option value="">Nessun giocatore</option>';
         return;
       }
 
@@ -444,16 +445,19 @@
     function triggerWinnerFromRegia() {
       const selectedId = parseInt(document.getElementById('winner-select').value);
       const card = activeCards.find(c => c.id === selectedId);
-      if(!card) return alert('Seleziona un giocatore valido!');
+      if(!card) return alert('Seleziona un giocatore valido dall\'elenco!');
 
       const prize = document.getElementById('win-type').value;
-      showWinnerOnScreen(card.photo, card.name, prize);
+      const customDesc = document.getElementById('prize-description').value.trim();
+
+      showWinnerOnScreen(card.photo, card.name, prize, customDesc);
     }
 
-    function showWinnerOnScreen(photo, name, prize) {
+    function showWinnerOnScreen(photo, name, prize, customDesc) {
       document.getElementById('winner-img').src = photo;
       document.getElementById('winner-name').innerText = name;
       document.getElementById('winner-prize').innerText = `Ha vinto l' ${prize}!`;
+      document.getElementById('winner-custom-desc').innerText = customDesc ? `🎁 Premio: ${customDesc}` : '';
       document.getElementById('winner-modal').style.display = 'flex';
 
       confetti({ particleCount: 180, spread: 90, origin: { y: 0.6 } });
