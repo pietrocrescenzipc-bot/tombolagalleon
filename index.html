@@ -6,9 +6,6 @@
   <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --bg-dark: #0a0e17;
@@ -43,12 +40,12 @@
 
     /* Pallina Biliardo 3D */
     .billiard-ball {
-      width: 44px; height: 44px; border-radius: 50%;
+      width: 48px; height: 48px; border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e6e6e6 50%, #cccccc 100%);
       border: 4px solid var(--ball-orange);
       box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), inset 3px 3px 6px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.5);
       display: inline-flex; justify-content: center; align-items: center;
-      font-weight: 900; color: var(--ball-blue); font-size: 1.1rem;
+      font-weight: 900; color: var(--ball-blue); font-size: 1.2rem;
       user-select: none; margin: 0 auto;
     }
     .billiard-ball.drawn {
@@ -75,25 +72,25 @@
     }
 
     /* Interfaccia Giocatore */
-    .player-header { background: #161f30; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
-    .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
+    .player-header { background: #161f30; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
+    .photo-preview { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 12px auto; display: block; background: #0a0e17; }
     .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
     .card-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; }
-    .card-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; }
-    .card-cell.marked { background: var(--ball-orange); color: #fff; font-size: 1rem; border-color: #fff; }
+    .card-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; }
+    .card-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; }
 
-    /* Controls & Regia */
+    /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
-    .btn { background: var(--gold); color: #000; border: none; padding: 10px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 5px; }
+    .btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 1rem; }
     .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
     .btn-danger { background: #e74c3c; color: #fff; }
     .btn-success { background: #2ecc71; color: #fff; }
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
-    .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
     /* Overlay Estrazione e Vincita */
     #extraction-overlay, #winner-modal {
@@ -101,13 +98,11 @@
       background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 1000; text-align: center;
     }
-    .giant-ball { width: 160px; height: 160px; font-size: 4.5rem; border-width: 10px; }
-    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.4rem; font-weight: bold; transform: rotate(-2deg); }
-    
-    /* Foto Vincitore Grande sul Maxischermo */
+    .giant-ball { width: 180px; height: 180px; font-size: 5rem; border-width: 10px; }
+    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; transform: rotate(-2deg); }
     .winner-photo { width: 220px; height: 220px; border-radius: 50%; border: 6px solid var(--gold); object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 30px rgba(243, 156, 18, 0.6); }
 
-    @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } .billiard-ball { width: 32px; height: 32px; font-size: 0.85rem; border-width: 2px; } }
+    @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -115,15 +110,15 @@
   <header>
     <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
-      <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
 
   <!-- TABELLONE MAXISCHERMO -->
-  <div id="view-tabellone" class="view-section active">
+  <div id="view-tabellone" class="view-section">
     <div class="top-banner">
       <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
@@ -140,7 +135,7 @@
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
       <div class="form-group">
-        <input type="password" id="regia-pass" placeholder="Inserisci Password (27)">
+        <input type="password" id="regia-pass" placeholder="Password (27)">
       </div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
     </div>
@@ -150,12 +145,12 @@
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
           <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn btn-sm" onclick="drawNumber()">Estrai Numero</button>
+            <button class="btn btn-sm btn-success" onclick="drawNumber()">Estrai Numero</button>
             <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
           </div>
           <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
           <div class="form-group">
-            <label>Seleziona Giocatore Convalidato</label>
+            <label>Seleziona Vincitore Convalidato</label>
             <select id="winner-select"></select>
           </div>
           <div class="form-group">
@@ -172,32 +167,32 @@
             <label>Descrizione Premio</label>
             <input type="text" id="prize-description" placeholder="Es. Buono Cena / Cesto Natalizio">
           </div>
-          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione sul Maxischermo</button>
+          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione</button>
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Gestione Schede Cloud</h3>
-          <div id="regia-cards-list" style="max-height: 320px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
+          <h3 class="panel-title">Gestione Schede In Sala</h3>
+          <div id="regia-cards-list" style="max-height: 350px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- INTERFACCIA GIOCATORE -->
-  <div id="view-giocatore" class="view-section">
+  <div id="view-giocatore" class="view-section active">
     <div class="player-header">
-      <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Cartella Cliente</h3>
-      <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
+      <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea la tua Cartella della Tombola</h3>
+      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
       
       <div style="margin-bottom: 15px;">
         <label for="camera-input" class="btn btn-sm" style="display: inline-block; cursor: pointer; width: auto;">📸 Scatta Selfie / Scegli Foto</label>
         <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
       </div>
 
-      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto;">
+      <div class="form-group" style="max-width: 340px; margin: 0 auto 15px auto;">
         <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
       </div>
-      <button class="btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera la mia Cartella</button>
+      <button class="btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Cartella</button>
     </div>
 
     <div id="player-cards-list"></div>
@@ -207,7 +202,7 @@
   <div id="view-stampa" class="view-section" style="text-align: center;">
     <div class="panel-card" style="display: inline-block;">
       <h3 class="panel-title">QR Code Tavolo Cliente</h3>
-      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code per aprire direttamente la registrazione.</p>
+      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per aprire direttamente la scheda.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
     </div>
   </div>
@@ -229,12 +224,6 @@
   </div>
 
   <script>
-    const firebaseConfig = {
-      databaseURL: "https://tombolagalleon-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     const smorfia = {
       1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
       11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
@@ -247,16 +236,18 @@
       81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
     };
 
-    let drawnNumbers = [];
-    let activeCards = {};
+    let drawnNumbers = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
+    let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
     let regiaAuth = false;
-    let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
+    let currentPlayerPhoto = "https://via.placeholder.com/100/162232/ffffff?text=Selfie";
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
       document.getElementById('btn-' + viewId).classList.add('active');
+      if(viewId === 'regia' && regiaAuth) updateRegiaCardList();
+      if(viewId === 'giocatore') renderPlayerCards();
     }
 
     function initBoard() {
@@ -269,6 +260,18 @@
         cell.id = 'cell-' + i;
         cell.innerText = i;
         grid.appendChild(cell);
+      }
+      drawnNumbers.forEach(n => {
+        const cell = document.getElementById('cell-' + n);
+        if(cell) {
+          cell.classList.add('active');
+          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+        }
+      });
+      if(drawnNumbers.length > 0) {
+        const last = drawnNumbers[drawnNumbers.length - 1];
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = last;
       }
     }
 
@@ -298,51 +301,6 @@
       return nums.sort((a,b) => a - b);
     }
 
-    // --- REALTIME LISTENERS FIREBASE ---
-    db.ref('game/drawnNumbers').on('value', (snapshot) => {
-      drawnNumbers = snapshot.val() || [];
-      updateBoardVisuals();
-    });
-
-    db.ref('cards').on('value', (snapshot) => {
-      activeCards = snapshot.val() || {};
-      renderPlayerCards();
-      if(regiaAuth) updateRegiaCardList();
-    });
-
-    db.ref('game/winner').on('value', (snapshot) => {
-      const winner = snapshot.val();
-      if(winner && winner.time && (!window.lastWinnerTime || winner.time > window.lastWinnerTime)) {
-        window.lastWinnerTime = winner.time;
-        showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
-      }
-    });
-
-    function updateBoardVisuals() {
-      for(let i = 1; i <= 90; i++) {
-        const cell = document.getElementById('cell-' + i);
-        if(cell) {
-          cell.className = 'grid-cell';
-          cell.innerText = i;
-        }
-      }
-      drawnNumbers.forEach(n => {
-        const cell = document.getElementById('cell-' + n);
-        if(cell) {
-          cell.classList.add('active');
-          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
-        }
-      });
-      if(drawnNumbers.length > 0) {
-        const last = drawnNumbers[drawnNumbers.length - 1];
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = last;
-      } else {
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = '--';
-      }
-    }
-
     function addPlayerCard() {
       const name = document.getElementById('player-name').value.trim();
       if(!name) return alert('Inserisci il tuo Nome e Cognome!');
@@ -351,25 +309,26 @@
       const cardNumbers = generateTombolaCardNumbers();
 
       const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA' };
-      
-      db.ref('cards/' + cardId).set(cardData).then(() => {
-        alert(`Cartella creata! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
-        document.getElementById('player-name').value = '';
-      });
+      activeCards.push(cardData);
+      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
+
+      renderPlayerCards();
+      alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
+      document.getElementById('player-name').value = '';
     }
 
     function renderPlayerCards() {
+      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const container = document.getElementById('player-cards-list');
       if(!container) return;
       container.innerHTML = '';
 
-      const cardsArray = Object.values(activeCards);
-      if(cardsArray.length === 0) {
-        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata.</div>';
+      if(activeCards.length === 0) {
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata su questo dispositivo.</div>';
         return;
       }
 
-      cardsArray.forEach(card => {
+      activeCards.forEach(card => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-digital';
 
@@ -399,16 +358,16 @@
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
         updateRegiaCardList();
-      } else { alert('Password Errata (Usa il numero 27)'); }
+      } else { alert('Password errata. Inserisci 27'); }
     }
 
     function updateRegiaCardList() {
       if(!regiaAuth) return;
+      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const list = document.getElementById('regia-cards-list');
       const winSelect = document.getElementById('winner-select');
       
-      const cardsArray = Object.values(activeCards);
-      if(cardsArray.length === 0) {
+      if(activeCards.length === 0) {
         if(list) list.innerHTML = '<i>Nessuna scheda registrata.</i>';
         if(winSelect) winSelect.innerHTML = '<option value="">Nessun giocatore</option>';
         return;
@@ -417,7 +376,7 @@
       if(list) list.innerHTML = '';
       if(winSelect) winSelect.innerHTML = '';
 
-      cardsArray.forEach(card => {
+      activeCards.forEach(card => {
         if(list) {
           const item = document.createElement('div');
           item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54;';
@@ -442,12 +401,18 @@
     }
 
     function regiaActivateSpecificCard(cardId) {
-      db.ref('cards/' + cardId + '/status').set('ATTIVA');
+      activeCards.forEach(c => { if(c.id === cardId) c.status = 'ATTIVA'; });
+      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
+      updateRegiaCardList();
+      renderPlayerCards();
     }
 
     function removeCard(cardId) {
       if(confirm('Vuoi eliminare questa scheda?')) {
-        db.ref('cards/' + cardId).remove();
+        activeCards = activeCards.filter(c => c.id !== cardId);
+        localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
+        updateRegiaCardList();
+        renderPlayerCards();
       }
     }
 
@@ -457,29 +422,44 @@
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
       
       drawnNumbers.push(n);
-      db.ref('game/drawnNumbers').set(drawnNumbers).then(() => {
-        showExtractionAnimation(n);
-      });
+      localStorage.setItem('pmu_drawn', JSON.stringify(drawnNumbers));
+      localStorage.setItem('pmu_last_action', JSON.stringify({ type: 'DRAW', number: n, time: Date.now() }));
+      
+      processDrawnNumberLocal(n, true);
     }
 
-    function showExtractionAnimation(n) {
-      const overlay = document.getElementById('extraction-overlay');
-      document.getElementById('overlay-ball').innerText = n;
-      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
-      overlay.style.display = 'flex';
-      setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+    function processDrawnNumberLocal(n, showAnim = false) {
+      const cell = document.getElementById('cell-' + n);
+      if(cell && !cell.classList.contains('active')) {
+        cell.classList.add('active');
+        cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+      }
+      const lastBall = document.getElementById('last-ball-display');
+      if(lastBall) lastBall.innerText = n;
+
+      if(showAnim) {
+        const overlay = document.getElementById('extraction-overlay');
+        document.getElementById('overlay-ball').innerText = n;
+        document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+      }
+      renderPlayerCards();
     }
 
     function triggerWinnerFromRegia() {
       const selectedId = parseInt(document.getElementById('winner-select').value);
-      const card = activeCards[selectedId];
+      const card = activeCards.find(c => c.id === selectedId);
       if(!card) return alert('Seleziona un giocatore attivo dall\'elenco!');
 
       const prize = document.getElementById('win-type').value;
       const customDesc = document.getElementById('prize-description').value.trim();
 
       const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
-      db.ref('game/winner').set(winnerData);
+      localStorage.setItem('pmu_winner', JSON.stringify(winnerData));
+      localStorage.setItem('pmu_last_action', JSON.stringify({ type: 'WINNER', data: winnerData, time: Date.now() }));
+
+      showWinnerOnScreen(card.photo, card.name, prize, customDesc);
     }
 
     function showWinnerOnScreen(photo, name, prize, customDesc) {
@@ -498,13 +478,36 @@
 
     function resetGame() {
       if(confirm('Vuoi resettare la partita corrente?')) {
-        db.ref('game').remove();
-        db.ref('cards').remove();
+        localStorage.removeItem('pmu_drawn');
+        localStorage.removeItem('pmu_winner');
+        localStorage.removeItem('pmu_cards');
+        drawnNumbers = [];
+        activeCards = [];
+        initBoard();
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = '--';
+        renderPlayerCards();
       }
     }
 
+    // Sincronizzazione locale intelligente tra tab/finestre aperte sullo stesso browser o ripetitori
+    setInterval(() => {
+      let savedDrawn = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
+      if(savedDrawn.length !== drawnNumbers.length) {
+        drawnNumbers = savedDrawn;
+        initBoard();
+      }
+
+      let winner = JSON.parse(localStorage.getItem('pmu_winner') || 'null');
+      if(winner && winner.time && (!window.lastShownWinnerTime || winner.time > window.lastShownWinnerTime)) {
+        window.lastShownWinnerTime = winner.time;
+        showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
+      }
+    }, 1000);
+
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
+      renderPlayerCards();
       try {
         new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
       } catch(e){}
