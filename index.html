@@ -38,7 +38,7 @@
     }
     .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
 
-    .view-section { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .view-section { display: none; padding: 15px; max-width: 800px; margin: 0 auto; }
     .view-section.active { display: block; }
 
     /* Pallina Biliardo 3D */
@@ -74,38 +74,47 @@
       display: flex; align-items: center; justify-content: center; gap: 15px; border: 1px solid var(--gold);
     }
 
-    /* Interfaccia Giocatore */
-    .player-header { background: #161f30; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
-    .photo-preview { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 12px auto; display: block; background: #0a0e17; }
-    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
+    /* Interfaccia Giocatore Mobile-Friendly */
+    .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
+    .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
     
-    /* Layout Classico Tombola 3x9 */
+    /* Disposizione verticale comoda per smartphone */
+    .card-digital { 
+      background: #1c283a; 
+      border: 2px solid var(--gold); 
+      border-radius: 12px; 
+      padding: 12px; 
+      margin-bottom: 25px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; font-size: 0.95rem; }
+    
+    /* Griglia Tombola adattata agli schermi piccoli */
     .tombola-classic-grid { 
       display: grid !important; 
       grid-template-columns: repeat(9, 1fr) !important; 
-      gap: 4px; 
+      gap: 3px; 
       background: #0a0e17; 
-      padding: 8px; 
+      padding: 6px; 
       border-radius: 8px; 
       border: 1px solid #2c3e59; 
     }
     .tombola-cell {
-      aspect-ratio: 1.2; 
+      aspect-ratio: 1; 
       background: #162232; 
       border-radius: 4px; 
       display: flex;
       align-items: center; 
       justify-content: center; 
       font-weight: bold; 
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       color: #fff; 
       cursor: pointer; 
       border: 1px solid #2c3e59; 
       user-select: none;
     }
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
-    .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 8px rgba(0,0,0,0.5); }
+    .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
 
     /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -119,53 +128,52 @@
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
-    /* Overlay Estrazione e Vincita Universale a Tutto Schermo */
+    /* Overlay Estrazione e Vincita */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.96); backdrop-filter: blur(12px);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; text-align: center;
     }
-    .giant-ball { width: 180px; height: 180px; font-size: 5rem; border-width: 10px; }
-    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; transform: rotate(-2deg); }
+    .giant-ball { width: 160px; height: 160px; font-size: 4.5rem; border-width: 8px; }
+    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 10px 20px; border-radius: 20px; font-size: 1.3rem; font-weight: bold; transform: rotate(-2deg); }
     
     .winner-box {
       animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       background: rgba(22, 31, 48, 0.98);
-      padding: 30px; border-radius: 20px; border: 4px solid var(--gold);
-      box-shadow: 0 0 60px rgba(243, 156, 18, 0.7);
-      max-width: 95%; width: 1100px; max-height: 90vh; overflow-y: auto;
+      padding: 25px; border-radius: 20px; border: 4px solid var(--gold);
+      box-shadow: 0 0 50px rgba(243, 156, 18, 0.7);
+      max-width: 95%; width: 1000px; max-height: 90vh; overflow-y: auto;
     }
-    /* Contenitore flessibile affiancato per vincite multiple */
     .winners-flex-row {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 15px;
       margin-top: 15px;
     }
     .winner-card-item {
       background: #0e1622;
       border: 2px solid var(--gold);
       border-radius: 12px;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
       flex: 1;
-      min-width: 260px;
-      max-width: 320px;
+      min-width: 240px;
+      max-width: 300px;
     }
     .winner-photo {
-      width: 130px; height: 130px; border-radius: 50%;
-      border: 4px solid var(--gold); object-fit: cover;
-      margin: 10px auto; display: block;
+      width: 110px; height: 110px; border-radius: 50%;
+      border: 3px solid var(--gold); object-fit: cover;
+      margin: 8px auto; display: block;
       animation: pulseGlow 2s infinite alternate;
     }
 
     @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 60px rgba(243, 156, 18, 1); } }
+    @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); } }
 
     @media (max-width: 768px) {
       .regia-grid { grid-template-columns: 1fr; }
-      .tombola-cell { font-size: 0.8rem; aspect-ratio: 1; }
+      .tombola-cell { font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -176,7 +184,7 @@
     <div class="nav-tabs">
       <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
-      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Le mie Cartelle</button>
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
@@ -190,7 +198,7 @@
     <div class="grid-90" id="board-grid"></div>
     <div class="last-extracted-box">
       <span style="font-size: 1.1rem; color: #aaa;">ULTIMO NUMERO ESTRATTO:</span>
-      <div id="last-ball-display" class="billiard-ball drawn" style="width: 55px; height: 55px; font-size: 1.5rem;">--</div>
+      <div id="last-ball-display" class="billiard-ball drawn" style="width: 50px; height: 50px; font-size: 1.4rem;">--</div>
     </div>
   </div>
 
@@ -228,21 +236,38 @@
 
   <!-- INTERFACCIA GIOCATORE -->
   <div id="view-giocatore" class="view-section active">
-    <div class="player-header">
-      <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea le tue Cartelle della Tombola</h3>
-      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie+Obbligatorio" class="photo-preview" alt="Foto Profilo">
+    <!-- Modulo di registrazione iniziale -->
+    <div id="player-form-container" class="player-header">
+      <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
+      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
       
-      <div style="margin-bottom: 15px;">
+      <div style="margin-bottom: 12px;">
         <label for="camera-input" class="btn btn-sm" style="display: inline-block; cursor: pointer; width: auto; background: #e74c3c; color: #fff;">📸 Scatta Selfie (Obbligatorio)</label>
         <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
       </div>
 
-      <div class="form-group" style="max-width: 340px; margin: 0 auto 15px auto;">
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 12px auto;">
         <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
       </div>
-      <button class="btn" id="generate-card-btn" style="max-width: 340px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
+
+      <!-- Scelta Modalità di marcatura -->
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;">
+        <label style="color: var(--gold); font-weight: bold;">Modalità di Marcatura Cartella:</label>
+        <select id="play-mode" style="margin-top: 4px;">
+          <option value="auto">🤖 Automatica (Segna il sistema)</option>
+          <option value="manual">✍️ Manuale (Segno io con un tocco)</option>
+        </select>
+      </div>
+
+      <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
     </div>
 
+    <!-- Pulsante per aggiungere un'altra cartella -->
+    <div id="add-more-container" style="text-align: center; margin-bottom: 20px; display: none;">
+      <button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button>
+    </div>
+
+    <!-- Elenco delle cartelle del giocatore disposte verticalmente e comodamente leggibili -->
     <div id="player-cards-list"></div>
   </div>
 
@@ -261,15 +286,15 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
-  <!-- MODALE VINCITORE AUTOMATICO A TUTTO SCHERMO (VINCITORI AFFIANCATI) -->
+  <!-- MODALE VINCITORE AUTOMATICO A TUTTO SCHERMO -->
   <div id="winner-modal">
     <div class="winner-box">
-      <h1 style="color: var(--gold); font-size: 2rem; text-shadow: 0 0 15px rgba(243,156,18,0.8);">🎉 ATTENZIONE: VINCITA/E RILEVATA/E! 🎉</h1>
-      <p style="color: #ccc; margin-top: 5px; font-size: 0.95rem;">I vincitori attuali compaiono qui sotto affiancati per la verifica:</p>
+      <h1 style="color: var(--gold); font-size: 1.8rem; text-shadow: 0 0 15px rgba(243,156,18,0.8);">🎉 VINCITA/E RILEVATA/E! 🎉</h1>
+      <p style="color: #ccc; margin-top: 5px; font-size: 0.9rem;">I vincitori attuali compaiono qui sotto affiancati per la verifica:</p>
       
       <div id="winners-container" class="winners-flex-row"></div>
       
-      <button class="btn btn-sm btn-danger" style="margin-top: 25px; width: 100%; padding: 12px; font-size: 1rem;" onclick="closeWinnerModal()">Chiudi / Prosegui Gioco</button>
+      <button class="btn btn-sm btn-danger" style="margin-top: 20px; width: 100%; padding: 12px; font-size: 1rem;" onclick="closeWinnerModal()">Chiudi / Prosegui Gioco</button>
     </div>
   </div>
 
@@ -297,6 +322,7 @@
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let confettiInterval = null;
+    let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -344,6 +370,11 @@
         };
         reader.readAsDataURL(file);
       }
+    }
+
+    function showPlayerForm() {
+      document.getElementById('player-form-container').style.display = 'block';
+      document.getElementById('add-more-container').style.display = 'none';
     }
 
     // ALGORITMO TRADIZIONALE 3x9 PERFETTO
@@ -444,6 +475,7 @@
         const lastBall = document.getElementById('last-ball-display');
         if(lastBall) lastBall.innerText = '--';
       }
+      renderPlayerCards(); // Aggiorna anche lo stato visivo automatico sulle cartelle
     }
 
     function addPlayerCard() {
@@ -456,6 +488,8 @@
       const name = nameInput.value.trim();
       if(!name) return alert('Inserisci il tuo Nome e Cognome!');
 
+      const playMode = document.getElementById('play-mode').value;
+
       const btn = document.getElementById('generate-card-btn');
       btn.disabled = true;
       btn.innerText = 'Generazione in corso...';
@@ -464,12 +498,27 @@
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardGridObj = generateTombolaClassicGrid();
 
-      const cardData = { uniqueKey: uniqueKey, id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGridObj, status: 'IN ATTESA' };
+      const cardData = { 
+        uniqueKey: uniqueKey, 
+        id: cardId, 
+        name: name, 
+        photo: currentPlayerPhoto, 
+        grid: cardGridObj, 
+        mode: playMode,
+        status: 'IN ATTESA' 
+      };
       
       db.ref('cards/' + uniqueKey).set(cardData)
         .then(() => {
           btn.disabled = false;
           btn.innerText = '+ Genera Nuova Cartella';
+          
+          localMyCardsKeys.push(uniqueKey);
+          localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
+
+          document.getElementById('player-form-container').style.display = 'none';
+          document.getElementById('add-more-container').style.display = 'block';
+
           alert(`Cartella #${cardId} creata con successo!`);
           nameInput.value = '';
         })
@@ -485,10 +534,16 @@
       if(!container) return;
       container.innerHTML = '';
 
-      const cardsArray = Object.values(activeCards);
+      const cardsArray = Object.values(activeCards).filter(c => localMyCardsKeys.includes(c.uniqueKey));
+
       if(cardsArray.length === 0) {
-        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata.</div>';
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Non hai ancora generato alcuna cartella. Compila il modulo sopra per iniziare!</div>';
         return;
+      }
+
+      if(localMyCardsKeys.length > 0) {
+        document.getElementById('player-form-container').style.display = 'none';
+        document.getElementById('add-more-container').style.display = 'block';
       }
 
       cardsArray.forEach(card => {
@@ -517,16 +572,20 @@
             gridHTML += `<div class="tombola-cell empty"></div>`;
           } else {
             const isDrawn = drawnNumbers.includes(num);
-            gridHTML += `<div class="tombola-cell ${isDrawn ? 'marked' : ''}" onclick="this.classList.toggle('marked')">${num}</div>`;
+            // Se modalità automatica si illumina da sola, se manuale l'utente può cliccarla
+            let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
+            gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
           }
         });
         gridHTML += '</div>';
 
         const statusColor = card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f';
+        const statusText = card.status === 'ATTIVA' ? `✓ ATTIVA (${card.mode === 'auto' ? 'Auto' : 'Manuale'})` : '⏳ IN ATTESA DI CONVALIDA';
+        
         cardDiv.innerHTML = `
           <div class="card-header-info">
             <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
-            <div style="color: ${statusColor}; font-size:0.85rem; font-weight:bold;">${card.status}</div>
+            <div style="color: ${statusColor}; font-size:0.8rem; font-weight:bold;">${statusText}</div>
           </div>
           ${gridHTML}
         `;
@@ -560,15 +619,15 @@
         const cardKey = card.uniqueKey || card.id;
         if(list) {
           const item = document.createElement('div');
-          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;';
+          item.style.cssText = 'padding: 10px; margin-bottom: 8px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;';
           const isAttiva = card.status === 'ATTIVA';
           item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${card.photo}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
-              <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <img src="${card.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+              <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status} (${card.mode})</small></div>
             </div>
             <div style="display: flex; gap: 6px;">
-              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard('${cardKey}')">✓ Convalida</button>` : `<span style="color:#2ecc71; font-weight:bold; font-size:0.9rem;">In Gioco</span>`}
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard('${cardKey}')">✓ Convalida</button>` : `<span style="color:#2ecc71; font-weight:bold; font-size:0.85rem;">In Gioco</span>`}
               <button class="btn btn-sm btn-danger" onclick="removeCard('${cardKey}')">Elimina</button>
             </div>
           `;
@@ -581,7 +640,6 @@
       db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
-    // CONTROLLO AUTOMATICO DELLE VINCITE (AMBO, TERNO, QUATERNA, CINQUINA, TOMBOLA)
     function checkAutomaticWins() {
       let detectedWinners = {};
 
@@ -649,6 +707,9 @@
     function removeCard(cardKey) {
       if(confirm('Vuoi eliminare questa scheda?')) {
         db.ref('cards/' + cardKey).remove();
+        localMyCardsKeys = localMyCardsKeys.filter(k => k !== cardKey);
+        localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
+        renderPlayerCards();
       }
     }
 
@@ -679,9 +740,9 @@
         item.className = 'winner-card-item';
         item.innerHTML = `
           <img src="${w.photo}" class="winner-photo" alt="Foto Vincitore">
-          <h2 style="font-size: 1.4rem; color: #fff; margin-top: 8px;">${w.name}</h2>
-          <p style="font-size: 1.2rem; color: var(--gold-light); font-weight: bold; margin-top: 4px;">${w.prize}!</p>
-          <div style="font-size: 0.9rem; color: #aaa; margin-top: 6px;">🎁 ${w.customDesc}</div>
+          <h2 style="font-size: 1.2rem; color: #fff; margin-top: 6px;">${w.name}</h2>
+          <p style="font-size: 1.1rem; color: var(--gold-light); font-weight: bold; margin-top: 2px;">${w.prize}!</p>
+          <div style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">🎁 ${w.customDesc}</div>
         `;
         container.appendChild(item);
       });
@@ -710,6 +771,9 @@
       if(confirm('Vuoi resettare la partita corrente e azzerare tutto?')) {
         db.ref('game').remove();
         db.ref('cards').remove();
+        localStorage.removeItem('my_tombola_cards');
+        localMyCardsKeys = [];
+        showPlayerForm();
       }
     }
 
