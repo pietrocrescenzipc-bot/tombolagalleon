@@ -343,78 +343,52 @@
       }
     }
 
-    // GENERATORE ROBUSTO E SICURO 3x9
+    // GENERATORE ROBUSTO E SICURO 3x9 (RISOLTO IL BUG DEL BLOCCO)
     function generateTombolaClassicGrid() {
-      let grid = Array(3).fill(null).map(() => Array(9).fill(null));
-      let rowCounts = [0, 0, 0];
-      let colCounts = Array(9).fill(0);
-
-      // Riempiamo prima una colonna alla volta per rispettare le decine senza blocchi
-      for (let c = 0; c < 9; c++) {
-        let min = c === 0 ? 1 : c * 10;
-        let max = c === 8 ? 90 : c * 10 + 9;
+      while (true) {
+        let grid = Array(3).fill(null).map(() => Array(9).fill(null));
+        let rowCounts = [0, 0, 0];
         
-        let colNums = [];
-        while(colNums.length < 2) {
-          let rNum = Math.floor(Math.random() * (max - min + 1)) + min;
-          if(!colNums.includes(rNum)) colNums.push(rNum);
-        }
-        colNums.sort((a,b) => a - b);
-
-        let availableRows = [0, 1, 2].sort(() => Math.random() - 0.5);
-        
-        for(let i = 0; i < 2; i++) {
-          let num = colNums[i];
-          let placed = false;
-          for(let r of availableRows) {
-            if(rowCounts[r] < 5 && grid[r][c] === null) {
-              grid[r][c] = num;
-              rowCounts[r]++;
-              colCounts[c]++;
-              placed = true;
-              break;
-            }
+        for (let c = 0; c < 9; c++) {
+          let min = c === 0 ? 1 : c * 10;
+          let max = c === 8 ? 90 : c * 10 + 9;
+          
+          let countInCol = Math.random() < 0.6 ? 1 : 2;
+          let nums = [];
+          while (nums.length < countInCol) {
+            let rNum = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (!nums.includes(rNum)) nums.push(rNum);
           }
-          if(!placed) {
-            for(let r = 0; r < 3; r++) {
-              if(rowCounts[r] < 5 && grid[r][c] === null) {
-                grid[r][c] = num;
+          nums.sort((a, b) => a - b);
+
+          let rows = [0, 1, 2].sort(() => Math.random() - 0.5);
+          for (let i = 0; i < nums.length; i++) {
+            for (let r of rows) {
+              if (grid[r][c] === null && rowCounts[r] < 5) {
+                grid[r][c] = nums[i];
                 rowCounts[r]++;
-                colCounts[c]++;
                 break;
               }
             }
           }
         }
-      }
 
-      // Selezioniamo casualmente altre 3 caselle per arrivare esattamente a 15 numeri (5 per riga)
-      let currentTotal = rowCounts.reduce((a, b) => a + b, 0);
-      while(currentTotal < 15) {
-        let r = Math.floor(Math.random() * 3);
-        let c = Math.floor(Math.random() * 9);
-        if(rowCounts[r] < 5 && grid[r][c] === null) {
-          let min = c === 0 ? 1 : c * 10;
-          let max = c === 8 ? 90 : c * 10 + 9;
-          let rNum;
-          do {
-            rNum = Math.floor(Math.random() * (max - min + 1)) + min;
-          } while(grid[r].includes(rNum));
-          
-          grid[r][c] = rNum;
-          rowCounts[r]++;
-          colCounts[c]++;
-          currentTotal++;
+        let totalNumbers = rowCounts.reduce((a, b) => a + b, 0);
+        if (rowCounts[0] === 5 && rowCounts[1] === 5 && rowCounts[2] === 5 && totalNumbers === 15) {
+          for (let c = 0; c < 9; c++) {
+            let colNums = [];
+            for (let r = 0; r < 3; r++) {
+              if (grid[r][c] !== null) colNums.push(grid[r][c]);
+            }
+            colNums.sort((a, b) => a - b);
+            let idx = 0;
+            for (let r = 0; r < 3; r++) {
+              if (grid[r][c] !== null) grid[r][c] = colNums[idx++];
+            }
+          }
+          return grid.flat();
         }
       }
-
-      let flatGrid = [];
-      for(let r = 0; r < 3; r++) {
-        for(let c = 0; c < 9; c++) {
-          flatGrid.push(grid[r][c]);
-        }
-      }
-      return flatGrid;
     }
 
     // --- SINCRONIZZAZIONE REALTIME CLOUD ---
@@ -494,7 +468,7 @@
         .catch(err => {
           btn.disabled = false;
           btn.innerText = '+ Genera Cartella';
-          alert('Errore di connessione. Verifica la rete e riprova.');
+          alert('Errore di salvataggio. Controlla la connessione.');
         });
     }
 
