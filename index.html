@@ -296,7 +296,7 @@
       return nums.sort((a,b) => a - b);
     }
 
-    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
+    // --- SINCRONIZZAZIONE REALTIME CLOUD ROBUSTA ---
     db.ref('game/drawnNumbers').on('value', (snapshot) => {
       drawnNumbers = snapshot.val() || [];
       updateBoardVisuals();
@@ -310,17 +310,15 @@
 
     db.ref('game/lastExtraction').on('value', (snapshot) => {
       const data = snapshot.val();
-      if(data && data.number && (!window.lastExtractedTime || data.time > window.lastExtractedTime)) {
-        window.lastExtractedTime = data.time;
+      if(data && data.number) {
         showExtractionAnimation(data.number);
       }
     });
 
-    // Ascolto automatico vincitore in tempo reale su tutti i dispositivi
+    // Ascolto automatico e immediato della vittoria su qualsiasi dispositivo
     db.ref('game/winner').on('value', (snapshot) => {
       const winner = snapshot.val();
-      if(winner && winner.time && (!window.lastWinnerTime || winner.time > window.lastWinnerTime)) {
-        window.lastWinnerTime = winner.time;
+      if(winner && winner.name) {
         showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
       }
     });
@@ -489,7 +487,7 @@
 
       const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
       
-      // Invia il vincitore sul cloud: si aprirà automaticamente su tutti i maxischermi e dispositivi
+      // Scrive sul database cloud: aprirà in automatico la schermata della vittoria ovunque
       db.ref('game/winner').set(winnerData);
     }
 
@@ -505,6 +503,8 @@
 
     function closeWinnerModal() {
       document.getElementById('winner-modal').style.display = 'none';
+      // Pulisce il vincitore sul database così non resta bloccato in loop se si ricarica
+      db.ref('game/winner').remove();
     }
 
     function resetGame() {
