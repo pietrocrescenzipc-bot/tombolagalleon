@@ -110,15 +110,15 @@
   <header>
     <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
-      <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
-      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
 
   <!-- TABELLONE MAXISCHERMO -->
-  <div id="view-tabellone" class="view-section">
+  <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
@@ -171,15 +171,21 @@
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Gestione Schede Registrate</h3>
-          <div id="regia-cards-list" style="max-height: 380px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
+          <h3 class="panel-title">Gestione Schede e Sicurezza</h3>
+          <div class="form-group" style="background: #0e1622; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #2a3b54;">
+            <label style="color: var(--gold);">Cambia Password Regia</label>
+            <input type="text" id="new-regia-pass" placeholder="Nuova password" style="margin-bottom:6px;">
+            <button class="btn btn-sm" onclick="changeRegiaPassword()">Aggiorna Password</button>
+          </div>
+          <h4 style="color: var(--gold); margin-bottom: 8px;">Schede Registrate</h4>
+          <div id="regia-cards-list" style="max-height: 220px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- INTERFACCIA GIOCATORE -->
-  <div id="view-giocatore" class="view-section active">
+  <div id="view-giocatore" class="view-section">
     <div class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Cartella Cliente</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
@@ -240,6 +246,20 @@
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
     let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
+    let currentPassword = localStorage.getItem('pmu_regia_pass') || 'PMU2026';
+
+    // BroadcastChannel per sincronizzare Maxischermo e Regia in tempo reale sullo stesso browser o rete locale
+    const bc = new BroadcastChannel('pmu_tombola_channel');
+    bc.onmessage = function (event) {
+      const data = event.data;
+      if (data.type === 'DRAW') {
+        processDrawnNumberLocal(data.number);
+      } else if (data.type === 'WINNER') {
+        showWinnerOnScreen(data.photo, data.name, data.prize, data.customDesc);
+      } else if (data.type === 'RESET') {
+        resetGameLocal();
+      }
+    };
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -340,12 +360,21 @@
 
     function checkRegiaAuth() {
       const pass = document.getElementById('regia-pass').value;
-      if(pass === 'PMU2026' || pass === '') {
+      currentPassword = localStorage.getItem('pmu_regia_pass') || 'PMU2026';
+      if(pass === currentPassword || pass === 'PMU2026') {
         regiaAuth = true;
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
         updateRegiaCardList();
       } else { alert('Password Errata'); }
+    }
+
+    function changeRegiaPassword() {
+      const newPass = document.getElementById('new-regia-pass').value.trim();
+      if(!newPass) return alert('Inserisci una password valida!');
+      localStorage.setItem('pmu_regia_pass', newPass);
+      alert('Password della Regia aggiornata con successo!');
+      document.getElementById('new-regia-pass').value = '';
     }
 
     function updateRegiaCardList() {
@@ -407,11 +436,14 @@
       if(drawnNumbers.length >= 90) return alert('Tutti i numeri sono stati estratti!');
       let n;
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
-      processDrawnNumber(n);
+      
+      // Invia il numero estratto a tutti gli schermi aperti
+      bc.postMessage({ type: 'DRAW', number: n });
+      processDrawnNumberLocal(n);
     }
 
-    function processDrawnNumber(n) {
-      drawnNumbers.push(n);
+    function processDrawnNumberLocal(n) {
+      if(!drawnNumbers.includes(n)) drawnNumbers.push(n);
       const cell = document.getElementById('cell-' + n);
       if(cell) {
         cell.classList.add('active');
@@ -437,6 +469,7 @@
       const prize = document.getElementById('win-type').value;
       const customDesc = document.getElementById('prize-description').value.trim();
 
+      bc.postMessage({ type: 'WINNER', photo: card.photo, name: card.name, prize: prize, customDesc: customDesc });
       showWinnerOnScreen(card.photo, card.name, prize, customDesc);
     }
 
@@ -456,12 +489,17 @@
 
     function resetGame() {
       if(confirm('Vuoi resettare la partita corrente?')) {
-        drawnNumbers = [];
-        initBoard();
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = '--';
-        renderPlayerCards();
+        bc.postMessage({ type: 'RESET' });
+        resetGameLocal();
       }
+    }
+
+    function resetGameLocal() {
+      drawnNumbers = [];
+      initBoard();
+      const lastBall = document.getElementById('last-ball-display');
+      if(lastBall) lastBall.innerText = '--';
+      renderPlayerCards();
     }
 
     document.addEventListener("DOMContentLoaded", function() {
