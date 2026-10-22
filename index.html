@@ -6,6 +6,9 @@
   <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --bg-dark: #0a0e17;
@@ -92,15 +95,15 @@
     .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
-    /* Overlay Estrazione e Vincita */
+    /* Overlay Estrazione e Vincita Automatica a Tutto Schermo */
     #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.95); backdrop-filter: blur(12px);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 1000; text-align: center;
     }
     .giant-ball { width: 180px; height: 180px; font-size: 5rem; border-width: 10px; }
     .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.5rem; font-weight: bold; transform: rotate(-2deg); }
-    .winner-photo { width: 220px; height: 220px; border-radius: 50%; border: 6px solid var(--gold); object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 30px rgba(243, 156, 18, 0.6); }
+    .winner-photo { width: 240px; height: 240px; border-radius: 50%; border: 6px solid var(--gold); object-fit: cover; margin-bottom: 20px; box-shadow: 0 0 40px rgba(243, 156, 18, 0.8); }
 
     @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } }
   </style>
@@ -110,15 +113,15 @@
   <header>
     <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
-      <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
-      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
 
   <!-- TABELLONE MAXISCHERMO -->
-  <div id="view-tabellone" class="view-section">
+  <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
@@ -167,19 +170,19 @@
             <label>Descrizione Premio</label>
             <input type="text" id="prize-description" placeholder="Es. Buono Cena / Cesto Natalizio">
           </div>
-          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione</button>
+          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione Automatica</button>
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Gestione Schede In Sala</h3>
-          <div id="regia-cards-list" style="max-height: 350px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
+          <h3 class="panel-title">Partecipanti Registrati in Sala</h3>
+          <div id="regia-cards-list" style="max-height: 350px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- INTERFACCIA GIOCATORE -->
-  <div id="view-giocatore" class="view-section active">
+  <div id="view-giocatore" class="view-section">
     <div class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 12px; font-size: 1.4rem;">Crea la tua Cartella della Tombola</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
@@ -213,17 +216,23 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
-  <!-- MODALE VINCITORE -->
+  <!-- MODALE VINCITORE AUTOMATICO -->
   <div id="winner-modal">
     <h1 style="color: var(--gold); font-size: 3.5rem; margin-bottom: 15px; text-shadow: 0 0 20px rgba(243,156,18,0.5);">VINCITA CONVALIDATA!</h1>
     <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
-    <h2 id="winner-name" style="font-size: 2.8rem; color: #fff; margin-bottom: 10px;">--</h2>
-    <p id="winner-prize" style="font-size: 2rem; color: var(--gold-light);">--</p>
-    <div id="winner-custom-desc" style="font-size: 1.5rem; color: #fff; margin-top: 10px;"></div>
+    <h2 id="winner-name" style="font-size: 3rem; color: #fff; margin-bottom: 10px;">--</h2>
+    <p id="winner-prize" style="font-size: 2.2rem; color: var(--gold-light);">--</p>
+    <div id="winner-custom-desc" style="font-size: 1.6rem; color: #fff; margin-top: 10px;"></div>
     <button class="btn btn-sm" style="margin-top: 30px; width: auto; padding: 12px 30px; font-size: 1.1rem;" onclick="closeWinnerModal()">Chiudi Proclamazione</button>
   </div>
 
   <script>
+    const firebaseConfig = {
+      databaseURL: "https://tombolagalleon-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const smorfia = {
       1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
       11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
@@ -236,8 +245,8 @@
       81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
     };
 
-    let drawnNumbers = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
-    let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
+    let drawnNumbers = [];
+    let activeCards = {};
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/100/162232/ffffff?text=Selfie";
 
@@ -246,8 +255,6 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
       document.getElementById('btn-' + viewId).classList.add('active');
-      if(viewId === 'regia' && regiaAuth) updateRegiaCardList();
-      if(viewId === 'giocatore') renderPlayerCards();
     }
 
     function initBoard() {
@@ -260,18 +267,6 @@
         cell.id = 'cell-' + i;
         cell.innerText = i;
         grid.appendChild(cell);
-      }
-      drawnNumbers.forEach(n => {
-        const cell = document.getElementById('cell-' + n);
-        if(cell) {
-          cell.classList.add('active');
-          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
-        }
-      });
-      if(drawnNumbers.length > 0) {
-        const last = drawnNumbers[drawnNumbers.length - 1];
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = last;
       }
     }
 
@@ -301,6 +296,60 @@
       return nums.sort((a,b) => a - b);
     }
 
+    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
+    db.ref('game/drawnNumbers').on('value', (snapshot) => {
+      drawnNumbers = snapshot.val() || [];
+      updateBoardVisuals();
+    });
+
+    db.ref('cards').on('value', (snapshot) => {
+      activeCards = snapshot.val() || {};
+      renderPlayerCards();
+      if(regiaAuth) updateRegiaCardList();
+    });
+
+    db.ref('game/lastExtraction').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if(data && data.number && (!window.lastExtractedTime || data.time > window.lastExtractedTime)) {
+        window.lastExtractedTime = data.time;
+        showExtractionAnimation(data.number);
+      }
+    });
+
+    // Ascolto automatico vincitore in tempo reale su tutti i dispositivi
+    db.ref('game/winner').on('value', (snapshot) => {
+      const winner = snapshot.val();
+      if(winner && winner.time && (!window.lastWinnerTime || winner.time > window.lastWinnerTime)) {
+        window.lastWinnerTime = winner.time;
+        showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
+      }
+    });
+
+    function updateBoardVisuals() {
+      for(let i = 1; i <= 90; i++) {
+        const cell = document.getElementById('cell-' + i);
+        if(cell) {
+          cell.className = 'grid-cell';
+          cell.innerText = i;
+        }
+      }
+      drawnNumbers.forEach(n => {
+        const cell = document.getElementById('cell-' + n);
+        if(cell) {
+          cell.classList.add('active');
+          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+        }
+      });
+      if(drawnNumbers.length > 0) {
+        const last = drawnNumbers[drawnNumbers.length - 1];
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = last;
+      } else {
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = '--';
+      }
+    }
+
     function addPlayerCard() {
       const name = document.getElementById('player-name').value.trim();
       if(!name) return alert('Inserisci il tuo Nome e Cognome!');
@@ -309,26 +358,25 @@
       const cardNumbers = generateTombolaCardNumbers();
 
       const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA' };
-      activeCards.push(cardData);
-      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
-
-      renderPlayerCards();
-      alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
-      document.getElementById('player-name').value = '';
+      
+      db.ref('cards/' + cardId).set(cardData).then(() => {
+        alert(`Cartella creata con successo! ID Scheda #${cardId}. Mostralo in cassa per l'attivazione.`);
+        document.getElementById('player-name').value = '';
+      });
     }
 
     function renderPlayerCards() {
-      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const container = document.getElementById('player-cards-list');
       if(!container) return;
       container.innerHTML = '';
 
-      if(activeCards.length === 0) {
-        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata su questo dispositivo.</div>';
+      const cardsArray = Object.values(activeCards);
+      if(cardsArray.length === 0) {
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna cartella generata.</div>';
         return;
       }
 
-      activeCards.forEach(card => {
+      cardsArray.forEach(card => {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card-digital';
 
@@ -363,12 +411,12 @@
 
     function updateRegiaCardList() {
       if(!regiaAuth) return;
-      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const list = document.getElementById('regia-cards-list');
       const winSelect = document.getElementById('winner-select');
       
-      if(activeCards.length === 0) {
-        if(list) list.innerHTML = '<i>Nessuna scheda registrata.</i>';
+      const cardsArray = Object.values(activeCards);
+      if(cardsArray.length === 0) {
+        if(list) list.innerHTML = '<i>Nessun partecipante registrato.</i>';
         if(winSelect) winSelect.innerHTML = '<option value="">Nessun giocatore</option>';
         return;
       }
@@ -376,16 +424,19 @@
       if(list) list.innerHTML = '';
       if(winSelect) winSelect.innerHTML = '';
 
-      activeCards.forEach(card => {
+      cardsArray.forEach(card => {
         if(list) {
           const item = document.createElement('div');
-          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54;';
+          item.style.cssText = 'padding: 12px; margin-bottom: 10px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between;';
           const isAttiva = card.status === 'ATTIVA';
           item.innerHTML = `
-            <div style="margin-bottom: 8px;"><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
-            <div style="display: flex; gap: 10px;">
-              ${!isAttiva ? `<button class="btn btn-sm btn-success" style="flex:1;" onclick="regiaActivateSpecificCard(${card.id})">✓ CONVALIDA</button>` : '<div style="flex:1; padding:8px; text-align:center; color:#2ecc71; font-weight:bold;">CONVALIDATA</div>'}
-              <button class="btn btn-sm btn-danger" style="flex:1;" onclick="removeCard(${card.id})">Elimina</button>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <img src="${card.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+              <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status}</small></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard(${card.id})">✓ Convalida</button>` : '<b style="color:#2ecc71; font-size:0.85rem;">ATTIVA</b>'}
+              <button class="btn btn-sm btn-danger" onclick="removeCard(${card.id})">Elimina</button>
             </div>
           `;
           list.appendChild(item);
@@ -401,18 +452,12 @@
     }
 
     function regiaActivateSpecificCard(cardId) {
-      activeCards.forEach(c => { if(c.id === cardId) c.status = 'ATTIVA'; });
-      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
-      updateRegiaCardList();
-      renderPlayerCards();
+      db.ref('cards/' + cardId + '/status').set('ATTIVA');
     }
 
     function removeCard(cardId) {
       if(confirm('Vuoi eliminare questa scheda?')) {
-        activeCards = activeCards.filter(c => c.id !== cardId);
-        localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
-        updateRegiaCardList();
-        renderPlayerCards();
+        db.ref('cards/' + cardId).remove();
       }
     }
 
@@ -422,44 +467,30 @@
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
       
       drawnNumbers.push(n);
-      localStorage.setItem('pmu_drawn', JSON.stringify(drawnNumbers));
-      localStorage.setItem('pmu_last_action', JSON.stringify({ type: 'DRAW', number: n, time: Date.now() }));
-      
-      processDrawnNumberLocal(n, true);
+      db.ref('game/drawnNumbers').set(drawnNumbers);
+      db.ref('game/lastExtraction').set({ number: n, time: Date.now() });
     }
 
-    function processDrawnNumberLocal(n, showAnim = false) {
-      const cell = document.getElementById('cell-' + n);
-      if(cell && !cell.classList.contains('active')) {
-        cell.classList.add('active');
-        cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
-      }
-      const lastBall = document.getElementById('last-ball-display');
-      if(lastBall) lastBall.innerText = n;
-
-      if(showAnim) {
-        const overlay = document.getElementById('extraction-overlay');
-        document.getElementById('overlay-ball').innerText = n;
-        document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
-        overlay.style.display = 'flex';
-        setTimeout(() => { overlay.style.display = 'none'; }, 2500);
-      }
-      renderPlayerCards();
+    function showExtractionAnimation(n) {
+      const overlay = document.getElementById('extraction-overlay');
+      document.getElementById('overlay-ball').innerText = n;
+      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
+      overlay.style.display = 'flex';
+      setTimeout(() => { overlay.style.display = 'none'; }, 2500);
     }
 
     function triggerWinnerFromRegia() {
       const selectedId = parseInt(document.getElementById('winner-select').value);
-      const card = activeCards.find(c => c.id === selectedId);
+      const card = activeCards[selectedId];
       if(!card) return alert('Seleziona un giocatore attivo dall\'elenco!');
 
       const prize = document.getElementById('win-type').value;
       const customDesc = document.getElementById('prize-description').value.trim();
 
       const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
-      localStorage.setItem('pmu_winner', JSON.stringify(winnerData));
-      localStorage.setItem('pmu_last_action', JSON.stringify({ type: 'WINNER', data: winnerData, time: Date.now() }));
-
-      showWinnerOnScreen(card.photo, card.name, prize, customDesc);
+      
+      // Invia il vincitore sul cloud: si aprirà automaticamente su tutti i maxischermi e dispositivi
+      db.ref('game/winner').set(winnerData);
     }
 
     function showWinnerOnScreen(photo, name, prize, customDesc) {
@@ -469,7 +500,7 @@
       document.getElementById('winner-custom-desc').innerText = customDesc ? `🎁 Premio: ${customDesc}` : '';
       document.getElementById('winner-modal').style.display = 'flex';
 
-      confetti({ particleCount: 250, spread: 120, origin: { y: 0.5 } });
+      confetti({ particleCount: 300, spread: 150, origin: { y: 0.5 } });
     }
 
     function closeWinnerModal() {
@@ -478,36 +509,13 @@
 
     function resetGame() {
       if(confirm('Vuoi resettare la partita corrente?')) {
-        localStorage.removeItem('pmu_drawn');
-        localStorage.removeItem('pmu_winner');
-        localStorage.removeItem('pmu_cards');
-        drawnNumbers = [];
-        activeCards = [];
-        initBoard();
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = '--';
-        renderPlayerCards();
+        db.ref('game').remove();
+        db.ref('cards').remove();
       }
     }
 
-    // Sincronizzazione locale intelligente tra tab/finestre aperte sullo stesso browser o ripetitori
-    setInterval(() => {
-      let savedDrawn = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
-      if(savedDrawn.length !== drawnNumbers.length) {
-        drawnNumbers = savedDrawn;
-        initBoard();
-      }
-
-      let winner = JSON.parse(localStorage.getItem('pmu_winner') || 'null');
-      if(winner && winner.time && (!window.lastShownWinnerTime || winner.time > window.lastShownWinnerTime)) {
-        window.lastShownWinnerTime = winner.time;
-        showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
-      }
-    }, 1000);
-
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
-      renderPlayerCards();
       try {
         new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
       } catch(e){}
