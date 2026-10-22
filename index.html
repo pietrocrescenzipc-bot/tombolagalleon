@@ -81,13 +81,30 @@
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
     
     /* Layout Classico Tombola 3x9 */
-    .tombola-classic-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; border: 1px solid #2c3e59; }
-    .tombola-cell {
-      aspect-ratio: 1.1; background: #162232; border-radius: 4px; display: flex;
-      align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;
-      color: #fff; cursor: pointer; border: 1px solid #2c3e59; user-select: none;
+    .tombola-classic-grid { 
+      display: grid !important; 
+      grid-template-columns: repeat(9, 1fr) !important; 
+      gap: 4px; 
+      background: #0a0e17; 
+      padding: 8px; 
+      border-radius: 8px; 
+      border: 1px solid #2c3e59; 
     }
-    .tombola-cell.empty { background: #0e1622; border-color: transparent; cursor: default; }
+    .tombola-cell {
+      aspect-ratio: 1.2; 
+      background: #162232; 
+      border-radius: 4px; 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      font-size: 1.1rem;
+      color: #fff; 
+      cursor: pointer; 
+      border: 1px solid #2c3e59; 
+      user-select: none;
+    }
+    .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
     .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 8px rgba(0,0,0,0.5); }
 
     /* Controlli Regia */
@@ -130,7 +147,7 @@
 
     @media (max-width: 768px) {
       .regia-grid { grid-template-columns: 1fr; }
-      .tombola-cell { font-size: 0.85rem; }
+      .tombola-cell { font-size: 0.8rem; aspect-ratio: 1; }
     }
   </style>
 </head>
@@ -326,59 +343,39 @@
       }
     }
 
-    // GENERATORE TRADIZIONALE 3x9 (15 NUMERI SU 27 CASELLE, 5 PER RIGA)
+    // ALGORITMO DI GENERAZIONE 3x9 REALISTICO
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
-      let selectedCols = [0,1,2,3,4,5,6,7,8];
-      let rowCounts = [0, 0, 0];
       
-      // Estraiamo 15 numeri divisi per decine
-      let numbersByCol = {};
-      let totalAssigned = 0;
-
-      while(totalAssigned < 15) {
-        let col = Math.floor(Math.random() * 9);
-        let countInCol = Object.keys(numbersByCol).filter(k => Math.floor(k / 10) === col || (col===8 && k>=80)).length;
-        if(countInCol < 2) {
-          let min = col === 0 ? 1 : col * 10;
-          let max = col === 8 ? 90 : col * 10 + 9;
-          let num = Math.floor(Math.random() * (max - min + 1)) + min;
-          if(!numbersByCol[num]) {
-            numbersByCol[num] = col;
-            totalAssigned++;
-          }
+      // Selezioniamo 15 numeri divisi per decine
+      let selectedNumbers = [];
+      while(selectedNumbers.length < 15) {
+        let n = Math.floor(Math.random() * 90) + 1;
+        if(!selectedNumbers.includes(n)) {
+          let col = n === 90 ? 8 : Math.floor(n / 10);
+          let countInCol = selectedNumbers.filter(x => (x === 90 ? 8 : Math.floor(x / 10)) === col).length;
+          if(countInCol < 2) selectedNumbers.push(n);
         }
       }
+      selectedNumbers.sort((a,b) => a - b);
 
-      // Distribuzione sulle 3 righe (5 per riga)
-      let numList = Object.keys(numbersByCol).map(Number).sort((a,b) => a - b);
-      
-      numList.forEach(num => {
-        let col = num === 90 ? 8 : Math.floor(num / 10);
-        let placed = false;
+      // Posizioniamo nelle 3 righe garantendo 5 numeri per riga
+      let rowCounts = [0, 0, 0];
+      selectedNumbers.forEach(n => {
+        let col = n === 90 ? 8 : Math.floor(n / 10);
         for(let r = 0; r < 3; r++) {
           if(rowCounts[r] < 5 && grid[r][col] === null) {
-            grid[r][col] = num;
+            grid[r][col] = n;
             rowCounts[r]++;
-            placed = true;
             break;
-          }
-        }
-        if(!placed) {
-          for(let r = 0; r < 3; r++) {
-            if(grid[r][col] === null) {
-              grid[r][col] = num;
-              placed = true;
-              break;
-            }
           }
         }
       });
 
-      // Flatten grid di 27 elementi
+      // Riconvertiamo la matrice in un array da 27 elementi esatti
       let flatGrid = [];
-      for(let r=0; r<3; r++) {
-        for(let c=0; c<9; c++) {
+      for(let r = 0; r < 3; r++) {
+        for(let c = 0; c < 9; c++) {
           flatGrid.push(grid[r][c]);
         }
       }
@@ -483,11 +480,14 @@
 
         let gridHTML = '<div class="tombola-classic-grid">';
         
-        // Se vecchia scheda con soli 15 numeri, adattamento morbido
-        let gridArray = card.grid || [];
-        if(gridArray.length < 27 && card.numbers) {
+        // Gestione compatibilità
+        let gridArray = card.grid;
+        if(!gridArray || gridArray.length < 27) {
+          // Se la scheda è del vecchio formato a 15 numeri, costruiamo una griglia fittizia
           gridArray = Array(27).fill(null);
-          card.numbers.forEach((n, idx) => { gridArray[idx] = n; });
+          if(card.numbers) {
+            card.numbers.forEach((n, idx) => { if(idx < 27) gridArray[idx] = n; });
+          }
         }
 
         gridArray.forEach(num => {
