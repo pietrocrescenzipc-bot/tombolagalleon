@@ -6,14 +6,12 @@
   <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
     :root {
       --bg-dark: #0a0e17;
       --card-bg: #161f30;
       --gold: #f39c12;
       --gold-light: #f1c40f;
-      --accent-blue: #00d2ff;
       --ball-orange: #ff6600;
       --ball-blue: #0044cc;
       --text-light: #ffffff;
@@ -22,130 +20,94 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; overflow-x: hidden; }
 
-    /* Navigation Header */
     header {
       background: linear-gradient(135deg, #111, #1a2536);
       padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       border-bottom: 2px solid var(--gold);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       position: sticky; top: 0; z-index: 100;
     }
-    .brand-title { font-size: 1.2rem; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
-    .nav-tabs { display: flex; gap: 8px; }
+    .brand-title { font-size: 1.1rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
+    .nav-tabs { display: flex; gap: 6px; }
     .tab-btn {
       background: #222e42; color: #ccc; border: 1px solid #3a4b68;
-      padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
-      font-weight: 600; transition: all 0.3s;
+      padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
     }
-    .tab-btn:hover, .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
+    .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
 
-    /* Container Views */
-    .view-section { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .view-section { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
     .view-section.active { display: block; }
 
-    /* 3D Billiard Ball Style */
+    /* Pallina Biliardo 3D */
     .billiard-ball {
-      width: 48px; height: 48px; border-radius: 50%;
+      width: 44px; height: 44px; border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e6e6e6 50%, #cccccc 100%);
-      border: 5px solid var(--ball-orange);
-      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), inset 3px 3px 6px rgba(255,255,255,0.8), 0 6px 10px rgba(0,0,0,0.5);
+      border: 4px solid var(--ball-orange);
+      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), inset 3px 3px 6px rgba(255,255,255,0.8), 0 4px 8px rgba(0,0,0,0.5);
       display: inline-flex; justify-content: center; align-items: center;
-      font-weight: 900; color: var(--ball-blue); font-size: 1.2rem;
-      text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
-      position: relative; user-select: none;
+      font-weight: 900; color: var(--ball-blue); font-size: 1.1rem;
+      user-select: none; margin: 0 auto;
     }
     .billiard-ball.drawn {
       background: radial-gradient(circle at 35% 35%, #ff8833 0%, var(--ball-orange) 60%, #cc4400 100%);
       border-color: #ffffff; color: #ffffff;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
       box-shadow: 0 0 12px var(--ball-orange);
     }
 
     /* Tabellone Maxischermo */
-    #tabellone-container { text-align: center; }
     .top-banner {
       background: linear-gradient(90deg, #000, #1a2536, #000);
       padding: 15px; border-radius: 10px; border: 1px solid var(--gold);
       margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
     }
-    .banner-text { font-size: 1.5rem; color: var(--gold); font-weight: bold; }
-    .fullscreen-btn {
-      background: var(--gold); color: #000; border: none; padding: 10px 18px;
-      font-weight: bold; border-radius: 6px; cursor: pointer;
-    }
-    .grid-90 {
-      display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px;
-      background: #111a28; padding: 20px; border-radius: 12px; border: 2px solid #2a3b54;
-    }
-    .grid-cell {
-      aspect-ratio: 1; display: flex; justify-content: center; align-items: center;
-      background: #1a2638; border-radius: 8px; font-weight: bold; font-size: 1.2rem;
-      color: #556b8d; border: 1px solid #2c3e59; transition: all 0.3s;
-    }
+    .banner-text { font-size: 1.3rem; color: var(--gold); font-weight: bold; }
+    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+    .grid-90 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; background: #111a28; padding: 15px; border-radius: 12px; border: 2px solid #2a3b54; }
+    .grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; background: #1a2638; border-radius: 8px; font-weight: bold; color: #556b8d; border: 1px solid #2c3e59; }
     .grid-cell.active { background: transparent; border: none; }
     
     .last-extracted-box {
       margin-top: 20px; background: #162232; padding: 15px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center; gap: 20px;
-      border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center; gap: 15px; border: 1px solid var(--gold);
     }
 
-    /* Regia Dashboard */
+    /* Interfaccia Giocatore */
+    .player-header { background: #161f30; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
+    .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
+    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
+    .card-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; }
+    .card-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; }
+    .card-cell.empty { background: transparent; border: none; }
+    .card-cell.marked { background: var(--ball-orange); color: #fff; font-size: 1rem; border-color: #fff; }
+
+    /* Controls & Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
-    .btn { background: var(--gold); color: #000; border: none; padding: 10px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-    .btn:hover { background: var(--gold-light); }
+    .btn { background: var(--gold); color: #000; border: none; padding: 10px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
     .btn-danger { background: #e74c3c; color: #fff; }
-    .btn-danger:hover { background: #c0392b; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 4px; font-size: 0.9rem; color: #aaa; }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: #aaa; }
     .form-group input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; }
 
-    /* Player Interface */
-    .player-header { background: #111a28; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 10px; padding: 15px; margin-bottom: 20px; }
-    .card-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-top: 10px; }
-    .card-cell { aspect-ratio: 1; background: #0e1622; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-    .card-cell.empty { background: transparent; cursor: default; }
-    .card-cell.selected { background: var(--ball-orange); color: #fff; }
-
-    /* Overlay Extraction & Smorfia */
-    #extraction-overlay {
+    /* Overlay Estrazione e Vincita */
+    #extraction-overlay, #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-      display: none; justify-content: center; align-items: center; flex-direction: column;
-      z-index: 1000;
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(8px);
+      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 1000;
     }
-    .giant-ball {
-      width: 180px; height: 180px; font-size: 5rem; border-width: 12px;
-      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .smorfia-sticker {
-      margin-top: 20px; background: #fff; color: #000; padding: 15px 30px;
-      border-radius: 30px; font-size: 1.5rem; font-weight: bold;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: rotate(-2deg);
-    }
+    .giant-ball { width: 160px; height: 160px; font-size: 4.5rem; border-width: 10px; }
+    .smorfia-sticker { margin-top: 20px; background: #fff; color: #000; padding: 12px 25px; border-radius: 25px; font-size: 1.4rem; font-weight: bold; transform: rotate(-2deg); }
+    .winner-photo { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--gold); object-fit: cover; margin-bottom: 15px; }
 
-    /* Modal Proclamazione Vincita */
-    #winner-modal {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center;
-      flex-direction: column; z-index: 2000; text-align: center;
-    }
-    .winner-photo { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--gold); object-fit: cover; margin-bottom: 15px; }
-
-    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-    @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .regia-grid { grid-template-columns: 1fr; } .billiard-ball { width: 32px; height: 32px; font-size: 0.85rem; border-width: 2px; } }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand-title" id="header-title">PMU & The Galleon - Tombola</div>
+    <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchView('tabellone')">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')">Regia</button>
@@ -156,25 +118,23 @@
 
   <!-- TABELLONE MAXISCHERMO -->
   <div id="view-tabellone" class="view-section active">
-    <div id="tabellone-container">
-      <div class="top-banner">
-        <div class="banner-text" id="display-event-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
-        <button class="fullscreen-btn" onclick="toggleFullscreen()">fullscreen A TUTTO SCHERMO</button>
-      </div>
-      <div class="grid-90" id="board-grid"></div>
-      <div class="last-extracted-box">
-        <span style="font-size: 1.2rem; color: #aaa;">ULTIMO NUMERO ESTRATTO:</span>
-        <div id="last-ball-display" class="billiard-ball drawn" style="width: 60px; height: 60px; font-size: 1.6rem;">--</div>
-      </div>
+    <div class="top-banner">
+      <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
+    </div>
+    <div class="grid-90" id="board-grid"></div>
+    <div class="last-extracted-box">
+      <span style="font-size: 1.1rem; color: #aaa;">ULTIMO NUMERO ESTRATTO:</span>
+      <div id="last-ball-display" class="billiard-ball drawn" style="width: 55px; height: 55px; font-size: 1.5rem;">--</div>
     </div>
   </div>
 
   <!-- REGIA CONTROL DASHBOARD -->
   <div id="view-regia" class="view-section">
-    <div id="regia-login" class="panel-card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+    <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
       <div class="form-group">
-        <input type="password" id="regia-pass" placeholder="Inserisci Password (def: PMU2026)">
+        <input type="password" id="regia-pass" placeholder="Password (default: PMU2026)">
       </div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
     </div>
@@ -183,50 +143,57 @@
       <div class="regia-grid">
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
-          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
             <button class="btn" onclick="drawNumber()">Estrai Numero</button>
-            <button class="btn btn-danger" onclick="resetGame()">Nuova Partita / Reset</button>
+            <button class="btn btn-danger" onclick="resetGame()">Nuova Partita</button>
           </div>
-          <div>
-            <h4>Scanner QR Code (Verifica / Attivazione)</h4>
-            <video id="scanner-video" style="width: 100%; height: 200px; background: #000; border-radius: 6px; margin-top: 10px;"></video>
-            <button class="btn" style="margin-top: 5px; width: 100%;" onclick="startScanner()">Avvia Fotocamera Scanner</button>
+          <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
+          <div class="form-group">
+            <label>Tipo di Vincita</label>
+            <select id="win-type" style="width:100%; padding:8px; background:#0e1622; color:#fff; border:1px solid #3a4b68; border-radius:4px;">
+              <option value="AMBO">AMBO</option>
+              <option value="TERNO">TERNO</option>
+              <option value="QUATERNA">QUATERNA</option>
+              <option value="CINQUINA">CINQUINA</option>
+              <option value="TOMBOLA">TOMBOLA</option>
+            </select>
           </div>
+          <button class="btn" onclick="triggerWinnerFromRegia()">Lancia Proclamazione sul Maxischermo</button>
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Impostazioni Evento & Premi</h3>
-          <div class="form-group">
-            <label>Organizzatore</label>
-            <input type="text" id="cfg-org" value="Pallavolo Media Umbra (PMU)">
-          </div>
-          <div class="form-group">
-            <label>Collaboratore / Sponsor</label>
-            <input type="text" id="cfg-sponsor" value="The Galleon Pizzeria">
-          </div>
-          <button class="btn" onclick="saveSettings()">Salva Configurazioni</button>
+          <h3 class="panel-title">Elenco Schede Create</h3>
+          <div id="regia-cards-list" style="max-height: 250px; overflow-y: auto;"><i>Nessuna scheda creata dai clienti al momento.</i></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- INTERFACCIA GIOCATORE -->
+  <!-- INTERFACCIA GIOCATORE (SCHEDA CLIENTE) -->
   <div id="view-giocatore" class="view-section">
     <div class="player-header">
-      <h3>Partecipa alla Tombola</h3>
-      <div class="form-group" style="max-width: 300px; margin: 10px auto;">
-        <input type="text" id="player-name" placeholder="Il tuo Nome e Cognome">
+      <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Giocatore</h3>
+      <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
+      
+      <div style="margin-bottom: 15px;">
+        <label for="camera-input" class="btn" style="display: inline-block; cursor: pointer; font-size: 0.85rem;">📸 Scatta Selfie / Scegli Foto</label>
+        <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
       </div>
-      <button class="btn" onclick="addPlayerCard()">+ Aggiungi Scheda</button>
+
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto;">
+        <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
+      </div>
+      <button class="btn" onclick="addPlayerCard()">+ Genera Nuova Scheda Cartella</button>
     </div>
+
     <div id="player-cards-list"></div>
   </div>
 
-  <!-- GENERATORE PASS STAMPA -->
-  <div id="view-stampa" class="view-section">
-    <div class="panel-card">
-      <h3 class="panel-title">Generatore QR Code Schede (1-1000)</h3>
-      <p style="margin-bottom: 15px;">Inquadra o stampa questo QR code unico per accedere all'assegnazione automatica della scheda.</p>
+  <!-- GENERATORE PASS QR -->
+  <div id="view-stampa" class="view-section" style="text-align: center;">
+    <div class="panel-card" style="display: inline-block;">
+      <h3 class="panel-title">QR Code Tavolo Cliente</h3>
+      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per farli accedere alla tombola.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
     </div>
   </div>
@@ -239,7 +206,7 @@
 
   <!-- MODALE VINCITORE -->
   <div id="winner-modal">
-    <h1 style="color: var(--gold); font-size: 3rem; margin-bottom: 10px;">VINCITA CONVALIDATA!</h1>
+    <h1 style="color: var(--gold); font-size: 2.8rem; margin-bottom: 10px;">VINCITA CONVALIDATA!</h1>
     <img id="winner-img" src="" class="winner-photo" alt="Foto Vincitore">
     <h2 id="winner-name" style="font-size: 2rem; color: #fff;">--</h2>
     <p id="winner-prize" style="font-size: 1.5rem; color: var(--gold-light); margin-top: 10px;">--</p>
@@ -247,14 +214,11 @@
   </div>
 
   <script>
-    const smorfia = {
-      1: "L'Italia", 2: 'A piccerella', 3: 'A gatta', 4: "'O fierno", 5: "'A mano",
-      10: "'A fasula", 22: "'O pazzo", 33: "L'anni 'e Cristo", 48: "'O morte che parla",
-      77: "'E diavule", 90: "'A paura"
-    };
-
+    const smorfia = { 1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 10: "'A fasula", 22: "'O pazzo", 33: "L'anni 'e Cristo", 48: "'O morte che parla", 77: "'E diavule", 90: "'A paura" };
     let drawnNumbers = [];
     let regiaAuth = false;
+    let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
+    let activeCards = [];
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -275,11 +239,69 @@
     }
 
     function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentPlayerPhoto = e.target.result;
+          document.getElementById('player-photo-preview').src = currentPlayerPhoto;
+        };
+        reader.readAsDataURL(file);
       }
+    }
+
+    function generateTombolaCardNumbers() {
+      let nums = [];
+      while(nums.length < 15) {
+        let r = Math.floor(Math.random() * 90) + 1;
+        if(!nums.includes(r)) nums.push(r);
+      }
+      return nums.sort((a,b) => a - b);
+    }
+
+    function addPlayerCard() {
+      const name = document.getElementById('player-name').value.trim();
+      if(!name) return alert('Inserisci il tuo Nome e Cognome prima di generare la scheda!');
+
+      const cardId = Math.floor(Math.random() * 9000) + 1000;
+      const cardNumbers = generateTombolaCardNumbers();
+
+      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA ATTIVAZIONE' };
+      activeCards.push(cardData);
+
+      renderPlayerCards();
+      updateRegiaCardList();
+    }
+
+    function renderPlayerCards() {
+      const container = document.getElementById('player-cards-list');
+      container.innerHTML = '';
+
+      activeCards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card-digital';
+
+        let gridHTML = '<div class="card-grid">';
+        card.numbers.forEach(num => {
+          const isDrawn = drawnNumbers.includes(num);
+          gridHTML += `<div class="card-cell ${isDrawn ? 'marked' : ''}" onclick="this.classList.toggle('marked')">${num}</div>`;
+        });
+        gridHTML += '</div>';
+
+        cardDiv.innerHTML = `
+          <div class="card-header-info">
+            <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
+            <div style="color: ${card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f'}; font-size:0.85rem; font-weight:bold;">${card.status}</div>
+          </div>
+          ${gridHTML}
+        `;
+        container.appendChild(cardDiv);
+      });
     }
 
     function checkRegiaAuth() {
@@ -288,8 +310,36 @@
         regiaAuth = true;
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
-      } else {
-        alert('Password Errata');
+        updateRegiaCardList();
+      } else { alert('Password Errata'); }
+    }
+
+    function updateRegiaCardList() {
+      if(!regiaAuth) return;
+      const list = document.getElementById('regia-cards-list');
+      if(activeCards.length === 0) {
+        list.innerHTML = '<i>Nessuna scheda creata dai clienti.</i>';
+        return;
+      }
+      list.innerHTML = '';
+      activeCards.forEach(card => {
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:8px; border-bottom:1px solid #2a3b54; display:flex; justify-content:space-between; align-items:center;';
+        item.innerHTML = `
+          <div><strong>#${card.id}</strong> - ${card.name} (${card.status})</div>
+          <button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="activateCard(${card.id})">Attiva</button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function activateCard(cardId) {
+      const card = activeCards.find(c => c.id === cardId);
+      if(card) {
+        card.status = 'ATTIVA';
+        renderPlayerCards();
+        updateRegiaCardList();
+        alert(`Scheda #${cardId} Attivata con successo!`);
       }
     }
 
@@ -298,20 +348,36 @@
       let n;
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
       drawnNumbers.push(n);
-      
-      // Visual Updates
+
       const cell = document.getElementById('cell-' + n);
       cell.classList.add('active');
       cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
       document.getElementById('last-ball-display').innerText = n;
 
-      // Overlay Animation
       const overlay = document.getElementById('extraction-overlay');
       document.getElementById('overlay-ball').innerText = n;
       document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
       overlay.style.display = 'flex';
-      
+
       setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+      renderPlayerCards();
+    }
+
+    function triggerWinnerFromRegia() {
+      if(activeCards.length === 0) return alert('Nessun giocatore registrato!');
+      const lastCard = activeCards[activeCards.length - 1];
+      const prize = document.getElementById('win-type').value;
+
+      document.getElementById('winner-img').src = lastCard.photo;
+      document.getElementById('winner-name').innerText = lastCard.name;
+      document.getElementById('winner-prize').innerText = `Ha vinto l' ${prize}!`;
+      document.getElementById('winner-modal').style.display = 'flex';
+
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function closeWinnerModal() {
+      document.getElementById('winner-modal').style.display = 'none';
     }
 
     function resetGame() {
@@ -319,24 +385,13 @@
         drawnNumbers = [];
         initBoard();
         document.getElementById('last-ball-display').innerText = '--';
+        renderPlayerCards();
       }
-    }
-
-    function addPlayerCard() {
-      const container = document.getElementById('player-cards-list');
-      const cardId = Math.floor(Math.random() * 1000) + 1;
-      const card = document.createElement('div');
-      card.className = 'card-digital';
-      card.innerHTML = `<h4>Scheda #${cardId} - Stato: IN ATTESA ATTIVAZIONE</h4>`;
-      container.appendChild(card);
     }
 
     window.onload = () => {
       initBoard();
-      new QRCode(document.getElementById("qrcode-global"), {
-        text: window.location.href,
-        width: 128, height: 128
-      });
+      new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
     };
   </script>
 </body>
