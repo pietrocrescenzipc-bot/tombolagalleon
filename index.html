@@ -330,8 +330,8 @@
             <button class="btn btn-sm btn-danger" onclick="resetGame()">Nuova Partita</button>
           </div>
           
-          <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Automatica Vincite</h4>
-          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Il sistema controlla automaticamente le cartelle attive in base ai numeri estratti.</p>
+          <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4>
+          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Il sistema controlla automaticamente ad ogni estrazione. Puoi anche eseguire una verifica manuale qui sotto.</p>
           <button class="btn btn-success" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
         </div>
 
@@ -481,11 +481,11 @@
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
         osc.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.4);
+        osc.stop(ctx.currentTime + 0.3);
       } catch(e){}
     }
 
@@ -618,8 +618,8 @@
         showWinnersOnScreen(winners);
         playAlertBeep();
         
-        let names = Object.values(winners).map(w => `${w.prizeType}: ${w.name} (#${w.cardId})`).join(' | ');
-        if(alertText) alertText.innerText = names;
+        let names = Object.values(winners).map(w => `🏆 ${w.prizeType}: ${w.name} (Cartella #${w.cardId}) - Premio: ${w.prizeDesc}`).join('<br>');
+        if(alertText) alertText.innerHTML = names;
         if(alertBox) alertBox.style.display = 'block';
       } else {
         hideWinnerScreen();
@@ -897,6 +897,7 @@
       db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
+    // CONTROLLO AUTOMATICO DELLE VINCITE
     function checkAutomaticWins() {
       let detectedWinners = {};
 
@@ -971,8 +972,6 @@
 
       if (Object.keys(detectedWinners).length > 0) {
         db.ref('game/winners').set(detectedWinners);
-      } else {
-        alert('Nessuna vincita trovata con i numeri attuali.');
       }
     }
 
@@ -993,6 +992,11 @@
       drawnNumbers.push(n);
       db.ref('game/drawnNumbers').set(drawnNumbers);
       db.ref('game/lastExtraction').set({ number: n, time: Date.now() });
+
+      // CONTROLLO AUTOMATICO VINCITE AD OGNI ESTRAZIONE
+      setTimeout(() => {
+        checkAutomaticWins();
+      }, 500);
     }
 
     function showExtractionAnimation(n) {
