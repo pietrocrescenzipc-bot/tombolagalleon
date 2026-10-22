@@ -114,6 +114,22 @@
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
     .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
 
+    /* Modalità Cartella a Tutto Schermo per il Cliente */
+    #fullscreen-card-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 14, 23, 0.98); z-index: 9999;
+      display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center;
+    }
+    .fullscreen-card-box {
+      width: 100%; max-width: 600px; background: #1c283a; border: 3px solid var(--gold); border-radius: 15px; padding: 20px; text-align: center;
+    }
+    .fullscreen-card-box .tombola-classic-grid {
+      gap: 6px; padding: 12px; margin-top: 15px; margin-bottom: 15px;
+    }
+    .fullscreen-card-box .tombola-cell {
+      font-size: 1.4rem; aspect-ratio: 1.1;
+    }
+
     /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; }
@@ -278,6 +294,15 @@
     </div>
   </div>
 
+  <!-- OVERLAY CARTELLA A TUTTO SCHERMO PER IL CLIENTE -->
+  <div id="fullscreen-card-overlay">
+    <div class="fullscreen-card-box">
+      <h3 id="fs-card-title" style="color: var(--gold); font-size: 1.3rem; margin-bottom: 5px;">--</h3>
+      <div id="fs-card-grid-container"></div>
+      <button class="btn btn-danger" style="margin-top: 15px; padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button>
+    </div>
+  </div>
+
   <!-- OVERLAY ESTRAZIONE -->
   <div id="extraction-overlay">
     <div id="overlay-ball" class="billiard-ball giant-ball drawn">--</div>
@@ -375,7 +400,6 @@
       document.getElementById('add-more-container').style.display = 'none';
     }
 
-    // ALGORITMO TRADIZIONALE 3x9 PERFETTO (Infinita Rigenerazione)
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
       let rowCols = [];
@@ -517,8 +541,9 @@
           document.getElementById('player-form-container').style.display = 'none';
           document.getElementById('add-more-container').style.display = 'block';
 
-          alert(`Cartella #${cardId} creata con successo!`);
-          nameInput.value = '';
+          // Mostra subito la sezione delle cartelle in primo piano
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          renderPlayerCards();
         })
         .catch(err => {
           btn.disabled = false;
@@ -551,11 +576,8 @@
         let gridHTML = '<div class="tombola-classic-grid">';
         let gridArray = [];
         if (card.grid) {
-          if (Array.isArray(card.grid)) {
-            gridArray = card.grid;
-          } else {
-            gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
-          }
+          if (Array.isArray(card.grid)) gridArray = card.grid;
+          else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
         }
 
         if(gridArray.length < 27) {
@@ -579,15 +601,53 @@
         const statusColor = card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f';
         const statusText = card.status === 'ATTIVA' ? `✓ ATTIVA (${card.mode === 'auto' ? 'Auto' : 'Manuale'})` : '⏳ IN ATTESA DI CONVALIDA';
         
+        let fullscreenBtnHTML = '';
+        if (card.status === 'ATTIVA') {
+          fullscreenBtnHTML = `<button class="btn btn-sm" style="background:var(--gold); color:#000; width:100%; margin-top:8px;" onclick="openFullscreenCard('${card.uniqueKey}')">🔍 Ingrandisci a Tutto Schermo</button>`;
+        }
+
         cardDiv.innerHTML = `
           <div class="card-header-info">
             <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
             <div style="color: ${statusColor}; font-size:0.8rem; font-weight:bold;">${statusText}</div>
           </div>
           ${gridHTML}
+          ${fullscreenBtnHTML}
         `;
         container.appendChild(cardDiv);
       });
+    }
+
+    function openFullscreenCard(cardKey) {
+      const card = activeCards[cardKey];
+      if(!card) return;
+
+      document.getElementById('fs-card-title').innerText = `Cartella #${card.id} - ${card.name}`;
+      
+      let gridHTML = '<div class="tombola-classic-grid">';
+      let gridArray = [];
+      if (card.grid) {
+        if (Array.isArray(card.grid)) gridArray = card.grid;
+        else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
+      }
+
+      gridArray.forEach(num => {
+        if(!num || num === 0) {
+          gridHTML += `<div class="tombola-cell empty"></div>`;
+        } else {
+          const isDrawn = drawnNumbers.includes(num);
+          let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
+          gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
+        }
+      });
+      gridHTML += '</div>';
+
+      document.getElementById('fs-card-grid-container').innerHTML = gridHTML;
+      document.getElementById('fullscreen-card-overlay').style.display = 'flex';
+    }
+
+    function closeFullscreenCard() {
+      document.getElementById('fullscreen-card-overlay').style.display = 'none';
     }
 
     function checkRegiaAuth() {
