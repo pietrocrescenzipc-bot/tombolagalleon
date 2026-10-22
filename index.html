@@ -242,24 +242,11 @@
       81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
     };
 
-    let drawnNumbers = [];
+    let drawnNumbers = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
+    let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
-    let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
     let currentPassword = localStorage.getItem('pmu_regia_pass') || 'PMU2026';
-
-    // BroadcastChannel per sincronizzare Maxischermo e Regia in tempo reale sullo stesso browser o rete locale
-    const bc = new BroadcastChannel('pmu_tombola_channel');
-    bc.onmessage = function (event) {
-      const data = event.data;
-      if (data.type === 'DRAW') {
-        processDrawnNumberLocal(data.number);
-      } else if (data.type === 'WINNER') {
-        showWinnerOnScreen(data.photo, data.name, data.prize, data.customDesc);
-      } else if (data.type === 'RESET') {
-        resetGameLocal();
-      }
-    };
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -280,6 +267,19 @@
         cell.id = 'cell-' + i;
         cell.innerText = i;
         grid.appendChild(cell);
+      }
+      // Ripristina i numeri già estratti visivamente
+      drawnNumbers.forEach(n => {
+        const cell = document.getElementById('cell-' + n);
+        if(cell) {
+          cell.classList.add('active');
+          cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
+        }
+      });
+      if(drawnNumbers.length > 0) {
+        const last = drawnNumbers[drawnNumbers.length - 1];
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = last;
       }
     }
 
@@ -437,27 +437,27 @@
       let n;
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
       
-      // Invia il numero estratto a tutti gli schermi aperti
-      bc.postMessage({ type: 'DRAW', number: n });
-      processDrawnNumberLocal(n);
+      drawnNumbers.push(n);
+      localStorage.setItem('pmu_drawn', JSON.stringify(drawnNumbers));
+      processDrawnNumberLocal(n, true);
     }
 
-    function processDrawnNumberLocal(n) {
-      if(!drawnNumbers.includes(n)) drawnNumbers.push(n);
+    function processDrawnNumberLocal(n, showAnim = false) {
       const cell = document.getElementById('cell-' + n);
-      if(cell) {
+      if(cell && !cell.classList.contains('active')) {
         cell.classList.add('active');
         cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
       }
       const lastBall = document.getElementById('last-ball-display');
       if(lastBall) lastBall.innerText = n;
 
-      const overlay = document.getElementById('extraction-overlay');
-      document.getElementById('overlay-ball').innerText = n;
-      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
-      overlay.style.display = 'flex';
-
-      setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+      if(showAnim) {
+        const overlay = document.getElementById('extraction-overlay');
+        document.getElementById('overlay-ball').innerText = n;
+        document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+      }
       renderPlayerCards();
     }
 
@@ -469,7 +469,9 @@
       const prize = document.getElementById('win-type').value;
       const customDesc = document.getElementById('prize-description').value.trim();
 
-      bc.postMessage({ type: 'WINNER', photo: card.photo, name: card.name, prize: prize, customDesc: customDesc });
+      const winnerData = { photo: card.photo, name: card.name, prize: prize, customDesc: customDesc, time: Date.now() };
+      localStorage.setItem('pmu_winner', JSON.stringify(winnerData));
+
       showWinnerOnScreen(card.photo, card.name, prize, customDesc);
     }
 
@@ -489,18 +491,41 @@
 
     function resetGame() {
       if(confirm('Vuoi resettare la partita corrente?')) {
-        bc.postMessage({ type: 'RESET' });
-        resetGameLocal();
+        localStorage.removeItem('pmu_drawn');
+        localStorage.removeItem('pmu_winner');
+        drawnNumbers = [];
+        initBoard();
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = '--';
+        renderPlayerCards();
       }
     }
 
-    function resetGameLocal() {
-      drawnNumbers = [];
-      initBoard();
-      const lastBall = document.getElementById('last-ball-display');
-      if(lastBall) lastBall.innerText = '--';
-      renderPlayerCards();
-    }
+    // Sincronizzazione automatica tra dispositivi (Maxischermo e Regia) ogni 1.5 secondi
+    setInterval(() => {
+      // 1. Sincronizza numeri estratti
+      let savedDrawn = JSON.parse(localStorage.getItem('pmu_drawn') || '[]');
+      if(savedDrawn.length !== drawnNumbers.length) {
+        drawnNumbers = savedDrawn;
+        initBoard();
+      }
+
+      // 2. Sincronizza vincitori proclamati
+      let winner = JSON.parse(localStorage.getItem('pmu_winner') || 'null');
+      if(winner && winner.time && (!window.lastShownWinnerTime || winner.time > window.lastShownWinnerTime)) {
+        window.lastShownWinnerTime = winner.time;
+        showWinnerOnScreen(winner.photo, winner.name, winner.prize, winner.customDesc);
+      }
+
+      // 3. Sincronizza schede clienti nella regia se aperta
+      if(regiaAuth) {
+        let currentCardsCount = JSON.parse(localStorage.getItem('pmu_cards') || '[]').length;
+        if(window.lastCardsCount !== currentCardsCount) {
+          window.lastCardsCount = currentCardsCount;
+          updateRegiaCardList();
+        }
+      }
+    }, 1500);
 
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
