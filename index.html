@@ -577,8 +577,8 @@
       ⏳ La prossima partita inizierà tra pochissimo, acquista subito la tua scheda vincente.
     </div>
 
-    <!-- PULSANTE PER RIPARTIRE DALLA REGIA SENZA RICARICARE LA PAGINA -->
-    <button class="btn btn-sm btn-danger" style="max-width: 380px; padding: 12px; font-size: 1.05rem; background: #900C3F; border-radius: 10px;" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
+    <!-- PULSANTE PER RIPARTIRE DALLA REGIA SENZA BLOCCHI -->
+    <button class="btn btn-sm btn-danger" style="max-width: 380px; padding: 14px; font-size: 1.1rem; background: #900C3F; border-radius: 12px; cursor: pointer; border: 2px solid var(--gold);" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
   </div>
 
   <script>
@@ -757,6 +757,10 @@
         showGameOverScreen();
       } else {
         document.getElementById('game-over-overlay').style.display = 'none';
+        if(confettiInterval && currentStageIndex === 0) {
+          clearInterval(confettiInterval);
+          confettiInterval = null;
+        }
       }
     });
 
@@ -1288,15 +1292,22 @@
 
     function resetGame() {
       if(confirm('Vuoi resettare la partita corrente e azzerare tutto per iniziare un nuovo gioco?')) {
-        db.ref('game').remove();
-        db.ref('cards').remove();
-        localStorage.removeItem('my_tombola_cards');
-        localMyCardsKeys = [];
-        confirmedWinnersList = [];
-        currentStageIndex = 0;
-        updateWinnersTicker();
-        document.getElementById('game-over-overlay').style.display = 'none';
-        showPlayerForm();
+        db.ref('game').remove().then(() => {
+          db.ref('cards').remove().then(() => {
+            localStorage.removeItem('my_tombola_cards');
+            localMyCardsKeys = [];
+            confirmedWinnersList = [];
+            currentStageIndex = 0;
+            updateWinnersTicker();
+            document.getElementById('game-over-overlay').style.display = 'none';
+            if(confettiInterval) {
+              clearInterval(confettiInterval);
+              confettiInterval = null;
+            }
+            showPlayerForm();
+            window.location.reload();
+          });
+        });
       }
     }
 
