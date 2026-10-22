@@ -6,6 +6,7 @@
   <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.min.js"></script>
   <style>
     :root {
       --bg-dark: #0a0e17;
@@ -78,7 +79,6 @@
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
     .card-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0a0e17; padding: 8px; border-radius: 8px; }
     .card-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; }
-    .card-cell.empty { background: transparent; border: none; }
     .card-cell.marked { background: var(--ball-orange); color: #fff; font-size: 1rem; border-color: #fff; }
 
     /* Controls & Regia */
@@ -149,6 +149,10 @@
           </div>
           <h4 style="color: var(--gold); margin-bottom: 10px;">Proclama Vincitore</h4>
           <div class="form-group">
+            <label>Seleziona Giocatore Vincente</label>
+            <select id="winner-select" style="width:100%; padding:8px; background:#0e1622; color:#fff; border:1px solid #3a4b68; border-radius:4px; margin-bottom:10px;"></select>
+          </div>
+          <div class="form-group">
             <label>Tipo di Vincita</label>
             <select id="win-type" style="width:100%; padding:8px; background:#0e1622; color:#fff; border:1px solid #3a4b68; border-radius:4px;">
               <option value="AMBO">AMBO</option>
@@ -162,14 +166,14 @@
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Elenco Schede Create</h3>
-          <div id="regia-cards-list" style="max-height: 250px; overflow-y: auto;"><i>Nessuna scheda creata dai clienti al momento.</i></div>
+          <h3 class="panel-title">Elenco Schede Create (in Rete)</h3>
+          <div id="regia-cards-list" style="max-height: 280px; overflow-y: auto;"><i>Nessuna scheda creata al momento.</i></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- INTERFACCIA GIOCATORE (SCHEDA CLIENTE) -->
+  <!-- INTERFACCIA GIOCATORE -->
   <div id="view-giocatore" class="view-section">
     <div class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Giocatore</h3>
@@ -219,6 +223,44 @@
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
     let activeCards = [];
+
+    // PeerJS Network Sync
+    let peer = null;
+    let peerConn = null;
+    const REGIA_PEER_ID = 'pmu-galleon-tombola-regia-2026';
+
+    function initNetwork() {
+      peer = new Peer();
+      peer.on('open', (id) => {
+        // Try connecting as player to Regia
+        peerConn = peer.connect(REGIA_PEER_ID);
+        if(peerConn) {
+          peerConn.on('data', (data) => handleNetworkData(data));
+        }
+      });
+
+      peer.on('connection', (conn) => {
+        conn.on('data', (data) => {
+          if(data.type === 'NEW_CARD') {
+            const existing = activeCards.find(c => c.id === data.card.id);
+            if(!existing) activeCards.push(data.card);
+            renderPlayerCards();
+            updateRegiaCardList();
+          }
+        });
+      });
+    }
+
+    function handleNetworkData(data) {
+      if(data.type === 'DRAW_NUMBER') {
+        processDrawnNumber(data.number);
+      } else if(data.type === 'CARD_ACTIVATED') {
+        const c = activeCards.find(x => x.id === data.cardId);
+        if(c) { c.status = 'ATTIVA'; renderPlayerCards(); }
+      } else if(data.type === 'WINNER') {
+        showWinnerOnScreen(data.photo, data.name, data.prize);
+      }
+    }
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -275,7 +317,15 @@
       activeCards.push(cardData);
 
       renderPlayerCards();
-      updateRegiaCardList();
+      
+      // Send card to Regia via network
+      if(peerConn && peerConn.open) {
+        peerConn.send({ type: 'NEW_CARD', card: cardData });
+      } else {
+        // Re-try opening host as fallback
+        const hostConn = peer.connect(REGIA_PEER_ID);
+        setTimeout(() => { if(hostConn.open) hostConn.send({ type: 'NEW_CARD', card: cardData }); }, 1000);
+      }
     }
 
     function renderPlayerCards() {
@@ -310,6 +360,20 @@
         regiaAuth = true;
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
+        
+        // Start Host Regia Peer
+        if(peer) peer.destroy();
+        peer = new Peer(REGIA_PEER_ID);
+        peer.on('connection', (conn) => {
+          conn.on('data', (data) => {
+            if(data.type === 'NEW_CARD') {
+              const existing = activeCards.find(c => c.id === data.card.id);
+              if(!existing) activeCards.push(data.card);
+              updateRegiaCardList();
+            }
+          });
+        });
+
         updateRegiaCardList();
       } else { alert('Password Errata'); }
     }
@@ -317,19 +381,30 @@
     function updateRegiaCardList() {
       if(!regiaAuth) return;
       const list = document.getElementById('regia-cards-list');
+      const winSelect = document.getElementById('winner-select');
+      
       if(activeCards.length === 0) {
-        list.innerHTML = '<i>Nessuna scheda creata dai clienti.</i>';
+        list.innerHTML = '<i>Nessuna scheda creata al momento.</i>';
+        winSelect.innerHTML = '<option>Nessun giocatore</option>';
         return;
       }
+
       list.innerHTML = '';
+      winSelect.innerHTML = '';
+
       activeCards.forEach(card => {
         const item = document.createElement('div');
         item.style.cssText = 'padding:8px; border-bottom:1px solid #2a3b54; display:flex; justify-content:space-between; align-items:center;';
         item.innerHTML = `
-          <div><strong>#${card.id}</strong> - ${card.name} (${card.status})</div>
-          <button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="activateCard(${card.id})">Attiva</button>
+          <div><strong>#${card.id}</strong> - ${card.name} <span style="color:${card.status === 'ATTIVA' ? '#2ecc71':'#f1c40f'};">(${card.status})</span></div>
+          ${card.status !== 'ATTIVA' ? `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="activateCard(${card.id})">Attiva</button>` : '<b>ATTIVA</b>'}
         `;
         list.appendChild(item);
+
+        const opt = document.createElement('option');
+        opt.value = card.id;
+        opt.innerText = `#${card.id} - ${card.name}`;
+        winSelect.appendChild(opt);
       });
     }
 
@@ -337,9 +412,9 @@
       const card = activeCards.find(c => c.id === cardId);
       if(card) {
         card.status = 'ATTIVA';
-        renderPlayerCards();
         updateRegiaCardList();
-        alert(`Scheda #${cardId} Attivata con successo!`);
+        renderPlayerCards();
+        alert(`Scheda #${cardId} Attivata!`);
       }
     }
 
@@ -347,8 +422,11 @@
       if(drawnNumbers.length >= 90) return alert('Tutti i numeri sono stati estratti!');
       let n;
       do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
-      drawnNumbers.push(n);
+      processDrawnNumber(n);
+    }
 
+    function processDrawnNumber(n) {
+      drawnNumbers.push(n);
       const cell = document.getElementById('cell-' + n);
       cell.classList.add('active');
       cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
@@ -364,16 +442,21 @@
     }
 
     function triggerWinnerFromRegia() {
-      if(activeCards.length === 0) return alert('Nessun giocatore registrato!');
-      const lastCard = activeCards[activeCards.length - 1];
-      const prize = document.getElementById('win-type').value;
+      const selectedId = parseInt(document.getElementById('winner-select').value);
+      const card = activeCards.find(c => c.id === selectedId);
+      if(!card) return alert('Seleziona un giocatore valido!');
 
-      document.getElementById('winner-img').src = lastCard.photo;
-      document.getElementById('winner-name').innerText = lastCard.name;
+      const prize = document.getElementById('win-type').value;
+      showWinnerOnScreen(card.photo, card.name, prize);
+    }
+
+    function showWinnerOnScreen(photo, name, prize) {
+      document.getElementById('winner-img').src = photo;
+      document.getElementById('winner-name').innerText = name;
       document.getElementById('winner-prize').innerText = `Ha vinto l' ${prize}!`;
       document.getElementById('winner-modal').style.display = 'flex';
 
-      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      confetti({ particleCount: 180, spread: 90, origin: { y: 0.6 } });
     }
 
     function closeWinnerModal() {
@@ -391,6 +474,7 @@
 
     window.onload = () => {
       initBoard();
+      initNetwork();
       new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
     };
   </script>
