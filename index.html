@@ -108,15 +108,15 @@
   <header>
     <div class="brand-title">PMU & The Galleon</div>
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchView('tabellone')">Maxischermo</button>
-      <button class="tab-btn" onclick="switchView('regia')">Regia</button>
-      <button class="tab-btn" onclick="switchView('giocatore')">Scheda Cliente</button>
-      <button class="tab-btn" onclick="switchView('stampa')">Pass QR</button>
+      <button class="tab-btn" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
+      <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
+      <button class="tab-btn active" onclick="switchView('giocatore')" id="btn-giocatore">Scheda Cliente</button>
+      <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
 
   <!-- TABELLONE MAXISCHERMO -->
-  <div id="view-tabellone" class="view-section active">
+  <div id="view-tabellone" class="view-section">
     <div class="top-banner">
       <div class="banner-text">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
@@ -169,15 +169,22 @@
         </div>
 
         <div class="panel-card">
-          <h3 class="panel-title">Elenco Schede Create</h3>
-          <div id="regia-cards-list" style="max-height: 280px; overflow-y: auto;"><i>Nessuna scheda creata al momento.</i></div>
+          <h3 class="panel-title">Registrazione Rapida Scheda in Cassa</h3>
+          <div class="form-group">
+            <label>Nome Giocatore</label>
+            <input type="text" id="regia-player-name" placeholder="Nome e Cognome">
+          </div>
+          <button class="btn" onclick="regiaAddCard()">+ Crea e Attiva Scheda</button>
+          
+          <h3 class="panel-title" style="margin-top: 20px;">Elenco Schede Attive</h3>
+          <div id="regia-cards-list" style="max-height: 180px; overflow-y: auto;"><i>Nessuna scheda registrata.</i></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- INTERFACCIA GIOCATORE -->
-  <div id="view-giocatore" class="view-section">
+  <div id="view-giocatore" class="view-section active">
     <div class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px;">Registrazione Giocatore</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/90/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
@@ -200,7 +207,7 @@
   <div id="view-stampa" class="view-section" style="text-align: center;">
     <div class="panel-card" style="display: inline-block;">
       <h3 class="panel-title">QR Code Tavolo Cliente</h3>
-      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per farli accedere alla tombola.</p>
+      <p style="margin-bottom: 15px; color: #ccc;">Fai scansionare questo QR Code ai clienti per farli accedere direttamente alla registrazione.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
     </div>
   </div>
@@ -226,12 +233,15 @@
     let drawnNumbers = [];
     let regiaAuth = false;
     let currentPlayerPhoto = "https://via.placeholder.com/90/162232/ffffff?text=Selfie";
-    let activeCards = [];
+    let activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
 
     function switchView(viewId) {
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
+      document.getElementById('btn-' + viewId).classList.add('active');
+      if(viewId === 'regia' && regiaAuth) updateRegiaCardList();
+      if(viewId === 'giocatore') renderPlayerCards();
     }
 
     function initBoard() {
@@ -280,17 +290,40 @@
       const cardId = Math.floor(Math.random() * 9000) + 1000;
       const cardNumbers = generateTombolaCardNumbers();
 
-      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'IN ATTESA ATTIVAZIONE' };
+      const cardData = { id: cardId, name: name, photo: currentPlayerPhoto, numbers: cardNumbers, status: 'ATTIVA' };
       activeCards.push(cardData);
+      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
 
       renderPlayerCards();
+      alert(`Scheda #${cardId} generata e attivata con successo! Buon divertimento!`);
+    }
+
+    function regiaAddCard() {
+      const name = document.getElementById('regia-player-name').value.trim();
+      if(!name) return alert('Inserisci il nome del giocatore!');
+
+      const cardId = Math.floor(Math.random() * 9000) + 1000;
+      const cardNumbers = generateTombolaCardNumbers();
+
+      const cardData = { id: cardId, name: name, photo: "https://via.placeholder.com/90/162232/ffffff?text=Galleon", numbers: cardNumbers, status: 'ATTIVA' };
+      activeCards.push(cardData);
+      localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
+
+      document.getElementById('regia-player-name').value = '';
       updateRegiaCardList();
+      alert(`Scheda #${cardId} creata e attivata dalla Regia!`);
     }
 
     function renderPlayerCards() {
+      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const container = document.getElementById('player-cards-list');
       if(!container) return;
       container.innerHTML = '';
+
+      if(activeCards.length === 0) {
+        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Nessuna scheda generata su questo dispositivo.</div>';
+        return;
+      }
 
       activeCards.forEach(card => {
         const cardDiv = document.createElement('div');
@@ -306,7 +339,7 @@
         cardDiv.innerHTML = `
           <div class="card-header-info">
             <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
-            <div style="color: ${card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f'}; font-size:0.85rem; font-weight:bold;">${card.status}</div>
+            <div style="color: #2ecc71; font-size:0.85rem; font-weight:bold;">${card.status}</div>
           </div>
           ${gridHTML}
         `;
@@ -326,11 +359,12 @@
 
     function updateRegiaCardList() {
       if(!regiaAuth) return;
+      activeCards = JSON.parse(localStorage.getItem('pmu_cards') || '[]');
       const list = document.getElementById('regia-cards-list');
       const winSelect = document.getElementById('winner-select');
       
       if(activeCards.length === 0) {
-        if(list) list.innerHTML = '<i>Nessuna scheda creata al momento.</i>';
+        if(list) list.innerHTML = '<i>Nessuna scheda registrata.</i>';
         if(winSelect) winSelect.innerHTML = '<option value="">Nessun giocatore</option>';
         return;
       }
@@ -343,8 +377,8 @@
           const item = document.createElement('div');
           item.style.cssText = 'padding:8px; border-bottom:1px solid #2a3b54; display:flex; justify-content:space-between; align-items:center;';
           item.innerHTML = `
-            <div><strong>#${card.id}</strong> - ${card.name} <span style="color:${card.status === 'ATTIVA' ? '#2ecc71':'#f1c40f'};">(${card.status})</span></div>
-            ${card.status !== 'ATTIVA' ? `<button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="activateCard(${card.id})">Attiva</button>` : '<b>ATTIVA</b>'}
+            <div><strong>#${card.id}</strong> - ${card.name}</div>
+            <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="removeCard(${card.id})">Elimina</button>
           `;
           list.appendChild(item);
         }
@@ -358,13 +392,12 @@
       });
     }
 
-    function activateCard(cardId) {
-      const card = activeCards.find(c => c.id === cardId);
-      if(card) {
-        card.status = 'ATTIVA';
+    function removeCard(cardId) {
+      if(confirm('Vuoi eliminare questa scheda?')) {
+        activeCards = activeCards.filter(c => c.id !== cardId);
+        localStorage.setItem('pmu_cards', JSON.stringify(activeCards));
         updateRegiaCardList();
         renderPlayerCards();
-        alert(`Scheda #${cardId} Attivata!`);
       }
     }
 
@@ -382,7 +415,8 @@
         cell.classList.add('active');
         cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
       }
-      document.getElementById('last-ball-display').innerText = n;
+      const lastBall = document.getElementById('last-ball-display');
+      if(lastBall) lastBall.innerText = n;
 
       const overlay = document.getElementById('extraction-overlay');
       document.getElementById('overlay-ball').innerText = n;
@@ -422,13 +456,15 @@
       if(confirm('Vuoi resettare la partita corrente?')) {
         drawnNumbers = [];
         initBoard();
-        document.getElementById('last-ball-display').innerText = '--';
+        const lastBall = document.getElementById('last-ball-display');
+        if(lastBall) lastBall.innerText = '--';
         renderPlayerCards();
       }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
       initBoard();
+      renderPlayerCards();
       try {
         new QRCode(document.getElementById("qrcode-global"), { text: window.location.href, width: 140, height: 140 });
       } catch(e){}
