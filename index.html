@@ -343,7 +343,7 @@
       }
     }
 
-    // ALGORITMO CLASSICO 3x9 DELLA TOMBOLA NAPOLETANA
+    // ALGORITMO DI GENERAZIONE 3x9 SICURO E CORRETTO
     function generateTombolaClassicGrid() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(null));
       let rowCounts = [0, 0, 0];
@@ -394,13 +394,16 @@
         }
       }
 
-      let flatGrid = [];
+      // Convertiamo la matrice in un oggetto con chiavi stringa (0 a 26) per Firebase
+      let flatObj = {};
+      let index = 0;
       for(let r = 0; r < 3; r++) {
         for(let c = 0; c < 9; c++) {
-          flatGrid.push(grid[r][c]);
+          flatObj[index] = grid[r][c];
+          index++;
         }
       }
-      return flatGrid;
+      return flatObj;
     }
 
     // --- SINCRONIZZAZIONE REALTIME CLOUD ---
@@ -439,7 +442,7 @@
           cell.innerText = i;
         }
       }
-      drawnNumbers.exports?.forEach?.(n => {}) || drawnNumbers.forEach(n => {
+      drawnNumbers.forEach(n => {
         const cell = document.getElementById('cell-' + n);
         if(cell) {
           cell.classList.add('active');
@@ -465,12 +468,11 @@
       btn.disabled = true;
       btn.innerText = 'Generazione in corso...';
 
-      // Genera una chiave univoca basata su timestamp e numero casuale per permettere più cartelle allo stesso utente
       const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
       const cardId = Math.floor(Math.random() * 9000) + 1000;
-      const cardGrid27 = generateTombolaClassicGrid();
+      const cardGridObj = generateTombolaClassicGrid();
 
-      const cardData = { uniqueKey: uniqueKey, id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGrid27, status: 'IN ATTESA' };
+      const cardData = { uniqueKey: uniqueKey, id: cardId, name: name, photo: currentPlayerPhoto, grid: cardGridObj, status: 'IN ATTESA' };
       
       db.ref('cards/' + uniqueKey).set(cardData)
         .then(() => {
@@ -501,9 +503,19 @@
         cardDiv.className = 'card-digital';
 
         let gridHTML = '<div class="tombola-classic-grid">';
-        let gridArray = card.grid;
         
-        if(!gridArray || gridArray.length < 27) {
+        // Trasformiamo la griglia da Firebase (oggetto o array) in un array pulito di 27 elementi
+        let gridArray = [];
+        if (card.grid) {
+          if (Array.isArray(card.grid)) {
+            gridArray = card.grid;
+          } else {
+            // Se è un oggetto salvato da Firebase, lo ordiniamo per indice da 0 a 26
+            gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
+          }
+        }
+
+        if(gridArray.length < 27) {
           gridArray = Array(27).fill(null);
           if(card.numbers) {
             card.numbers.forEach((n, idx) => { if(idx < 27) gridArray[idx] = n; });
