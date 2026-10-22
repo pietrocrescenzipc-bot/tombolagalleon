@@ -98,6 +98,23 @@
       100% { transform: translate3d(-100%, 0, 0); }
     }
 
+    /* Alert Notifica Regia Visibile */
+    .regia-alert-box {
+      background: #e74c3c;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+      display: none;
+      animation: pulseAlert 1s infinite alternate;
+    }
+    @keyframes pulseAlert {
+      0% { transform: scale(0.98); opacity: 0.9; }
+      100% { transform: scale(1.01); opacity: 1; }
+    }
+
     /* Interfaccia Giocatore Mobile-Friendly */
     .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
     .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
@@ -138,20 +155,28 @@
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
     .tombola-cell.marked { background: var(--ball-orange); color: #fff; border-color: #fff; box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
 
-    /* Modalità Cartella a Tutto Schermo per il Cliente */
+    /* Modalità Cartella a Tutto Schermo PERFETTAMENTE OTTIMIZZATA */
     #fullscreen-card-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.98); z-index: 9999;
-      display: none; flex-direction: column; padding: 20px; justify-content: center; align-items: center;
+      display: none; flex-direction: column; padding: 10px;
+      justify-content: center; align-items: center; overflow: hidden;
     }
     .fullscreen-card-box {
-      width: 100%; max-width: 600px; background: #1c283a; border: 3px solid var(--gold); border-radius: 15px; padding: 20px; text-align: center;
+      width: 98vw; max-width: 900px;
+      background: #1c283a; border: 3px solid var(--gold); border-radius: 12px;
+      padding: 12px; text-align: center; display: flex; flex-direction: column;
+      max-height: 96vh; justify-content: space-between;
     }
     .fullscreen-card-box .tombola-classic-grid {
-      gap: 6px; padding: 12px; margin-top: 15px; margin-bottom: 15px;
+      gap: 4px; padding: 8px; margin: 10px 0; flex-grow: 1;
+      display: grid !important; grid-template-columns: repeat(9, 1fr) !important;
+      align-content: center;
     }
     .fullscreen-card-box .tombola-cell {
-      font-size: 1.4rem; aspect-ratio: 1.1;
+      font-size: clamp(0.9rem, 3.5vw, 1.8rem);
+      aspect-ratio: 1;
+      border-radius: 6px;
     }
 
     /* Controlli Regia */
@@ -209,6 +234,25 @@
     @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     @keyframes pulseGlow { 0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.6); } 100% { box-shadow: 0 0 50px rgba(243, 156, 18, 1); } }
 
+    /* Modalità Orizzontale (Landscape) per Smartphone */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .fullscreen-card-box {
+        padding: 5px;
+      }
+      .fullscreen-card-box .tombola-cell {
+        font-size: clamp(0.7rem, 2.5vh, 1.2rem);
+      }
+      #fs-card-title {
+        font-size: 0.9rem !important;
+        margin-bottom: 2px !important;
+      }
+      .fullscreen-card-box .btn-danger {
+        padding: 6px !important;
+        font-size: 0.85rem !important;
+        margin-top: 2px !important;
+      }
+    }
+
     @media (max-width: 768px) {
       .regia-grid { grid-template-columns: 1fr; }
       .tombola-cell { font-size: 0.75rem; }
@@ -256,6 +300,13 @@
     </div>
 
     <div id="regia-content" style="display: none;">
+      
+      <!-- Alert visivo in Regia quando c'è una vincita da convalidare -->
+      <div id="regia-win-alert" class="regia-alert-box">
+        🚨 ATTENZIONE: NUOVA VINCITA RILEVATA DALLA SCANSIONE! 
+        <br><small>I vincitori sono mostrati sul Maxischermo. Clicca sotto su "Convalida e Mostra sul Banner" per spostarli nella fascia in basso.</small>
+      </div>
+
       <!-- Configurazione Organizzatori / Collaboratori -->
       <div class="panel-card" style="margin-bottom: 20px;">
         <h3 class="panel-title">👥 Organizzatori e Collaboratori</h3>
@@ -350,9 +401,9 @@
   <!-- OVERLAY CARTELLA A TUTTO SCHERMO PER IL CLIENTE -->
   <div id="fullscreen-card-overlay">
     <div class="fullscreen-card-box">
-      <h3 id="fs-card-title" style="color: var(--gold); font-size: 1.3rem; margin-bottom: 5px;">--</h3>
+      <h3 id="fs-card-title" style="color: var(--gold); font-size: 1.2rem;">--</h3>
       <div id="fs-card-grid-container"></div>
-      <button class="btn btn-danger" style="margin-top: 15px; padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button>
+      <button class="btn btn-danger" style="padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button>
     </div>
   </div>
 
@@ -370,7 +421,7 @@
       
       <div id="winners-container" class="winners-flex-row"></div>
       
-      <button class="btn btn-sm btn-danger" style="margin-top: 20px; width: 100%; padding: 12px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">Convalida e Prosegui Gioco</button>
+      <button class="btn btn-sm btn-success" style="margin-top: 20px; width: 100%; padding: 12px; font-size: 1.1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
     </div>
   </div>
 
@@ -557,10 +608,13 @@
 
     db.ref('game/winners').on('value', (snapshot) => {
       const winners = snapshot.val();
+      const alertBox = document.getElementById('regia-win-alert');
       if(winners && Object.keys(winners).length > 0) {
         showWinnersOnScreen(winners);
+        if(alertBox) alertBox.style.display = 'block';
       } else {
         hideWinnerScreen();
+        if(alertBox) alertBox.style.display = 'none';
       }
     });
 
@@ -621,7 +675,13 @@
       if(!tickerContainer || !tickerText) return;
 
       if(confirmedWinnersList && confirmedWinnersList.length > 0) {
-        let textParts = confirmedWinnersList.map(w => `🏆 ${w.prizeType}: ${w.name} (Cartella #${w.cardId}) - Premio: ${w.prizeDesc}`);
+        let uniqueMap = {};
+        confirmedWinnersList.forEach(w => {
+          let key = w.cardId + '_' + w.prizeType;
+          uniqueMap[key] = w;
+        });
+
+        let textParts = Object.values(uniqueMap).map(w => `🏆 ${w.prizeType}: ${w.name} (Cartella #${w.cardId}) - Premio: ${w.prizeDesc}`);
         tickerText.innerText = textParts.join('   ---   ');
         tickerContainer.style.display = 'block';
       } else {
@@ -828,7 +888,6 @@
       db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
-    // CONTROLLO AUTOMATICO DELLE VINCITE
     function checkAutomaticWins() {
       let detectedWinners = {};
 
@@ -903,9 +962,6 @@
 
       if (Object.keys(detectedWinners).length > 0) {
         db.ref('game/winners').set(detectedWinners);
-        if(regiaAuth) {
-          alert("🎉 VINCITA RILEVATA! Visualizzazione vincitori attiva sul Maxischermo.");
-        }
       } else {
         alert('Nessuna vincita trovata con i numeri attuali.');
       }
@@ -977,7 +1033,9 @@
         if(currentWinners) {
           let updatedList = [...confirmedWinnersList];
           Object.values(currentWinners).forEach(w => {
-            updatedList.push(w);
+            if(!updatedList.some(item => item.cardId === w.cardId && item.prizeType === w.prizeType)) {
+              updatedList.push(w);
+            }
           });
           db.ref('game/confirmedWinners').set(updatedList);
         }
