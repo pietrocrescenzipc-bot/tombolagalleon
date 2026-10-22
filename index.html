@@ -110,11 +110,27 @@
       box-shadow: 0 0 10px var(--ball-orange);
     }
     
-    /* Box Ultimo Numero Estratto */
-    .last-extracted-box {
-      margin-top: 6px; background: #162232; padding: 6px 15px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center; gap: 12px; border: 1px solid var(--gold);
-      height: 50px; flex-shrink: 0;
+    /* Box Banner Premio In Palio Ora sul Maxischermo */
+    .current-prize-banner-box {
+      margin-top: 6px;
+      background: linear-gradient(135deg, #162232, #0e1622);
+      padding: 6px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--gold);
+      height: 52px;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.3);
+    }
+    .current-prize-text {
+      font-size: clamp(1rem, 1.8vw, 1.6rem);
+      font-weight: 900;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
     }
 
     /* Banner Scorrevole Vincitori sul Maxischermo */
@@ -343,10 +359,14 @@
       <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
     </div>
+    
     <div class="grid-90" id="board-grid"></div>
-    <div class="last-extracted-box">
-      <span style="font-size: 0.95rem; color: #aaa;">ULTIMO NUMERO ESTRATTO:</span>
-      <div id="last-ball-display" class="billiard-ball drawn">--</div>
+    
+    <!-- Banner In Palio Ora ORA VISIBILE SUL MAXISCHERMO -->
+    <div class="current-prize-banner-box">
+      <div class="current-prize-text" id="board-current-prize-display">
+        🎯 SI GIOCA PER: <span style="color: #fff;">AMBO</span> — PREMIO: <span style="color: var(--gold-light);">Buono Caffè</span>
+      </div>
     </div>
 
     <!-- Banner Scorrevole Vincitori Convalidati -->
@@ -524,7 +544,6 @@
       81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
     };
 
-    // FASI DEL GIOCO CORRETTE: Tombola (15 numeri) e poi Tombolino (2° vincitore di Tombola)
     const PRIZE_STAGES = ['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA', 'TOMBOLA', 'TOMBOLINO'];
     let currentStageIndex = 0;
 
@@ -656,14 +675,28 @@
       return flatObj;
     }
 
+    function updateStageVisuals() {
+      const stageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO FINITO';
+      const prizeName = prizesConfig[stageName] || '';
+      
+      const displayRegia = document.getElementById('current-stage-display');
+      if(displayRegia) displayRegia.innerText = stageName;
+
+      const boardBanner = document.getElementById('board-current-prize-display');
+      if(boardBanner) {
+        if(currentStageIndex < PRIZE_STAGES.length) {
+          boardBanner.innerHTML = `🎯 SI GIOCA PER: <span style="color: #fff;">${stageName}</span> — PREMIO: <span style="color: var(--gold-light);">${prizeName}</span>`;
+        } else {
+          boardBanner.innerHTML = `🏁 PARTITA COMPLETATA!`;
+        }
+      }
+    }
+
     // --- SINCRONIZZAZIONE REALTIME CLOUD ---
     db.ref('game/currentStageIndex').on('value', (snapshot) => {
       currentStageIndex = snapshot.val() || 0;
-      const stageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO FINITO';
-      const displayEl = document.getElementById('current-stage-display');
-      if(displayEl) displayEl.innerText = stageName;
+      updateStageVisuals();
 
-      // Se il gioco è finito, mostra la schermata finale GAME OVER
       if(currentStageIndex >= PRIZE_STAGES.length) {
         showGameOverScreen();
       } else {
@@ -706,6 +739,7 @@
         document.getElementById('prize-cinquina').value = prizesConfig.CINQUINA || '';
         document.getElementById('prize-tombola').value = prizesConfig.TOMBOLA || '';
         document.getElementById('prize-tombolino').value = prizesConfig.TOMBOLINO || '';
+        updateStageVisuals();
       }
     });
 
@@ -759,7 +793,10 @@
         TOMBOLINO: document.getElementById('prize-tombolino').value
       };
       db.ref('game/prizes').set(prizesConfig)
-        .then(() => alert('Configurazione premi salvata con successo!'));
+        .then(() => {
+          updateStageVisuals();
+          alert('Configurazione premi salvata con successo!');
+        });
     }
 
     function updateBoardVisuals() {
@@ -777,14 +814,6 @@
           cell.innerHTML = `<div class="billiard-ball drawn">${n}</div>`;
         }
       });
-      if(drawnNumbers.length > 0) {
-        const last = drawnNumbers[drawnNumbers.length - 1];
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = last;
-      } else {
-        const lastBall = document.getElementById('last-ball-display');
-        if(lastBall) lastBall.innerText = '--';
-      }
       renderPlayerCards();
     }
 
@@ -1000,7 +1029,6 @@
       db.ref('cards/' + cardKey + '/status').set('ATTIVA');
     }
 
-    // LOGICA DI CONTROLLO DELLE VINCITE
     function checkAutomaticWins() {
       if (currentStageIndex >= PRIZE_STAGES.length) return;
 
@@ -1016,7 +1044,6 @@
           else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
         }
 
-        // Ambo, Terno, Quaterna, Cinquina
         if (['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA'].includes(targetPrize)) {
           let neededCount = 2;
           if (targetPrize === 'TERNO') neededCount = 3;
@@ -1047,7 +1074,6 @@
           }
         }
 
-        // TOMBOLA (Tutti e 15 i numeri marcati sulla scheda)
         if (targetPrize === 'TOMBOLA') {
           let allCardNums = gridArray.filter(n => n && n !== 0);
           let allMatched = allCardNums.length > 0 && allCardNums.every(n => drawnNumbers.includes(n));
@@ -1065,11 +1091,9 @@
           }
         }
 
-        // TOMBOLINO (Secondo vincitore dopo la tombola)
         if (targetPrize === 'TOMBOLINO') {
           let allCardNums = gridArray.filter(n => n && n !== 0);
           let allMatched = allCardNums.length > 0 && allCardNums.every(n => drawnNumbers.includes(n));
-          // Escludiamo chi ha già vinto la Tombola principale
           let alreadyWonTombola = confirmedWinnersList.some(w => w.cardId === card.id && w.prizeType === 'TOMBOLA');
 
           if (allMatched && !alreadyWonTombola) {
@@ -1174,7 +1198,6 @@
       });
     }
 
-    // MOSTRA SCHERMATA SPETTACOLARE DI FINE GIOCO (SENZA CODICE CARTELLA)
     function showGameOverScreen() {
       const container = document.getElementById('final-winners-container');
       if(!container) return;
