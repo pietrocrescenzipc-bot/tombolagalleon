@@ -15,143 +15,125 @@
       --card-bg: #161f30;
       --gold: #f39c12;
       --gold-light: #f1c40f;
-      
-      /* PALLA DA BILIARDO 3D BLU SCURO (NON ESTRATTA) */
       --ball-3d-blue: radial-gradient(circle at 32% 28%, #5271a2 0%, #22375a 35%, #101c30 70%, #080f1a 100%);
-      
-      /* PALLA DA BILIARDO 3D ARANCIONE BRILLANTE (ESTRATTA) */
       --ball-3d-orange: radial-gradient(circle at 32% 28%, #ffe17d 0%, #ff8c00 35%, #e64a00 70%, #992200 100%);
-      
       --text-light: #ffffff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    html, body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; overflow-x: hidden; }
+    html, body { background-color: var(--bg-dark); color: var(--text-light); width: 100vw; height: 100vh; overflow: hidden; }
 
     header {
       background: linear-gradient(135deg, #111, #1a2536);
-      padding: 8px 15px;
+      padding: 5px 15px;
       display: flex; justify-content: space-between; align-items: center;
       border-bottom: 2px solid var(--gold);
-      position: sticky; top: 0; z-index: 100;
       height: 45px;
+      width: 100vw;
     }
     .brand-title { font-size: 1rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
     .nav-tabs { display: flex; gap: 6px; }
     .tab-btn {
       background: #222e42; color: #ccc; border: 1px solid #3a4b68;
-      padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
     }
     .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
 
     /* Layout Generale Sezioni */
-    .view-section { display: none; padding: 10px; width: 100%; margin: 0 auto; }
-    .view-section.active { display: block; }
+    .view-section { display: none; width: 100vw; height: calc(100vh - 45px); overflow-y: auto; padding: 6px; }
+    .view-section.active { display: flex; flex-direction: column; }
 
-    /* MAXISCHERMO TV - MASSIMA OCCUPAZIONE VERTICALE E ORIZZONTALE */
+    /* MAXISCHERMO TV PERFETTAMENTE PROPORZIONATO */
     #view-tabellone {
-      width: 100vw !important;
-      height: calc(100vh - 45px);
-      padding: 2px 6px;
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      box-sizing: border-box;
       background: linear-gradient(180deg, #1d3e9e 0%, #173280 40%, #0d1e52 100%);
-      overflow: hidden;
+      justify-content: space-between;
+      align-items: stretch;
     }
-    #view-tabellone.active { display: flex; }
 
-    /* Modalità Fullscreen Integrale */
     :fullscreen header { display: none !important; }
-    :fullscreen #view-tabellone { height: 100vh !important; padding: 2px 6px !important; }
+    :fullscreen #view-tabellone { height: 100vh !important; }
 
-    /* Banner Superiore TV Stile 10eLotto */
     .top-banner {
       background: #0d1628;
-      padding: 2px 10px; border-radius: 6px; border: 2px solid #38bdf8;
+      padding: 4px 12px; border-radius: 6px; border: 2px solid #38bdf8;
       display: flex; justify-content: space-between; align-items: center;
-      height: 34px; flex-shrink: 0; margin-bottom: 2px;
+      height: 40px; flex-shrink: 0; margin-bottom: 4px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    .banner-text { font-size: clamp(0.85rem, 1.2vw, 1.2rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 3px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+    .banner-text { font-size: clamp(0.85rem, 1.2vw, 1.3rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 4px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
     
-    /* GRIGLIA 90 NUMERI TV - FORZATURA COMPATTA PER ANNULLARE GLI SPAZI VUOTI VERTICALI */
+    /* GRIGLIA 90 NUMERI TV - COMPATTA E UNIFORME SENZA SPAZI VUOTI */
     .grid-90 {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       grid-template-rows: repeat(9, 1fr);
-      gap: 1px 2px;
+      gap: 4px;
       background: rgba(8, 15, 30, 0.4);
-      padding: 2px;
-      border-radius: 8px;
+      padding: 6px;
+      border-radius: 10px;
       border: 2px solid rgba(255, 255, 255, 0.25);
       flex-grow: 1;
       width: 100%;
-      height: calc(100% - 80px);
       min-height: 0;
-      align-items: stretch;
-      justify-items: stretch;
+      align-items: center;
+      justify-items: center;
     }
 
     .grid-cell {
       display: flex; justify-content: center; align-items: center;
       width: 100%; height: 100%;
-      padding: 1px;
     }
 
-    /* PALLINE BILIARDO 3D TV - GRANDI, CIRCOLARI E QUASI A TOCCARSI IN VERTICALE */
+    /* PALLINE BILIARDO 3D TV - GRANDI E VICINE VERTICALMENTE E ORIZZONTALMENTE */
     .lotto-ball {
       width: 100%;
       height: 100%;
-      max-width: 9.2vw;
-      max-height: 9.2vh;
+      max-width: 8.8vh;
+      max-height: 8.8vh;
       aspect-ratio: 1;
       border-radius: 50%;
       background: var(--ball-3d-blue);
-      border: 2px solid #ffffff;
+      border: 2.5px solid #ffffff;
       color: #ffffff;
       font-weight: 900;
-      font-size: clamp(1rem, 3.8vh, 2.5rem);
+      font-size: clamp(1rem, 3.8vh, 2.4rem);
       display: flex; justify-content: center; align-items: center;
       user-select: none; margin: auto;
-      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8), inset 2px 2px 5px rgba(255,255,255,0.6), 0 3px 8px rgba(0,0,0,0.6);
+      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.6);
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* PALLINA ESTRATTA 3D BRILLANTE */
     .lotto-ball.drawn {
       background: var(--ball-3d-orange);
-      border: 2px solid #ffffff;
+      border: 2.5px solid #ffffff;
       color: #ffffff;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      box-shadow: 0 0 22px rgba(255, 140, 0, 0.95), inset -4px -4px 8px rgba(0,0,0,0.7), inset 3px 3px 6px rgba(255,255,255,0.9);
+      box-shadow: 0 0 25px rgba(255, 140, 0, 0.95), inset -5px -5px 10px rgba(0,0,0,0.7), inset 4px 4px 8px rgba(255,255,255,0.9);
       animation: ballPop 0.4s ease-out;
     }
 
     @keyframes ballPop {
       0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.15); }
+      70% { transform: scale(1.18); }
       100% { transform: scale(1); opacity: 1; }
     }
     
-    /* Box Banner Premio In Palio Ora sul Maxischermo */
     .current-prize-banner-box {
-      margin-top: 2px;
+      margin-top: 4px;
       background: #0c1526;
-      padding: 2px 10px;
+      padding: 4px 15px;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid var(--gold);
-      height: 36px;
+      height: 42px;
       flex-shrink: 0;
-      box-shadow: 0 0 12px rgba(243, 156, 18, 0.4);
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
     }
     .current-prize-text {
-      font-size: clamp(0.85rem, 1.5vw, 1.3rem);
+      font-size: clamp(0.9rem, 1.6vw, 1.4rem);
       font-weight: 900;
       color: var(--gold-light);
       text-transform: uppercase;
@@ -159,17 +141,16 @@
       text-align: center;
     }
 
-    /* Banner Scorrevole Vincitori sul Maxischermo */
     .winners-ticker-container {
-      margin-top: 2px;
+      margin-top: 3px;
       background: #0c1526;
       border: 1px solid var(--gold);
       border-radius: 6px;
       overflow: hidden;
       white-space: nowrap;
-      padding: 2px 0;
+      padding: 3px 0;
       display: none;
-      height: 26px;
+      height: 28px;
       flex-shrink: 0;
     }
     .winners-ticker-text {
@@ -215,7 +196,6 @@
       animation: rollSphere3D 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
-    /* ANIMAZIONE PALLA BILIARDO 3D CHE RUOTA E DÀ L'EFFETTO SFERICO */
     @keyframes rollSphere3D {
       0% { transform: scale(0.05) rotateY(-1440deg) rotateX(360deg); opacity: 0; }
       60% { transform: scale(1.15) rotateY(180deg) rotateX(-20deg); opacity: 1; }
@@ -236,7 +216,7 @@
       animation: popIn 0.5s ease-out 0.3s both;
     }
 
-    /* MODALE VINCITORE A SCHERMO DIVISO (AMERICA/NFL JUMBOTRON STYLE) */
+    /* MODALE VINCITORE A SCHERMO DIVISO (FOTO + CARTOON 3D) */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(10, 14, 23, 0.98); backdrop-filter: blur(20px);
@@ -266,52 +246,28 @@
       width: 100%; flex-grow: 1; margin: 10px 0; overflow: hidden; gap: 15px;
     }
     
-    /* SCHERMO DIVISO METÀ FOTO / METÀ CARTOON 3D */
-    .nfl-split-card {
-      display: flex; width: 100%; height: 100%; gap: 15px;
-    }
-
+    .nfl-split-card { display: flex; width: 100%; height: 100%; gap: 15px; }
     .nfl-half-box {
       flex: 1; position: relative; border-radius: 16px; overflow: hidden;
       border: 3px solid var(--gold); background: radial-gradient(circle at center, #1b283d 0%, #080d17 100%);
       display: flex; justify-content: center; align-items: center;
     }
-
-    .nfl-photo {
-      width: 100%; height: 100%; object-fit: contain; background: transparent;
-    }
-
-    .cartoon-3d-img {
-      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
-      transform: scale(0.92);
-      transition: transform 0.3s ease;
-    }
-
+    .nfl-photo { width: 100%; height: 100%; object-fit: contain; background: transparent; }
+    .cartoon-3d-img { filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8)); transform: scale(0.92); }
     .nfl-badge-label {
       position: absolute; top: 12px; left: 12px;
       background: var(--gold); color: #000; font-weight: 900;
       padding: 6px 14px; border-radius: 20px; font-size: clamp(0.8rem, 1.5vw, 1.2rem);
       box-shadow: 0 4px 10px rgba(0,0,0,0.8); text-transform: uppercase; z-index: 10;
     }
-
     .winner-info-overlay {
       position: absolute; bottom: 0; left: 0; right: 0;
       background: linear-gradient(0deg, rgba(10, 14, 23, 0.95) 0%, rgba(10, 14, 23, 0.75) 70%, transparent 100%);
       padding: 15px; text-align: center; backdrop-filter: blur(4px); z-index: 10;
     }
-    
-    .winner-name-text {
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      font-weight: 900; color: #fff;
-      text-shadow: 0 2px 10px #000;
-    }
-    .winner-prize-text {
-      font-size: clamp(1.2rem, 2.2vw, 2rem);
-      color: var(--gold-light); font-weight: 800;
-      text-shadow: 0 2px 8px #000;
-    }
+    .winner-name-text { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 900; color: #fff; text-shadow: 0 2px 10px #000; }
+    .winner-prize-text { font-size: clamp(1.2rem, 2.2vw, 2rem); color: var(--gold-light); font-weight: 800; text-shadow: 0 2px 8px #000; }
 
-    /* SCHERMATA VINCITORI FINALI (MOSTRATA PER 10 SECONDI) */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #1a2638 0%, #0a0e17 90%);
@@ -319,122 +275,63 @@
       z-index: 10000; padding: 20px; text-align: center; overflow-y: auto;
     }
     .game-over-title {
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      font-weight: 900;
+      font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 900;
       background: linear-gradient(45deg, #f39c12, #f1c40f, #ffffff, #f39c12);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(243, 156, 18, 0.6);
-      margin-bottom: 5px;
-      animation: pulseTitle 1.5s infinite alternate;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(243, 156, 18, 0.6); margin-bottom: 5px;
     }
     .game-over-subtitle { font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: #ccc; margin-bottom: 25px; }
-    
-    .final-winners-grid {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
-      max-width: 1200px; width: 100%; margin-bottom: 25px;
-    }
+    .final-winners-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 1200px; width: 100%; margin-bottom: 25px; }
     .final-winner-card {
-      background: rgba(22, 31, 48, 0.9);
-      border: 2px solid var(--gold);
-      border-radius: 16px; padding: 15px 25px;
-      display: flex; flex-direction: column; align-items: center; min-width: 180px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      background: rgba(22, 31, 48, 0.9); border: 2px solid var(--gold);
+      border-radius: 16px; padding: 15px 25px; display: flex; flex-direction: column; align-items: center; min-width: 180px;
     }
-    .final-winner-photo {
-      width: 120px; height: 120px; border-radius: 50%;
-      border: 3px solid var(--gold); object-fit: cover; margin-bottom: 10px;
-    }
+    .final-winner-photo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin-bottom: 10px; }
     .final-winner-name { font-size: 1.2rem; font-weight: bold; color: #fff; }
-    .final-winner-badge {
-      background: var(--gold); color: #000; font-weight: 800; font-size: 0.85rem;
-      padding: 3px 10px; border-radius: 12px; margin-top: 5px;
-    }
+    .final-winner-badge { background: var(--gold); color: #000; font-weight: 800; font-size: 0.85rem; padding: 3px 10px; border-radius: 12px; margin-top: 5px; }
 
-    /* SCHERMATA FINALE D'ATTESA E RIPARTENZA REGIA */
     #next-game-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: radial-gradient(circle at center, #162232 0%, #0a0e17 90%);
       display: none; flex-direction: column; justify-content: center; align-items: center;
       z-index: 10001; padding: 25px; text-align: center;
     }
-
     .rejoin-callout-box {
       background: linear-gradient(135deg, #162232, #0e1622);
-      border: 3px dashed var(--gold);
-      border-radius: 20px; padding: 30px 40px;
+      border: 3px dashed var(--gold); border-radius: 20px; padding: 30px 40px;
       font-size: clamp(1.4rem, 3vw, 2.5rem); font-weight: 900; color: var(--gold-light);
-      box-shadow: 0 0 35px rgba(243, 156, 18, 0.5);
-      animation: smoothBlink 2.2s infinite ease-in-out;
-      margin-bottom: 40px;
-      max-width: 900px;
+      box-shadow: 0 0 35px rgba(243, 156, 18, 0.5); margin-bottom: 40px; max-width: 900px;
     }
 
-    @keyframes smoothBlink {
-      0% { opacity: 1; transform: scale(1); box-shadow: 0 0 35px rgba(243, 156, 18, 0.5); }
-      50% { opacity: 0.35; transform: scale(0.98); box-shadow: 0 0 10px rgba(243, 156, 18, 0.1); }
-      100% { opacity: 1; transform: scale(1); box-shadow: 0 0 35px rgba(243, 156, 18, 0.5); }
-    }
-
-    /* Indicatore Premio In Palio in Regia */
     .current-stage-badge {
       background: #111a28; border: 2px solid var(--gold);
       padding: 10px; border-radius: 8px; text-align: center;
       margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; color: var(--gold-light);
     }
-
-    /* Alert Notifica Regia */
     .regia-alert-box {
       background: linear-gradient(135deg, #e74c3c, #c0392b);
-      color: #fff; padding: 20px; border-radius: 12px;
-      border: 3px solid var(--gold); box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+      color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold);
       font-weight: bold; text-align: center; margin-bottom: 20px; display: none;
-      animation: pulseAlert 0.8s infinite alternate;
     }
 
-    /* Interfaccia Giocatore e Altre Viste */
     #view-giocatore, #view-regia, #view-stampa { max-width: 900px; margin: 0 auto; }
     .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
     .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
-    
-    .card-digital { 
-      background: #1c283a; border: 2px solid var(--gold); border-radius: 12px; 
-      padding: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; font-size: 0.95rem; }
-    
-    .tombola-classic-grid { 
-      display: grid !important; grid-template-columns: repeat(9, 1fr) !important; 
-      gap: 3px; background: #0a0e17; padding: 6px; border-radius: 8px; border: 1px solid #2c3e59; 
-    }
-    .tombola-cell {
-      aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex;
-      align-items: center; justify-content: center; font-weight: bold; font-size: 0.95rem;
-      color: #fff; cursor: pointer; border: 1px solid #2c3e59; user-select: none;
-    }
+    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 25px; }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; }
+    .tombola-classic-grid { display: grid !important; grid-template-columns: repeat(9, 1fr) !important; gap: 3px; background: #0a0e17; padding: 6px; border-radius: 8px; border: 1px solid #2c3e59; }
+    .tombola-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.95rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; user-select: none; }
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
-    .tombola-cell.marked { background: #ea580c; color: #fff; border-color: #fff; box-shadow: inset 0 0 6px rgba(0,0,0,0.5); }
+    .tombola-cell.marked { background: #ea580c; color: #fff; border-color: #fff; }
 
-    /* Modalità Cartella a Tutto Schermo PERFETTAMENTE OTTIMIZZATA */
     #fullscreen-card-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(10, 14, 23, 0.98); z-index: 9999;
-      display: none; flex-direction: column; padding: 10px;
-      justify-content: center; align-items: center; overflow: hidden;
+      background: rgba(10, 14, 23, 0.98); z-index: 9999; display: none; flex-direction: column; padding: 10px; justify-content: center; align-items: center;
     }
-    .fullscreen-card-box {
-      width: 98vw; max-width: 900px;
-      background: #1c283a; border: 3px solid var(--gold); border-radius: 12px;
-      padding: 12px; text-align: center; display: flex; flex-direction: column;
-      max-height: 96vh; justify-content: space-between;
-    }
-    .fullscreen-card-box .tombola-classic-grid {
-      gap: 4px; padding: 8px; margin: 10px 0; flex-grow: 1;
-      display: grid !important; grid-template-columns: repeat(9, 1fr) !important; align-content: center;
-    }
+    .fullscreen-card-box { width: 98vw; max-width: 900px; background: #1c283a; border: 3px solid var(--gold); border-radius: 12px; padding: 12px; text-align: center; display: flex; flex-direction: column; max-height: 96vh; justify-content: space-between; }
+    .fullscreen-card-box .tombola-classic-grid { gap: 4px; padding: 8px; margin: 10px 0; flex-grow: 1; display: grid !important; grid-template-columns: repeat(9, 1fr) !important; align-content: center; }
     .fullscreen-card-box .tombola-cell { font-size: clamp(0.9rem, 3.5vw, 1.8rem); aspect-ratio: 1; border-radius: 6px; }
 
-    /* Controlli Regia */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; margin-bottom: 20px; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
@@ -447,9 +344,6 @@
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
 
     @keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes pulseTitle { 0% { transform: scale(0.98); } 100% { transform: scale(1.03); } }
-    @keyframes pulseAlert { 0% { transform: scale(0.99); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6); } 100% { transform: scale(1.02); box-shadow: 0 0 35px rgba(243, 156, 18, 1); } }
-
     @media (max-width: 768px) {
       .regia-grid { grid-template-columns: 1fr; }
       .tombola-cell { font-size: 0.75rem; }
@@ -469,7 +363,6 @@
     </div>
   </header>
 
-  <!-- TABELLONE MAXISCHERMO OTTIMIZZATO PER TV -->
   <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
@@ -478,44 +371,35 @@
     
     <div class="grid-90" id="board-grid"></div>
     
-    <!-- Banner In Palio Ora sul Maxischermo -->
     <div class="current-prize-banner-box">
       <div class="current-prize-text" id="board-current-prize-display">
         🎯 SI GIOCA PER: <span style="color: #fff;">AMBO</span> — PREMIO: <span style="color: var(--gold-light);">Buono Caffè</span>
       </div>
     </div>
 
-    <!-- Banner Scorrevole Vincitori Convalidati -->
     <div id="board-winners-ticker" class="winners-ticker-container">
       <div id="board-winners-ticker-text" class="winners-ticker-text"></div>
     </div>
   </div>
 
-  <!-- REGIA CONTROL DASHBOARD -->
   <div id="view-regia" class="view-section">
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
-      <div class="form-group">
-        <input type="password" id="regia-pass" placeholder="Password">
-      </div>
+      <div class="form-group"><input type="password" id="regia-pass" placeholder="Password"></div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
     </div>
 
     <div id="regia-content" style="display: none;">
-      
-      <!-- Indicatore del Premio Corrente in Palio -->
       <div class="current-stage-badge">
         🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span>
       </div>
 
-      <!-- Alert visivo in Regia -->
       <div id="regia-win-alert" class="regia-alert-box">
         <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
         <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
         <button class="btn btn-sm btn-success" style="padding: 10px 20px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
       </div>
 
-      <!-- Configurazione Organizzatori -->
       <div class="panel-card" style="margin-bottom: 20px;">
         <h3 class="panel-title">👥 Organizzatori e Collaboratori</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -525,7 +409,6 @@
         <button class="btn btn-sm btn-success" onclick="saveOrganizersConfig()">Salva Nomi Organizzatori</button>
       </div>
 
-      <!-- Configurazione Premi -->
       <div class="panel-card" style="margin-bottom: 20px;">
         <h3 class="panel-title">🎁 Personalizzazione Premi in Palio</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
@@ -542,23 +425,16 @@
       <div class="regia-grid">
         <div class="panel-card">
           <h3 class="panel-title">Controllo Estrazione</h3>
-          
-          <!-- PULSANTE ESTRAZIONE GRANDE E SICURO -->
           <div style="margin-bottom: 25px;">
             <button class="btn btn-success" style="padding: 16px; font-size: 1.2rem; width: 100%;" onclick="drawNumber()">🎲 ESTRAI NUMERO</button>
           </div>
-          
           <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4>
-          <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Il sistema controlla automaticamente ad ogni estrazione. Puoi anche eseguire una verifica manuale qui sotto.</p>
           <button class="btn btn-sm" style="background:#222e42; color:#fff; border:1px solid #3a4b68; margin-bottom: 25px;" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
-
-          <!-- BOX SICUREZZA SEPARATO PER NUOVA PARTITA -->
-          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c; margin-top: 20px;">
+          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c;">
             <div style="font-size: 0.85rem; color: #e74c3c; font-weight: bold; margin-bottom: 8px;">⚠️ ZONA PERICOLOSA</div>
-            <button class="btn btn-danger" style="background: #900C3F; opacity: 0.85;" onclick="resetGame()">🔄 Azzera e Inizia Nuova Partita</button>
+            <button class="btn btn-danger" style="background: #900C3F;" onclick="resetGame()">🔄 Azzera e Inizia Nuova Partita</button>
           </div>
         </div>
-
         <div class="panel-card">
           <h3 class="panel-title">Partecipanti Registrati <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
           <div id="regia-cards-list" style="max-height: 400px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
@@ -567,60 +443,7 @@
     </div>
   </div>
 
-  <!-- INTERFACCIA GIOCATORE -->
   <div id="view-giocatore" class="view-section">
     <div id="player-form-container" class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
-      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
-      
-      <div style="margin-bottom: 12px;">
-        <label for="camera-input" class="btn btn-sm" style="display: inline-block; cursor: pointer; width: auto; background: #e74c3c; color: #fff;">📸 Scatta Selfie (Obbligatorio)</label>
-        <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
-      </div>
-
-      <div class="form-group" style="max-width: 320px; margin: 0 auto 12px auto;">
-        <input type="text" id="player-name" placeholder="Inserisci Nome e Cognome">
-      </div>
-
-      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;">
-        <label style="color: var(--gold); font-weight: bold;">Modalità di Marcatura Cartella:</label>
-        <select id="play-mode" style="margin-top: 4px;">
-          <option value="auto">🤖 Automatica (Segna il sistema)</option>
-          <option value="manual">✍️ Manuale (Segno io con un tocco)</option>
-        </select>
-      </div>
-
-      <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
-    </div>
-
-    <div id="add-more-container" style="text-align: center; margin-bottom: 20px; display: none;">
-      <button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button>
-    </div>
-
-    <div id="player-cards-list"></div>
-  </div>
-
-  <!-- GENERATORE PASS QR -->
-  <div id="view-stampa" class="view-section" style="text-align: center;">
-    <div class="panel-card" style="display: inline-block;">
-      <h3 class="panel-title">QR Code Tavolo Cliente</h3>
-      <p style="margin-bottom: 15px; color: #ccc;">Scansionando questo QR Code, il cliente accederà direttamente alla schermata per generare le sue cartelle.</p>
-      <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
-    </div>
-  </div>
-
-  <!-- OVERLAY CARTELLA A TUTTO SCHERMO PER IL CLIENTE -->
-  <div id="fullscreen-card-overlay">
-    <div class="fullscreen-card-box">
-      <h3 id="fs-card-title" style="color: var(--gold); font-size: 1.2rem;">--</h3>
-      <div id="fs-card-grid-container"></div>
-      <button class="btn btn-danger" style="padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button>
-    </div>
-  </div>
-
-  <!-- OVERLAY ESTRAZIONE GIGANTE 3D CON ROTAZIONE SFERICA -->
-  <div id="extraction-overlay">
-    <div class="giant-ball-container">
-      <div id="overlay-ball" class="giant-ball-10lotto">--</div>
-    </div>
-    <div id="overlay-smorfia" class="smorfia-
+      <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profil
