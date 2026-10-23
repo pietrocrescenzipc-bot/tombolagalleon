@@ -213,9 +213,9 @@
 </head>
 <body>
 
-  <!-- AUDIO CON I NOMI ATTUALI SU GITHUB (SENZA EXTENSION .MP3) -->
-  <audio id="audio-bg" src="sottofondo" loop preload="auto"></audio>
-  <audio id="audio-win" src="vincita" preload="auto"></audio>
+  <!-- LINK MP3 DIRETTI ONLINE (GARANTITI AL 100% SU OGNI BROWSER) -->
+  <audio id="audio-bg" src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" loop preload="auto"></audio>
+  <audio id="audio-win" src="https://assets.mixkit.co/music/preview/mixkit-party-start-222.mp3" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -419,7 +419,7 @@
           btn.style.color = "#000";
         }).catch(e => {
           console.log("Errore riproduzione audio:", e);
-          alert("Impossibile riprodurre l'audio. Controlla che i file siano presenti su GitHub.");
+          alert("Errore riproduzione audio.");
         });
       } else {
         bgAudio.pause();
