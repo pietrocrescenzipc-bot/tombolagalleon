@@ -211,7 +211,7 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="forceAudioStart()" onkeydown="forceAudioStart()" ontouchstart="forceAudioStart()">
+<body onclick="triggerMillionaireAudio()" onkeydown="triggerMillionaireAudio()" ontouchstart="triggerMillionaireAudio()">
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -397,94 +397,102 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    /* SINTETIZZATORE AUDIO NATIVO DI MELODIA FESTOSA E DINAMICA */
+    /* GENERATORE AUDIO DI TENSIONE STILE "CHI VUOL ESSERE MILIONARIO?" */
     let audioCtx = null;
-    let melodyTimer = null;
-    let isMelodyRunning = false;
+    let tensionInterval = null;
+    let isTensionActive = false;
 
-    function forceAudioStart() {
+    function triggerMillionaireAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      if (!isMelodyRunning) {
-        startPartyMelody();
+      if (!isTensionActive) {
+        startMillionaireTensionLoop();
       }
     }
 
-    function startPartyMelody() {
-      if (isMelodyRunning) return;
-      isMelodyRunning = true;
-      
-      // Sequenza di note allegre stile motivetto festaiolo
-      const notes = [
-        261.63, 329.63, 392.00, 523.25,  // C E G C
-        392.00, 329.63, 261.63, 196.00,  // G E C G
-        293.66, 349.23, 440.00, 587.33,  // D F A D
-        440.00, 349.23, 293.66, 220.00   // A F D A
-      ];
-      let step = 0;
+    function startMillionaireTensionLoop() {
+      if (isTensionActive) return;
+      isTensionActive = true;
 
-      melodyTimer = setInterval(() => {
-        if (!audioCtx || !isMelodyRunning) return;
+      tensionInterval = setInterval(() => {
+        if (!audioCtx || !isTensionActive) return;
 
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
+        let now = audioCtx.currentTime;
 
-        osc.type = 'triangle'; // Suono morbido e musicale tipo tastiera
-        osc.frequency.setValueAtTime(notes[step % notes.length], audioCtx.currentTime);
+        let osc1 = audioCtx.createOscillator();
+        let gain1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(65.41, now);
+        osc1.frequency.exponentialRampToValueAtTime(32.70, now + 0.15);
+        
+        gain1.gain.setValueAtTime(0.5, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.2);
 
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        setTimeout(() => {
+          if (!audioCtx || !isTensionActive) return;
+          let now2 = audioCtx.currentTime;
+          let osc2 = audioCtx.createOscillator();
+          let gain2 = audioCtx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(73.42, now2);
+          osc2.frequency.exponentialRampToValueAtTime(36.71, now2 + 0.15);
 
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+          gain2.gain.setValueAtTime(0.6, now2);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.2);
 
-        step++;
-      }, 250); // Ritmo vivace
+          osc2.connect(gain2);
+          gain2.connect(audioCtx.destination);
+          osc2.start(now2);
+          osc2.stop(now2 + 0.2);
+        }, 220);
+
+      }, 1400);
     }
 
-    function stopPartyMelody() {
-      isMelodyRunning = false;
-      if (melodyTimer) clearInterval(melodyTimer);
+    function stopMillionaireTension() {
+      isTensionActive = false;
+      if (tensionInterval) clearInterval(tensionInterval);
     }
 
-    function playVictoryFanfare() {
-      stopPartyMelody();
+    function playMillionaireVictoryFanfare() {
+      stopMillionaireTension();
       if (!audioCtx) return;
 
-      const victorySequence = [392.00, 523.25, 659.25, 783.99, 1046.50];
-      victorySequence.forEach((freq, idx) => {
+      const chord = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+      chord.forEach((freq, idx) => {
         let osc = audioCtx.createOscillator();
         let gain = audioCtx.createGain();
 
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.12));
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.08));
 
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime + (idx * 0.12));
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (idx * 0.12) + 0.5);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime + (idx * 0.08));
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (idx * 0.08) + 1.2);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
 
-        osc.start(audioCtx.currentTime + (idx * 0.12));
-        osc.stop(audioCtx.currentTime + (idx * 0.12) + 0.5);
+        osc.start(audioCtx.currentTime + (idx * 0.08));
+        osc.stop(audioCtx.currentTime + (idx * 0.08) + 1.2);
       });
     }
 
-    /* CARICATURA SIMPATICA E SORRIDENTE */
     function getPersonaCaricatureUrl(name, cardId) {
       const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId);
       return `https://api.dicebear.com/7.x/lorelei/svg?seed=${seedName}&backgroundColor=b6e3f4,ffd5dc,ffdfbf&mouth=happy01,happy02,happy03,happy04`;
     }
 
     function switchView(viewId) {
-      forceAudioStart();
+      triggerMillionaireAudio();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
@@ -896,7 +904,7 @@
     }
 
     function showWinnersOnScreen(winnersObj) {
-      playVictoryFanfare();
+      playMillionaireVictoryFanfare();
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -935,12 +943,12 @@
     }
 
     function hideWinnerScreen() {
-      startPartyMelody();
+      startMillionaireTensionLoop();
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      startPartyMelody();
+      startMillionaireTensionLoop();
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
@@ -957,6 +965,7 @@
     }
 
     function triggerGameOverSequence() {
+      stopMillionaireTension();
       const container = document.getElementById('final-winners-container');
       if(container) {
         container.innerHTML = '';
