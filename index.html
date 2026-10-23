@@ -213,9 +213,9 @@
 </head>
 <body>
 
-  <!-- AUDIO LOCALI -->
-  <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
-  <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
+  <!-- AUDIO CON I NOMI ATTUALI SU GITHUB (SENZA EXTENSION .MP3) -->
+  <audio id="audio-bg" src="sottofondo" loop preload="auto"></audio>
+  <audio id="audio-win" src="vincita" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -419,7 +419,7 @@
           btn.style.color = "#000";
         }).catch(e => {
           console.log("Errore riproduzione audio:", e);
-          alert("Impossibile riprodurre l'audio. Controlla che il file 'sottofondo.mp3' sia caricato correttamente su GitHub.");
+          alert("Impossibile riprodurre l'audio. Controlla che i file siano presenti su GitHub.");
         });
       } else {
         bgAudio.pause();
