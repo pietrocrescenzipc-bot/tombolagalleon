@@ -211,7 +211,7 @@
 </head>
 <body>
 
-  <!-- AUDIO -->
+  <!-- AUDIO LOCALI -->
   <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
@@ -417,7 +417,7 @@
             btn.style.color = "#000";
           }).catch(e => {
             console.error("Errore riproduzione:", e);
-            alert("Sblocca l'audio del browser facendo un click sulla pagina prima di attivare la musica.");
+            alert("Fai un click sulla pagina prima di attivare l'audio.");
           });
         }
       } else {
@@ -436,10 +436,7 @@
       if (winAudio) {
         winAudio.currentTime = 0;
         winAudio.volume = 1.0;
-        let p = winAudio.play();
-        if(p !== undefined) {
-          p.catch(err => console.log("Audio vincita in riproduzione"));
-        }
+        winAudio.play().catch(e => console.log("Audio vincita avviato"));
       }
     }
 
@@ -449,7 +446,7 @@
       if (winAudio) winAudio.pause();
       if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.4;
-        bgAudio.play().catch(e => console.log("Ripresa musica di sottofondo"));
+        bgAudio.play().catch(e => console.log("Ripresa musica sottofondo"));
       }
     }
 
@@ -630,6 +627,9 @@
         currentStageIndex: currentStageIndex,
         lastDrawn: drawn,
         timestamp: Date.now()
+      }).then(() => {
+        // ESEGUE LA SCANSIONE VINCITE SUBITO DOPO L'ESTRAZIONE
+        checkAutomaticWins();
       });
     }
 
@@ -775,6 +775,7 @@
       renderMyCards();
     }
 
+    // REGOLAMENTO UFFICIALE TOMBOLA: VERIFICA RIGHE E TOTALI
     function checkAutomaticWins() {
       db.ref('cards').once('value', snapshot => {
         const cardsObj = snapshot.val();
@@ -786,24 +787,34 @@
           let card = cardsObj[cardId];
           if (!card.approved) return;
 
-          let matchesCount = 0;
-          for(let i = 0; i < 27; i++) {
-            let val = card.grid[i];
-            if(val !== 0 && drawnNumbers.includes(val)) {
-              matchesCount++;
-              if(card.mode === 'auto') {
-                db.ref(`cards/${cardId}/marked/${i}`).set(true);
+          let rowCounts = [0, 0, 0];
+          let totalMatches = 0;
+
+          // CONTA I NUMERI CORRISPONDENTI SU OGNUNA DELLE 3 RIGHE
+          for(let r = 0; r < 3; r++) {
+            for(let c = 0; c < 9; c++) {
+              let idx = r * 9 + c;
+              let val = card.grid[idx];
+              if(val !== 0 && drawnNumbers.includes(val)) {
+                rowCounts[r]++;
+                totalMatches++;
+                if(card.mode === 'auto') {
+                  db.ref(`cards/${cardId}/marked/${idx}`).set(true);
+                }
               }
             }
           }
 
+          let maxInSingleRow = Math.max(...rowCounts);
           let hasWon = false;
-          if(currentStage === 'AMBO' && matchesCount >= 2) hasWon = true;
-          if(currentStage === 'TERNO' && matchesCount >= 3) hasWon = true;
-          if(currentStage === 'QUATERNA' && matchesCount >= 4) hasWon = true;
-          if(currentStage === 'CINQUINA' && matchesCount >= 5) hasWon = true;
-          if(currentStage === 'TOMBOLA' && matchesCount >= 15) hasWon = true;
-          if(currentStage === 'TOMBOLINO' && matchesCount >= 15) hasWon = true;
+
+          // REGOLE UFFICIALI TOMBOLA ITALIANA:
+          if(currentStage === 'AMBO' && maxInSingleRow >= 2) hasWon = true;
+          if(currentStage === 'TERNO' && maxInSingleRow >= 3) hasWon = true;
+          if(currentStage === 'QUATERNA' && maxInSingleRow >= 4) hasWon = true;
+          if(currentStage === 'CINQUINA' && maxInSingleRow >= 5) hasWon = true;
+          if(currentStage === 'TOMBOLA' && totalMatches >= 15) hasWon = true;
+          if(currentStage === 'TOMBOLINO' && totalMatches >= 15) hasWon = true;
 
           if(hasWon && !foundWinner) {
             foundWinner = { cardId, name: card.name, photo: card.photo, stage: currentStage };
@@ -811,15 +822,9 @@
         });
 
         if(foundWinner) {
-          triggerWinnerAlert(foundWinner);
-        } else {
-          alert(`Nessuna vincita valida registrata per il livello ${currentStage} in questo momento.`);
+          db.ref('currentWinner').set(foundWinner);
         }
       });
-    }
-
-    function triggerWinnerAlert(winner) {
-      db.ref('currentWinner').set(winner);
     }
 
     function confirmAndCloseWinnerModal() {
@@ -877,14 +882,14 @@
       renderMyCards();
     });
 
-    // LISTEN IN TEMPO REALE DI VINCITA E TRIGGER SCIVOLAMENTO SELFIE + MUSICA VINCITA
+    // LISTENER EVENTO VINCITA
     db.ref('currentWinner').on('value', snapshot => {
       const winner = snapshot.val();
       const modal = document.getElementById('winner-modal');
       const regiaAlert = document.getElementById('regia-win-alert');
       
       if(winner) {
-        playWinMusic(); // SUONA SU TUTTI I DISPOSITIVI CONNESSI
+        playWinMusic();
         const container = document.getElementById('winners-container');
         const caricatureUrl = getPersonaCaricatureUrl(winner.name, winner.cardId);
         
@@ -985,7 +990,6 @@
       initBoard();
       updateStageVisuals();
       
-      // APRI DIRETTAMENTE LA SEZIONE GIOCATORE SE NELL'URL C'È #giocatore OPPURE SE APERTO DA SMARTPHONE
       const baseUrl = window.location.origin + window.location.pathname;
       const playerUrl = baseUrl + "#giocatore";
 
@@ -993,7 +997,6 @@
         switchView('giocatore');
       }
 
-      // GENERA IL QR CODE PUNTANDO DIRETTAMENTE A "LE MIE CARTELLE"
       new QRCode(document.getElementById("qrcode-global"), {
         text: playerUrl,
         width: 160,
