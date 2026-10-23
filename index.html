@@ -28,7 +28,7 @@
       border-bottom: 2px solid var(--gold); height: 45px; width: 100vw;
     }
     .brand-title { font-size: 1rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
-    .nav-tabs { display: flex; gap: 6px; }
+    .nav-tabs { display: flex; gap: 6px; align-items: center; }
     .tab-btn {
       background: #222e42; color: #ccc; border: 1px solid #3a4b68;
       padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
@@ -211,15 +211,16 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="startGlobalAudioContext()" onkeydown="startGlobalAudioContext()">
+<body>
 
-  <!-- PERCORSI RELATIVI AI FILE AUDIO SU GITHUB -->
+  <!-- AUDIO LOCALI -->
   <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
     <div class="nav-tabs">
+      <button class="tab-btn" onclick="toggleAudio()" id="btn-audio" style="background: #222e42; color: var(--gold-light); border-color: var(--gold);">🔇 Musica: OFF</button>
       <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
       <button class="tab-btn" onclick="switchView('giocatore')" id="btn-giocatore">Le mie Cartelle</button>
@@ -401,16 +402,31 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    let audioStarted = false;
+    let isMusicPlaying = false;
 
-    function startGlobalAudioContext() {
-      if (!audioStarted) {
-        audioStarted = true;
-        const bgAudio = document.getElementById('audio-bg');
-        if (bgAudio) {
-          bgAudio.volume = 0.4;
-          bgAudio.play().catch(e => console.log("Attesa interazione utente per audio"));
-        }
+    function toggleAudio() {
+      const bgAudio = document.getElementById('audio-bg');
+      const winAudio = document.getElementById('audio-win');
+      const btn = document.getElementById('btn-audio');
+
+      if (!isMusicPlaying) {
+        winAudio.pause();
+        bgAudio.volume = 0.4;
+        bgAudio.play().then(() => {
+          isMusicPlaying = true;
+          btn.innerText = "🔊 Musica: ON";
+          btn.style.background = "var(--gold)";
+          btn.style.color = "#000";
+        }).catch(e => {
+          console.log("Errore riproduzione audio:", e);
+          alert("Impossibile riprodurre l'audio. Controlla che il file 'sottofondo.mp3' sia caricato correttamente su GitHub.");
+        });
+      } else {
+        bgAudio.pause();
+        isMusicPlaying = false;
+        btn.innerText = "🔇 Musica: OFF";
+        btn.style.background = "#222e42";
+        btn.style.color = "var(--gold-light)";
       }
     }
 
@@ -418,7 +434,7 @@
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
       if (bgAudio) bgAudio.pause();
-      if (winAudio) {
+      if (winAudio && isMusicPlaying) {
         winAudio.currentTime = 0;
         winAudio.volume = 1.0;
         winAudio.play().catch(e => console.log("Errore riproduzione win audio"));
@@ -429,7 +445,7 @@
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
       if (winAudio) winAudio.pause();
-      if (bgAudio) {
+      if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.4;
         bgAudio.play().catch(e => console.log("Errore riproduzione bg audio"));
       }
@@ -441,7 +457,6 @@
     }
 
     function switchView(viewId) {
-      startGlobalAudioContext();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
