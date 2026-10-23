@@ -128,7 +128,6 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
-    /* MODALE VINCITA OTTIMIZZATO PER TV */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
@@ -213,6 +212,10 @@
   </style>
 </head>
 <body onclick="startGlobalAudioContext()" onkeydown="startGlobalAudioContext()">
+
+  <!-- AUDIO MP3 REALE PER IL SOTTOFONDO E LA VINCITA -->
+  <audio id="audio-bg" src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" loop preload="auto"></audio>
+  <audio id="audio-win" src="https://assets.mixkit.co/music/preview/mixkit-party-start-222.mp3" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -398,71 +401,39 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    /* GESTORE SINTETIZZATORE AUDIO DISCO '80 SOTTOFONDO E VINCITA TARARA */
-    let audioCtx = null;
-    let isDiscoPlaying = false;
-    let discoInterval = null;
+    /* GESTIONE AUDIO MP3 CONTINUA E SENZA ERRORI */
+    let audioStarted = false;
 
     function startGlobalAudioContext() {
-      if(!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if(audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      if(!isDiscoPlaying) {
-        playDiscoBackground80s();
+      if (!audioStarted) {
+        audioStarted = true;
+        const bgAudio = document.getElementById('audio-bg');
+        if (bgAudio) {
+          bgAudio.volume = 0.4;
+          bgAudio.play().catch(e => console.log("Attesa interazione utente per audio"));
+        }
       }
     }
 
-    /* RITMO E MUSICA DISCO '80 SINTETIZZATA SENZA BLOCCHI */
-    function playDiscoBackground80s() {
-      if(isDiscoPlaying) return;
-      isDiscoPlaying = true;
-      let step = 0;
-      const bassNotes = [110, 110, 130, 110, 146, 130, 110, 123];
-      discoInterval = setInterval(() => {
-        if(!audioCtx || !isDiscoPlaying) return;
-        
-        // Cassa Disco Bass
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.value = bassNotes[step % bassNotes.length];
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.2);
-
-        step++;
-      }, 250);
+    function playWinMusic() {
+      const bgAudio = document.getElementById('audio-bg');
+      const winAudio = document.getElementById('audio-win');
+      if (bgAudio) bgAudio.pause();
+      if (winAudio) {
+        winAudio.currentTime = 0;
+        winAudio.volume = 1.0;
+        winAudio.play().catch(e => console.log("Errore riproduzione win audio"));
+      }
     }
 
-    function stopDiscoBackground() {
-      isDiscoPlaying = false;
-      if(discoInterval) clearInterval(discoInterval);
-    }
-
-    /* FANFARA VINCITA AD ALTO VOLUME */
-    function playWinnerFanfare() {
-      stopDiscoBackground();
-      if(!audioCtx) return;
-      
-      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
-      notes.forEach((freq, i) => {
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime + (i * 0.12));
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (i * 0.12) + 0.6);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime + (i * 0.12));
-        osc.stop(audioCtx.currentTime + (i * 0.12) + 0.6);
-      });
+    function resumeBgMusic() {
+      const bgAudio = document.getElementById('audio-bg');
+      const winAudio = document.getElementById('audio-win');
+      if (winAudio) winAudio.pause();
+      if (bgAudio) {
+        bgAudio.volume = 0.4;
+        bgAudio.play().catch(e => console.log("Errore riproduzione bg audio"));
+      }
     }
 
     /* CARICATURA SIMPATICA E SORRIDENTE */
@@ -884,7 +855,7 @@
     }
 
     function showWinnersOnScreen(winnersObj) {
-      playWinnerFanfare();
+      playWinMusic();
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -923,12 +894,12 @@
     }
 
     function hideWinnerScreen() {
-      playDiscoBackground80s();
+      resumeBgMusic();
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      playDiscoBackground80s();
+      resumeBgMusic();
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
