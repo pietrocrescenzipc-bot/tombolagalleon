@@ -429,7 +429,6 @@
       }
     }
 
-    // RIPRODUZIONE AUDIO VINCITA FORZATA
     function playWinMusic() {
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
@@ -985,8 +984,18 @@
     window.onload = function() {
       initBoard();
       updateStageVisuals();
+      
+      // APRI DIRETTAMENTE LA SEZIONE GIOCATORE SE NELL'URL C'È #giocatore OPPURE SE APERTO DA SMARTPHONE
+      const baseUrl = window.location.origin + window.location.pathname;
+      const playerUrl = baseUrl + "#giocatore";
+
+      if (window.location.hash === "#giocatore") {
+        switchView('giocatore');
+      }
+
+      // GENERA IL QR CODE PUNTANDO DIRETTAMENTE A "LE MIE CARTELLE"
       new QRCode(document.getElementById("qrcode-global"), {
-        text: window.location.href,
+        text: playerUrl,
         width: 160,
         height: 160,
         colorDark: "#000000",
