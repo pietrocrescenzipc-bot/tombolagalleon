@@ -211,11 +211,7 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="triggerAudioUnlock()" onkeydown="triggerAudioUnlock()" ontouchstart="triggerAudioUnlock()">
-
-  <!-- SOTTOFONDO MP3 FUNKY E FESTOSO -->
-  <audio id="bg-music" src="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c89b7b620d.mp3?filename=funky-disco-126249.mp3" loop preload="auto"></audio>
-  <audio id="win-music" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3?filename=fanfare-brass-38841.mp3" preload="auto"></audio>
+<body onclick="forceAudioStart()" onkeydown="forceAudioStart()" ontouchstart="forceAudioStart()">
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -401,37 +397,84 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    let audioUnlocked = false;
+    /* SINTETIZZATORE AUDIO NATIVO DI MELODIA FESTOSA E DINAMICA */
+    let audioCtx = null;
+    let melodyTimer = null;
+    let isMelodyRunning = false;
 
-    function triggerAudioUnlock() {
-      const bgAudio = document.getElementById('bg-music');
-      if (bgAudio && !audioUnlocked) {
-        bgAudio.volume = 0.4;
-        bgAudio.play().then(() => {
-          audioUnlocked = true;
-        }).catch(e => console.log("In attesa di interazione per audio"));
+    function forceAudioStart() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (!isMelodyRunning) {
+        startPartyMelody();
       }
     }
 
-    function playWinFanfare() {
-      const bgAudio = document.getElementById('bg-music');
-      const winAudio = document.getElementById('win-music');
-      if (bgAudio) bgAudio.pause();
-      if (winAudio) {
-        winAudio.currentTime = 0;
-        winAudio.volume = 1.0;
-        winAudio.play().catch(e => console.log("Errore audio vincita"));
-      }
+    function startPartyMelody() {
+      if (isMelodyRunning) return;
+      isMelodyRunning = true;
+      
+      // Sequenza di note allegre stile motivetto festaiolo
+      const notes = [
+        261.63, 329.63, 392.00, 523.25,  // C E G C
+        392.00, 329.63, 261.63, 196.00,  // G E C G
+        293.66, 349.23, 440.00, 587.33,  // D F A D
+        440.00, 349.23, 293.66, 220.00   // A F D A
+      ];
+      let step = 0;
+
+      melodyTimer = setInterval(() => {
+        if (!audioCtx || !isMelodyRunning) return;
+
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+
+        osc.type = 'triangle'; // Suono morbido e musicale tipo tastiera
+        osc.frequency.setValueAtTime(notes[step % notes.length], audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+
+        step++;
+      }, 250); // Ritmo vivace
     }
 
-    function resumeBgMusic() {
-      const winAudio = document.getElementById('win-music');
-      const bgAudio = document.getElementById('bg-music');
-      if (winAudio) winAudio.pause();
-      if (bgAudio) {
-        bgAudio.volume = 0.4;
-        bgAudio.play().catch(e => console.log("Errore ripresa bg audio"));
-      }
+    function stopPartyMelody() {
+      isMelodyRunning = false;
+      if (melodyTimer) clearInterval(melodyTimer);
+    }
+
+    function playVictoryFanfare() {
+      stopPartyMelody();
+      if (!audioCtx) return;
+
+      const victorySequence = [392.00, 523.25, 659.25, 783.99, 1046.50];
+      victorySequence.forEach((freq, idx) => {
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.12));
+
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime + (idx * 0.12));
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (idx * 0.12) + 0.5);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(audioCtx.currentTime + (idx * 0.12));
+        osc.stop(audioCtx.currentTime + (idx * 0.12) + 0.5);
+      });
     }
 
     /* CARICATURA SIMPATICA E SORRIDENTE */
@@ -441,7 +484,7 @@
     }
 
     function switchView(viewId) {
-      triggerAudioUnlock();
+      forceAudioStart();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
@@ -853,7 +896,7 @@
     }
 
     function showWinnersOnScreen(winnersObj) {
-      playWinFanfare();
+      playVictoryFanfare();
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -892,12 +935,12 @@
     }
 
     function hideWinnerScreen() {
-      resumeBgMusic();
+      startPartyMelody();
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      resumeBgMusic();
+      startPartyMelody();
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
