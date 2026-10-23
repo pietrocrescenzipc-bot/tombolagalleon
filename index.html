@@ -213,9 +213,9 @@
 </head>
 <body>
 
-  <!-- LINK MP3 DIRETTI ONLINE (GARANTITI AL 100% SU OGNI BROWSER) -->
-  <audio id="audio-bg" src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" loop preload="auto"></audio>
-  <audio id="audio-win" src="https://assets.mixkit.co/music/preview/mixkit-party-start-222.mp3" preload="auto"></audio>
+  <!-- TAG AUDIO LOCALI CON NOMI CORRETTI CON ESTENSIONE .MP3 -->
+  <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
+  <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -412,15 +412,19 @@
       if (!isMusicPlaying) {
         winAudio.pause();
         bgAudio.volume = 0.4;
-        bgAudio.play().then(() => {
-          isMusicPlaying = true;
-          btn.innerText = "🔊 Musica: ON";
-          btn.style.background = "var(--gold)";
-          btn.style.color = "#000";
-        }).catch(e => {
-          console.log("Errore riproduzione audio:", e);
-          alert("Errore riproduzione audio.");
-        });
+        
+        let playPromise = bgAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            isMusicPlaying = true;
+            btn.innerText = "🔊 Musica: ON";
+            btn.style.background = "var(--gold)";
+            btn.style.color = "#000";
+          }).catch(e => {
+            console.error("Errore riproduzione:", e);
+            alert("Il browser o GitHub non trova il file 'sottofondo.mp3'. Verificare che su GitHub il file si chiami esattamente 'sottofondo.mp3'.");
+          });
+        }
       } else {
         bgAudio.pause();
         isMusicPlaying = false;
