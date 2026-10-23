@@ -14,8 +14,13 @@
       --card-bg: #161f30;
       --gold: #f39c12;
       --gold-light: #f1c40f;
-      --ball-3d-blue: radial-gradient(circle at 32% 28%, #5271a2 0%, #22375a 35%, #101c30 70%, #080f1a 100%);
-      --ball-3d-orange: radial-gradient(circle at 32% 28%, #ffe17d 0%, #ff8c00 35%, #e64a00 70%, #992200 100%);
+      
+      /* GRADIENTE 3D PER OVALE BLU (NON ESTRATTO) CON CONTORNO A RILIEVO */
+      --oval-3d-blue: radial-gradient(ellipse at 35% 30%, #4a6899 0%, #1d2f4e 55%, #0d1728 100%);
+      
+      /* GRADIENTE 3D PER OVALE ARANCIONE (ESTRATTO) CON CONTORNO E LUMINOSITÀ */
+      --oval-3d-orange: radial-gradient(ellipse at 35% 30%, #ffe380 0%, #ff8000 50%, #b33600 100%);
+      
       --text-light: #ffffff;
     }
 
@@ -53,12 +58,12 @@
     .banner-text { font-size: clamp(0.85rem, 1.2vw, 1.3rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
     .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 4px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
     
-    /* GRIGLIA 90 NUMERI TV - CALCOLATA MATEMATICAMENTE PER EVITARE RITARDI E SPAZI VUOTI */
+    /* GRIGLIA 90 NUMERI TV - ANNULLA COMPLETAMENTE GLI SPAZI VUOTI */
     .grid-90 {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       grid-template-rows: repeat(9, 1fr);
-      gap: 2px;
+      gap: 3px 4px;
       background: rgba(8, 15, 30, 0.4);
       padding: 4px;
       border-radius: 10px;
@@ -67,36 +72,40 @@
       width: 100%;
       height: 100%;
       min-height: 0;
-      align-items: center;
-      justify-items: center;
+      align-items: stretch;
+      justify-items: stretch;
     }
     
     .grid-cell { 
       display: flex; justify-content: center; align-items: center; 
-      width: 100%; height: 100%; padding: 0; position: relative;
+      width: 100%; height: 100%; padding: 0;
     }
 
-    /* PALLINE 3D RIGIDAMENTE ROTONDE E DIMENSIONATE IN MODO UNIFORME SENZA DEFORMARSI */
+    /* OVALI 3D (PILLOLE) RIFINITI CON GIOCHI DI CONTORNO E OMBRE IN RILIEVO */
     .lotto-ball {
-      width: min(9vw, 9.2vh);
-      height: min(9vw, 9.2vh);
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      background: var(--ball-3d-blue);
-      border: 2px solid #ffffff;
+      width: 100%;
+      height: 100%;
+      border-radius: 50px; /* Trasforma la forma in un ovale perfetto */
+      background: var(--oval-3d-blue);
+      border: 2.5px solid #6282b5; /* Contorno esterno luminoso */
+      outline: 1px solid #000; /* Bordo sottile per stacco 3D */
       color: #ffffff;
       font-weight: 900;
-      font-size: clamp(0.9rem, 3.2vh, 2.2rem);
+      font-size: clamp(1rem, 3.8vh, 2.5rem);
       display: flex; justify-content: center; align-items: center;
       user-select: none; margin: auto;
-      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.6);
-      flex-shrink: 0;
+      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.5), 0 3px 6px rgba(0,0,0,0.6);
+      transition: all 0.2s ease-in-out;
     }
+
+    /* OVALE ESTRATTO (ARANCIONE BRILLANTE CON CONTORNO DORATO/BIANCO) */
     .lotto-ball.drawn {
-      background: var(--ball-3d-orange);
-      border: 2px solid #ffffff;
+      background: var(--oval-3d-orange);
+      border: 2.5px solid #ffffff;
+      outline: 2px solid var(--gold);
       color: #ffffff;
-      box-shadow: 0 0 25px rgba(255, 140, 0, 0.95), inset -5px -5px 10px rgba(0,0,0,0.7), inset 4px 4px 8px rgba(255,255,255,0.9);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+      box-shadow: 0 0 20px rgba(255, 128, 0, 0.95), inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.9);
     }
 
     .current-prize-banner-box {
@@ -117,7 +126,7 @@
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; text-align: center;
     }
     .giant-ball-10lotto {
-      width: 320px; height: 320px; border-radius: 50%; background: var(--ball-3d-orange);
+      width: 320px; height: 320px; border-radius: 50%; background: var(--oval-3d-orange);
       border: 12px solid #ffffff; color: #ffffff; font-size: 9rem; font-weight: 900;
       display: flex; justify-content: center; align-items: center; box-shadow: 0 0 110px rgba(255, 140, 0, 0.95);
     }
