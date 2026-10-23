@@ -613,6 +613,24 @@
       }
       let drawn = available[Math.floor(Math.random() * available.length)];
       drawnNumbers.push(drawn);
+      
+      // AGGIORNAMENTO AUTOMATICO DELLE CASELLE PER LE CARTE IN MODALITÀ AUTO
+      db.ref('cards').once('value', snapshot => {
+        const cardsObj = snapshot.val();
+        if(cardsObj) {
+          Object.keys(cardsObj).forEach(cardId => {
+            let card = cardsObj[cardId];
+            if(card.approved && card.mode === 'auto') {
+              for(let i = 0; i < 27; i++) {
+                if(card.grid[i] === drawn) {
+                  db.ref(`cards/${cardId}/marked/${i}`).set(true);
+                }
+              }
+            }
+          });
+        }
+      });
+
       db.ref('gameState').set({
         drawnNumbers: drawnNumbers,
         currentStageIndex: currentStageIndex,
@@ -644,7 +662,7 @@
         mode: playMode,
         grid: cardGrid,
         marked: {},
-        approved: false, // LA CARTELLA PARTE IN ATTESA DI APPROVAZIONE REGIA
+        approved: false,
         createdAt: Date.now()
       };
       cardRef.set(cardData).then(() => {
@@ -657,12 +675,21 @@
       });
     }
 
-    // FUNZIONE PER APPROVARE LE CARTELLE DALLA REGIA
     function approveCard(cardKey) {
-      db.ref(`cards/${cardKey}/approved`).set(true);
+      db.ref(`cards/${cardKey}`).once('value', snapshot => {
+        const card = snapshot.val();
+        if(card && card.mode === 'auto' && drawnNumbers.length > 0) {
+          // Se la cartella è automatica e ci sono già numeri estratti, segna subito i numeri usciti
+          for(let i = 0; i < 27; i++) {
+            if(card.grid[i] !== 0 && drawnNumbers.includes(card.grid[i])) {
+              db.ref(`cards/${cardKey}/marked/${i}`).set(true);
+            }
+          }
+        }
+        db.ref(`cards/${cardKey}/approved`).set(true);
+      });
     }
 
-    // FUNZIONE PER RIFIUTARE/ELIMINARE CARTELLA DALLA REGIA
     function rejectCard(cardKey) {
       if(confirm("Sei sicuro di voler rifiutare ed eliminare questa cartella?")) {
         db.ref(`cards/${cardKey}`).remove();
@@ -764,7 +791,6 @@
 
         Object.keys(cardsObj).forEach(cardId => {
           let card = cardsObj[cardId];
-          // VERIFICA VINCITA SOLO PER CARTELLE APPROVATE
           if (!card.approved) return;
 
           let matchesCount = 0;
@@ -831,7 +857,6 @@
       }
     }
 
-    // --- SINCRONIZZAZIONE FIREBASE IN TEMPO REALE ---
     db.ref('gameState').on('value', snapshot => {
       const state = snapshot.val();
       if(!state) return;
@@ -853,6 +878,10 @@
       if(state.lastDrawn) {
         showExtractionAnimation(state.lastDrawn);
       }
+      renderMyCards();
+    });
+
+    db.ref('cards').on('value', () => {
       renderMyCards();
     });
 
@@ -969,7 +998,6 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      // GESTIONE LISTA REGIA CON PULSANTI DI APPROVAZIONE/RIFIUTO
       db.ref('cards').on('value', snap => {
         const val = snap.val();
         const count = val ? Object.keys(val).length : 0;
