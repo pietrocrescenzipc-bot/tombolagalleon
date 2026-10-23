@@ -128,19 +128,20 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
+    /* VINCITA IN SALA - LAYOUT OTTIMIZZATO PER TV FULLSCREEN */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
-      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 10px;
+      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
     }
     .winner-box {
       background: #161f30; padding: 15px; border-radius: 20px; border: 4px solid var(--gold);
-      width: 95vw; height: 92vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+      width: 96vw; height: 94vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
       overflow: hidden;
     }
-    .winner-title-header { font-size: 2rem; color: var(--gold); font-weight: 900; text-transform: uppercase; }
+    .winner-title-header { font-size: 2.2rem; color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
     
     .winners-flex-row {
-      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 10px 0; position: relative; justify-content: center; align-items: center;
+      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 5px 0; position: relative; justify-content: center; align-items: center; max-height: 78vh;
     }
 
     .selfie-slide-box {
@@ -165,11 +166,15 @@
       padding: 6px 14px; border-radius: 20px; font-size: 1rem; z-index: 10; text-transform: uppercase;
     }
     .winner-info-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 23, 0.9);
-      padding: 15px; text-align: center; z-index: 10;
+      position: absolute; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 23, 0.92);
+      padding: 12px; text-align: center; z-index: 10;
     }
-    .winner-name-text { font-size: 2.2rem; font-weight: 900; color: #fff; }
-    .winner-prize-text { font-size: 1.5rem; color: var(--gold-light); font-weight: 800; }
+    .winner-name-text { font-size: 2rem; font-weight: 900; color: #fff; }
+    .winner-prize-text { font-size: 1.4rem; color: var(--gold-light); font-weight: 800; }
+
+    .btn-confirm-banner {
+      padding: 14px 20px; font-size: 1.2rem; width: 100%; border-radius: 12px; flex-shrink: 0; margin-top: 8px; font-weight: 900; cursor: pointer;
+    }
 
     #game-over-overlay, #next-game-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -209,12 +214,12 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="startGlobalAudioContext()">
+<body onclick="startGlobalAudioContext()" onkeydown="startGlobalAudioContext()">
 
-  <!-- SOTTOFONDO MUSICALE CONTINUO DURANTE IL GIOCO -->
-  <audio id="bg-music" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=fun-background-112652.mp3" loop preload="auto"></audio>
+  <!-- AUDIO DISCO 80S IN SOTTOFONDO -->
+  <audio id="bg-music" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c33b2a2656.mp3?filename=disco-funk-10582.mp3" loop preload="auto"></audio>
   
-  <!-- TRACCIA DI VINCITA AD ALTO VOLUME -->
+  <!-- AUDIO VINCITA TARARA AD ALTO VOLUME -->
   <audio id="win-music" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c81216d2f9.mp3?filename=celebration-party-109820.mp3" preload="auto"></audio>
 
   <header>
@@ -358,7 +363,7 @@
     <div class="winner-box">
       <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
       <div id="winners-container" class="winners-flex-row"></div>
-      <button class="btn btn-sm btn-success" style="padding: 12px; font-size: 1.1rem; width: 100%; border-radius: 12px; flex-shrink: 0;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
+      <button class="btn btn-sm btn-success btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
     </div>
   </div>
 
@@ -402,7 +407,7 @@
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     let audioStarted = false;
 
-    /* SBLOCCO AUTOMATICO DELL'AUDIO AL PRIMO TOCCO / INTERAZIONE */
+    /* AVVIO AUTOMATICO E CONTINUO MUSICA DISCO '80 */
     function startGlobalAudioContext() {
       if(!audioStarted) {
         audioStarted = true;
@@ -414,10 +419,10 @@
       }
     }
 
-    /* GENERAZIONE CARICATURA SIMPATICA / AVATAR VERO E COERENTE IN BASE AL NOME/CARD ID */
+    /* GENERAZIONE CARICATURA SIMPATICA, BELLA E SORRIDENTE */
     function getPersonaCaricatureUrl(name, cardId) {
       const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId);
-      return `https://api.dicebear.com/7.x/adventurer/svg?seed=${seedName}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+      return `https://api.dicebear.com/7.x/lorelei/svg?seed=${seedName}&backgroundColor=b6e3f4,ffd5dc,ffdfbf&mouth=happy01,happy02,happy03,happy04,happy05,happy06`;
     }
 
     function switchView(viewId) {
@@ -832,7 +837,7 @@
       setTimeout(() => { overlay.style.display = 'none'; }, 2800);
     }
 
-    /* GESTIONE SWAP AUDIO PERFETTO: STOP SOTTOFONDO E AVVIO CANZONE VINCITA A PALLA */
+    /* SCRAMBLE AUDIO VINCITA A PALLA E MOSTRA SCHERMO CONVALIDA VISIBILE */
     function showWinnersOnScreen(winnersObj) {
       const bgAudio = document.getElementById('bg-music');
       const winAudio = document.getElementById('win-music');
@@ -840,7 +845,7 @@
       if(bgAudio) { bgAudio.pause(); }
       if(winAudio) {
         winAudio.currentTime = 0;
-        winAudio.volume = 1.0; /* Volume a Palla */
+        winAudio.volume = 1.0;
         winAudio.play().catch(e => console.log('Audio bloccato'));
       }
 
