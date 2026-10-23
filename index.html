@@ -19,7 +19,7 @@
       /* PALLA DA BILIARDO 3D BLU SCURO (NON ESTRATTA) */
       --ball-3d-blue: radial-gradient(circle at 32% 28%, #5271a2 0%, #22375a 35%, #101c30 70%, #080f1a 100%);
       
-      /* PALLA DA BILIARDO 3D ARANCIONE BRILANTE (ESTRATTA) */
+      /* PALLA DA BILIARDO 3D ARANCIONE BRILLANTE (ESTRATTA) */
       --ball-3d-orange: radial-gradient(circle at 32% 28%, #ffe17d 0%, #ff8c00 35%, #e64a00 70%, #992200 100%);
       
       --text-light: #ffffff;
@@ -48,11 +48,11 @@
     .view-section { display: none; padding: 10px; width: 100%; margin: 0 auto; }
     .view-section.active { display: block; }
 
-    /* MAXISCHERMO PERFETTO PER TV STILE 10eLOTTO */
+    /* MAXISCHERMO TV OTTIMIZZATO PER SFRUTTARE TUTTO LO SPAZIO */
     #view-tabellone {
       max-width: 100vw !important;
       height: calc(100vh - 50px);
-      padding: 6px 12px;
+      padding: 4px 10px;
       display: none;
       flex-direction: column;
       justify-content: space-between;
@@ -63,62 +63,64 @@
 
     /* Modalità Fullscreen Integrale */
     :fullscreen header { display: none !important; }
-    :fullscreen #view-tabellone { height: 100vh !important; padding: 8px 12px !important; }
+    :fullscreen #view-tabellone { height: 100vh !important; padding: 6px 10px !important; }
 
     /* Banner Superiore TV Stile 10eLotto */
     .top-banner {
       background: #0d1628;
-      padding: 6px 15px; border-radius: 8px; border: 2px solid #38bdf8;
+      padding: 4px 12px; border-radius: 6px; border: 2px solid #38bdf8;
       display: flex; justify-content: space-between; align-items: center;
-      height: 44px; flex-shrink: 0; margin-bottom: 6px;
+      height: 38px; flex-shrink: 0; margin-bottom: 3px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    .banner-text { font-size: clamp(0.9rem, 1.4vw, 1.4rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 4px 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .banner-text { font-size: clamp(0.85rem, 1.3vw, 1.3rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 3px 10px; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
     
-    /* Griglia 90 Numeri Scalabile e Massimizzata */
+    /* GRIGLIA 90 NUMERI TV - MASSIMA OCCUPAZIONE SPAZIO */
     .grid-90 {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       grid-template-rows: repeat(9, 1fr);
-      gap: 5px;
-      background: rgba(8, 15, 30, 0.45);
-      padding: 8px;
-      border-radius: 12px;
+      gap: 2px;
+      background: rgba(8, 15, 30, 0.4);
+      padding: 4px 8px;
+      border-radius: 10px;
       border: 2px solid rgba(255, 255, 255, 0.25);
       flex-grow: 1;
       width: 100%;
       min-height: 0;
+      align-items: center;
+      justify-items: center;
     }
 
     .grid-cell {
       display: flex; justify-content: center; align-items: center;
-      height: 100%; width: 100%;
+      width: 100%; height: 100%;
     }
 
-    /* PALLINE BILIARDO 3D MASSIMIZZATE */
+    /* PALLINE BILIARDO 3D TV - GRANDI E VICINE COME SU TELEFONO */
     .lotto-ball {
-      width: clamp(34px, 6.8vh, 64px);
-      height: clamp(34px, 6.8vh, 64px);
+      width: clamp(34px, 9.2vh, 85px);
+      height: clamp(34px, 9.2vh, 85px);
       border-radius: 50%;
       background: var(--ball-3d-blue);
-      border: 2px solid #ffffff;
+      border: 2.5px solid #ffffff;
       color: #ffffff;
       font-weight: 900;
-      font-size: clamp(1.1rem, 3.2vh, 1.9rem);
+      font-size: clamp(1.1rem, 4.2vh, 2.6rem);
       display: flex; justify-content: center; align-items: center;
       user-select: none; margin: 0 auto;
-      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.6);
+      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.6);
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* PALLINA ESTRATTA 3D BRILANTE CON LUMINOSITÀ */
+    /* PALLINA ESTRATTA 3D BRILLANTE */
     .lotto-ball.drawn {
       background: var(--ball-3d-orange);
-      border: 2px solid #ffffff;
+      border: 2.5px solid #ffffff;
       color: #ffffff;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      box-shadow: 0 0 22px rgba(255, 140, 0, 0.95), inset -5px -5px 10px rgba(0,0,0,0.7), inset 4px 4px 8px rgba(255,255,255,0.9);
+      box-shadow: 0 0 25px rgba(255, 140, 0, 0.95), inset -5px -5px 10px rgba(0,0,0,0.7), inset 4px 4px 8px rgba(255,255,255,0.9);
       animation: ballPop 0.4s ease-out;
     }
 
@@ -130,20 +132,20 @@
     
     /* Box Banner Premio In Palio Ora sul Maxischermo */
     .current-prize-banner-box {
-      margin-top: 6px;
+      margin-top: 3px;
       background: #0c1526;
-      padding: 6px 20px;
-      border-radius: 8px;
+      padding: 4px 15px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid var(--gold);
-      height: 52px;
+      height: 42px;
       flex-shrink: 0;
-      box-shadow: 0 0 18px rgba(243, 156, 18, 0.4);
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
     }
     .current-prize-text {
-      font-size: clamp(1rem, 1.8vw, 1.6rem);
+      font-size: clamp(0.9rem, 1.6vw, 1.4rem);
       font-weight: 900;
       color: var(--gold-light);
       text-transform: uppercase;
@@ -153,32 +155,32 @@
 
     /* Banner Scorrevole Vincitori sul Maxischermo */
     .winners-ticker-container {
-      margin-top: 6px;
+      margin-top: 3px;
       background: #0c1526;
       border: 1px solid var(--gold);
       border-radius: 6px;
       overflow: hidden;
       white-space: nowrap;
-      padding: 4px 0;
+      padding: 3px 0;
       display: none;
-      height: 32px;
+      height: 28px;
       flex-shrink: 0;
     }
     .winners-ticker-text {
       display: inline-block;
       padding-left: 100%;
       animation: ticker 25s linear infinite;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: bold;
       color: var(--gold-light);
-      line-height: 22px;
+      line-height: 20px;
     }
     @keyframes ticker {
       0% { transform: translate3d(0, 0, 0); }
       100% { transform: translate3d(-100%, 0, 0); }
     }
 
-    /* OVERLAY NUMERO ESTRATTO GIGANTE 3D CON ROTAZIONE SPETTACOLARE */
+    /* OVERLAY ESTRAZIONE GIGANTE 3D CON EFFETTO ROTATIVO SFERICO */
     #extraction-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(6, 10, 18, 0.96); backdrop-filter: blur(15px);
@@ -186,25 +188,25 @@
     }
     
     .giant-ball-10lotto {
-      width: clamp(290px, 46vw, 440px) !important;
-      height: clamp(290px, 46vw, 440px) !important;
+      width: clamp(280px, 45vw, 420px) !important;
+      height: clamp(280px, 45vw, 420px) !important;
       border-radius: 50%;
-      background: var(--ball-3d-blue) !important;
+      background: var(--ball-3d-orange) !important;
       border: 12px solid #ffffff !important;
       color: #ffffff !important;
-      font-size: clamp(7.5rem, 19vw, 14rem) !important;
+      font-size: clamp(7rem, 18vw, 13rem) !important;
       font-weight: 900 !important;
       display: flex; justify-content: center; align-items: center;
       text-shadow: 0 5px 20px rgba(0,0,0,0.9);
-      box-shadow: 0 0 100px rgba(30, 58, 138, 0.95), inset -16px -16px 30px rgba(0,0,0,0.8), inset 14px 14px 28px rgba(255,255,255,0.7) !important;
-      animation: spinRollIn 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 110px rgba(255, 140, 0, 0.95), inset -16px -16px 30px rgba(0,0,0,0.8), inset 14px 14px 28px rgba(255,255,255,0.8) !important;
+      animation: spin3DOrb 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* EFFETTO ROTAZIONE SIMPATICO E DINAMICO */
-    @keyframes spinRollIn {
-      0% { transform: scale(0.1) rotate(-720deg); opacity: 0; }
-      70% { transform: scale(1.12) rotate(15deg); opacity: 1; }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    /* ANIMAZIONE SFERICA ROTATIVA AVANZATA */
+    @keyframes spin3DOrb {
+      0% { transform: scale(0.1) rotate(-1080deg) perspective(400px) rotateY(180deg); opacity: 0; }
+      70% { transform: scale(1.12) rotate(20deg) perspective(400px) rotateY(-20deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg) perspective(400px) rotateY(0deg); opacity: 1; }
     }
 
     .smorfia-sticker {
@@ -443,7 +445,7 @@
     </div>
   </header>
 
-  <!-- TABELLONE MAXISCHERMO STILE 10eLOTTO CON PALLINE 3D -->
+  <!-- TABELLONE MAXISCHERMO OTTIMIZZATO -->
   <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
@@ -592,7 +594,7 @@
     </div>
   </div>
 
-  <!-- OVERLAY ESTRAZIONE GIGANTE 3D CON ROTAZIONE -->
+  <!-- OVERLAY ESTRAZIONE GIGANTE 3D CON ROTAZIONE SFERICA -->
   <div id="extraction-overlay">
     <div id="overlay-ball" class="giant-ball-10lotto">--</div>
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
@@ -1255,8 +1257,8 @@
       const ballEl = document.getElementById('overlay-ball');
       
       ballEl.style.animation = 'none';
-      void ballEl.offsetWidth; // Trigger reflow per riavviare l'animazione
-      ballEl.style.animation = 'spinRollIn 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+      void ballEl.offsetWidth; // Trigger reflow
+      ballEl.style.animation = 'spin3DOrb 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
       ballEl.innerText = n;
       document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
@@ -1316,7 +1318,6 @@
       });
     }
 
-    // GESTIONE DELLA SEQUENZA DI FINE PARITA CON TIMER AUTOMATICO DI 10 SECONDI
     function triggerGameOverSequence() {
       const container = document.getElementById('final-winners-container');
       if(container) {
@@ -1339,7 +1340,6 @@
         });
       }
 
-      // Mostra la schermata dei vincitori
       document.getElementById('game-over-overlay').style.display = 'flex';
       document.getElementById('next-game-overlay').style.display = 'none';
 
@@ -1349,7 +1349,6 @@
         }, 600);
       }
 
-      // Dopo esattamente 10 secondi passa automaticamente alla schermata d'attesa e reset
       if(gameOverTimer) clearTimeout(gameOverTimer);
       gameOverTimer = setTimeout(() => {
         document.getElementById('game-over-overlay').style.display = 'none';
@@ -1358,7 +1357,7 @@
           clearInterval(confettiInterval);
           confettiInterval = null;
         }
-      }, 10000); // 10000 ms = 10 secondi
+      }, 10000);
     }
 
     function resetGame() {
