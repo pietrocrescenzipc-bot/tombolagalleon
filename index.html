@@ -91,13 +91,6 @@
     }
     .current-prize-text { font-size: clamp(0.9rem, 1.6vw, 1.4rem); font-weight: 900; color: var(--gold-light); text-transform: uppercase; text-align: center; }
 
-    .winners-ticker-container {
-      margin-top: 2px; background: #0c1526; border: 1px solid var(--gold); border-radius: 6px;
-      overflow: hidden; white-space: nowrap; padding: 2px 0; display: none; height: 26px; width: 100%; flex-shrink: 0;
-    }
-    .winners-ticker-text { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-size: 0.85rem; font-weight: bold; color: var(--gold-light); line-height: 20px; }
-    @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
-
     #extraction-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(6, 10, 18, 0.96); backdrop-filter: blur(15px);
@@ -128,7 +121,7 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
-    /* OVERLAY VINCITA */
+    /* POPUP ED ELEMENTI VINCITA */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
@@ -218,7 +211,7 @@
 </head>
 <body>
 
-  <!-- AUDIO LOCALI SU GITHUB -->
+  <!-- AUDIO -->
   <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
@@ -245,10 +238,6 @@
       <div class="current-prize-text" id="board-current-prize-display">
         🎯 SI GIOCA PER: <span style="color: #fff;">AMBO</span> — PREMIO: <span style="color: var(--gold-light);">Buono Caffè</span>
       </div>
-    </div>
-
-    <div id="board-winners-ticker" class="winners-ticker-container">
-      <div id="board-winners-ticker-text" class="winners-ticker-text"></div>
     </div>
   </div>
 
@@ -360,6 +349,7 @@
     <div id="overlay-smorfia" class="smorfia-sticker">--</div>
   </div>
 
+  <!-- POPUP VINCITA -->
   <div id="winner-modal">
     <div class="winner-box">
       <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
@@ -427,7 +417,7 @@
             btn.style.color = "#000";
           }).catch(e => {
             console.error("Errore riproduzione:", e);
-            alert("Impossibile riprodurre l'audio. Assicurati che i file MP3 siano caricati su GitHub.");
+            alert("Sblocca l'audio del browser facendo un click sulla pagina prima di attivare la musica.");
           });
         }
       } else {
@@ -439,6 +429,7 @@
       }
     }
 
+    // RIPRODUZIONE AUDIO VINCITA FORZATA
     function playWinMusic() {
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
@@ -446,7 +437,10 @@
       if (winAudio) {
         winAudio.currentTime = 0;
         winAudio.volume = 1.0;
-        winAudio.play().catch(e => console.log("Riproduzione audio vincita avviata"));
+        let p = winAudio.play();
+        if(p !== undefined) {
+          p.catch(err => console.log("Audio vincita in riproduzione"));
+        }
       }
     }
 
@@ -456,7 +450,7 @@
       if (winAudio) winAudio.pause();
       if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.4;
-        bgAudio.play().catch(e => console.log("Riproduzione sottofondo ripresa"));
+        bgAudio.play().catch(e => console.log("Ripresa musica di sottofondo"));
       }
     }
 
@@ -616,7 +610,6 @@
       let drawn = available[Math.floor(Math.random() * available.length)];
       drawnNumbers.push(drawn);
       
-      // MARCATURA AUTOMATICA SCHEDE AUTO
       db.ref('cards').once('value', snapshot => {
         const cardsObj = snapshot.val();
         if(cardsObj) {
@@ -827,7 +820,6 @@
     }
 
     function triggerWinnerAlert(winner) {
-      playWinMusic();
       db.ref('currentWinner').set(winner);
     }
 
@@ -886,14 +878,14 @@
       renderMyCards();
     });
 
-    // SINCRONIZZAZIONE REALTIME EVENTO VINCITA
+    // LISTEN IN TEMPO REALE DI VINCITA E TRIGGER SCIVOLAMENTO SELFIE + MUSICA VINCITA
     db.ref('currentWinner').on('value', snapshot => {
       const winner = snapshot.val();
       const modal = document.getElementById('winner-modal');
       const regiaAlert = document.getElementById('regia-win-alert');
       
       if(winner) {
-        playWinMusic(); // SUONA LA MUSICA VINCITA
+        playWinMusic(); // SUONA SU TUTTI I DISPOSITIVI CONNESSI
         const container = document.getElementById('winners-container');
         const caricatureUrl = getPersonaCaricatureUrl(winner.name, winner.cardId);
         
@@ -916,12 +908,13 @@
           </div>
         `;
         modal.style.display = 'flex';
+        
         if(regiaAuth) {
           regiaAlert.style.display = 'block';
           document.getElementById('regia-win-alert-text').innerText = `${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`;
         }
         
-        // ANIMAZIONE SCIVOLAMENTO SELFIE -> CARICATURA DOPO 2 SECONDI
+        // SCIVOLAMENTO A SINISTRA DOPO 2 SECONDI
         setTimeout(() => {
           const selfieBox = document.getElementById('box-selfie');
           const cartoonBox = document.getElementById('box-cartoon');
