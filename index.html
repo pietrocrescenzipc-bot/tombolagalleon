@@ -211,9 +211,9 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="startAudioEngine()" onkeydown="startAudioEngine()">
+<body onclick="triggerAudioUnlock()" onkeydown="triggerAudioUnlock()" ontouchstart="triggerAudioUnlock()">
 
-  <!-- SOTTOFONDO MP3 REALE ALLEGRO E MUSICA VINCITA FESTOSA -->
+  <!-- SOTTOFONDO MP3 FUNKY E FESTOSO -->
   <audio id="bg-music" src="https://cdn.pixabay.com/download/audio/2022/11/06/audio_c89b7b620d.mp3?filename=funky-disco-126249.mp3" loop preload="auto"></audio>
   <audio id="win-music" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3?filename=fanfare-brass-38841.mp3" preload="auto"></audio>
 
@@ -254,14 +254,6 @@
     </div>
 
     <div id="regia-content" style="display: none;">
-      
-      <!-- SBLOCCO AUDIO DEDICATO BROWSER/TV -->
-      <div class="panel-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71); text-align: center; margin-bottom: 20px;">
-        <button class="btn" style="background: #fff; color: #000; font-size: 1.2rem; font-weight: 900; padding: 15px;" onclick="startAudioEngine()">
-          🎵 ATTIVA / RIPRISTINA MUSICA DIVERTIMENTO (SOTTOFONDO MP3)
-        </button>
-      </div>
-
       <div class="current-stage-badge">
         🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span>
       </div>
@@ -409,16 +401,15 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    /* GESTIONE MUSICA MP3 REALE CONTINUA */
-    let isAudioPlaying = false;
+    let audioUnlocked = false;
 
-    function startAudioEngine() {
+    function triggerAudioUnlock() {
       const bgAudio = document.getElementById('bg-music');
-      if (bgAudio) {
-        bgAudio.volume = 0.35;
+      if (bgAudio && !audioUnlocked) {
+        bgAudio.volume = 0.4;
         bgAudio.play().then(() => {
-          isAudioPlaying = true;
-        }).catch(err => console.log("Clicca sulla pagina per sbloccare l'audio."));
+          audioUnlocked = true;
+        }).catch(e => console.log("In attesa di interazione per audio"));
       }
     }
 
@@ -428,18 +419,18 @@
       if (bgAudio) bgAudio.pause();
       if (winAudio) {
         winAudio.currentTime = 0;
-        winAudio.volume = 0.9;
-        winAudio.play().catch(err => console.log("Errore audio vincita"));
+        winAudio.volume = 1.0;
+        winAudio.play().catch(e => console.log("Errore audio vincita"));
       }
     }
 
     function resumeBgMusic() {
-      const bgAudio = document.getElementById('bg-music');
       const winAudio = document.getElementById('win-music');
+      const bgAudio = document.getElementById('bg-music');
       if (winAudio) winAudio.pause();
       if (bgAudio) {
-        bgAudio.volume = 0.35;
-        bgAudio.play().catch(err => console.log("Errore audio bg"));
+        bgAudio.volume = 0.4;
+        bgAudio.play().catch(e => console.log("Errore ripresa bg audio"));
       }
     }
 
@@ -450,7 +441,7 @@
     }
 
     function switchView(viewId) {
-      startAudioEngine();
+      triggerAudioUnlock();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
