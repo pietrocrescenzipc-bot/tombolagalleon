@@ -128,7 +128,6 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
-    /* MODALE VINCITA CON ANIMAZIONE SCIVOLAMENTO LATERALE */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 10px;
@@ -144,27 +143,21 @@
       display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 10px 0; position: relative; justify-content: center; align-items: center;
     }
 
-    /* BOX SELFIE VINCITORE CON TRANSIZIONE DI SCIVOLAMENTO */
     .selfie-slide-box {
       position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--gold); background: #080d17;
-      display: flex; justify-content: center; align-items: center; height: 100%; width: 50%;
-      transform: translateX(50%); /* Inizia al centro */
+      display: flex; justify-content: center; align-items: center; height: 100%; width: 48%;
+      transform: translateX(50%);
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .selfie-slide-box.slid-left {
-      transform: translateX(0%); /* Scivola a sinistra */
-    }
+    .selfie-slide-box.slid-left { transform: translateX(0%); }
 
-    /* BOX CARTOON CHE COMPARISCE DA DESTRA */
     .cartoon-slide-box {
       position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--gold); background: #080d17;
-      display: flex; justify-content: center; align-items: center; height: 100%; width: 50%;
+      display: flex; justify-content: center; align-items: center; height: 100%; width: 48%;
       opacity: 0; transform: translateX(100%);
       transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    .cartoon-slide-box.visible {
-      opacity: 1; transform: translateX(0%);
-    }
+    .cartoon-slide-box.visible { opacity: 1; transform: translateX(0%); }
 
     .nfl-photo { width: 100%; height: 100%; object-fit: contain; }
     .nfl-badge-label {
@@ -216,10 +209,13 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body>
+<body onclick="startGlobalAudioContext()">
 
-  <!-- TRACCIA AUDIO VINCITA TARARA DI OMUL -->
-  <audio id="tarara-audio" src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" preload="auto" loop></audio>
+  <!-- SOTTOFONDO MUSICALE CONTINUO DURANTE IL GIOCO -->
+  <audio id="bg-music" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=fun-background-112652.mp3" loop preload="auto"></audio>
+  
+  <!-- TRACCIA DI VINCITA AD ALTO VOLUME -->
+  <audio id="win-music" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c81216d2f9.mp3?filename=celebration-party-109820.mp3" preload="auto"></audio>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -266,10 +262,6 @@
         <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
         <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
         <button class="btn btn-sm btn-success" style="padding: 10px 20px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
-      </div>
-
-      <div class="panel-card" style="margin-bottom: 20px;">
-        <button class="btn btn-sm" style="background:#38bdf8; color:#000; font-weight:bold;" onclick="enableAudioForBrowser()">🔊 Clicca qui all'inizio evento per Abilitare l'Audio Vincita</button>
       </div>
 
       <div class="panel-card" style="margin-bottom: 20px;">
@@ -387,16 +379,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    /* IMMAGINI CARTOON (SENZA NOMI TESTUALI ERRATI CHE POSSANO CREARE DISALLINEAMENTI) */
-    const cartoon3DCharacters = [
-      { url: "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg" },
-      { url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
-      { url: "https://upload.wikimedia.org/wikipedia/en/0/02/Homer_Simpson_2006.png" },
-      { url: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Mickey_Mouse.png" },
-      { url: "https://upload.wikimedia.org/wikipedia/en/4/4d/Shrek_%28character%29.png" },
-      { url: "https://upload.wikimedia.org/wikipedia/en/1/17/Bugs_Bunny.svg" }
-    ];
-
     const smorfia = {
       1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
       11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
@@ -418,13 +400,28 @@
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
+    let audioStarted = false;
 
-    function enableAudioForBrowser() {
-      const audioEl = document.getElementById('tarara-audio');
-      if(audioEl) { audioEl.play().then(() => { audioEl.pause(); alert('Audio abilitato correttamente per gli eventi!'); }).catch(e => alert('Audio abilitato!')); }
+    /* SBLOCCO AUTOMATICO DELL'AUDIO AL PRIMO TOCCO / INTERAZIONE */
+    function startGlobalAudioContext() {
+      if(!audioStarted) {
+        audioStarted = true;
+        const bgAudio = document.getElementById('bg-music');
+        if(bgAudio) {
+          bgAudio.volume = 0.35;
+          bgAudio.play().catch(e => {});
+        }
+      }
+    }
+
+    /* GENERAZIONE CARICATURA SIMPATICA / AVATAR VERO E COERENTE IN BASE AL NOME/CARD ID */
+    function getPersonaCaricatureUrl(name, cardId) {
+      const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId);
+      return `https://api.dicebear.com/7.x/adventurer/svg?seed=${seedName}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
     }
 
     function switchView(viewId) {
+      startGlobalAudioContext();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
@@ -835,18 +832,24 @@
       setTimeout(() => { overlay.style.display = 'none'; }, 2800);
     }
 
-    /* SCIVOLAMENTO FOTO SELFIE -> APPARIZIONE CARTOON AFFIANCATO SENZA DUBBI SU NOMI */
+    /* GESTIONE SWAP AUDIO PERFETTO: STOP SOTTOFONDO E AVVIO CANZONE VINCITA A PALLA */
     function showWinnersOnScreen(winnersObj) {
-      const audioEl = document.getElementById('tarara-audio');
-      if(audioEl) { audioEl.currentTime = 0; audioEl.play().catch(e => console.log('Audio bloccato dal browser')); }
+      const bgAudio = document.getElementById('bg-music');
+      const winAudio = document.getElementById('win-music');
+
+      if(bgAudio) { bgAudio.pause(); }
+      if(winAudio) {
+        winAudio.currentTime = 0;
+        winAudio.volume = 1.0; /* Volume a Palla */
+        winAudio.play().catch(e => console.log('Audio bloccato'));
+      }
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
       Object.values(winnersObj).forEach(w => {
         const item = document.createElement('div');
         item.style.cssText = "width: 100%; height: 100%; display: flex; gap: 15px; justify-content: center; align-items: center;";
-        const charIdx = Math.abs(w.cardId) % cartoon3DCharacters.length;
-        const cartoon = cartoon3DCharacters[charIdx];
+        const caricatureUrl = getPersonaCaricatureUrl(w.name, w.cardId);
         
         item.innerHTML = `
           <div class="selfie-slide-box" id="selfie-box-${w.cardId}">
@@ -858,8 +861,8 @@
             </div>
           </div>
           <div class="cartoon-slide-box" id="cartoon-box-${w.cardId}">
-            <span class="nfl-badge-label" style="background:#e74c3c; color:#fff;">🎬 SOSIA CARTOON</span>
-            <img src="${cartoon.url}" class="nfl-photo" style="padding:20px;">
+            <span class="nfl-badge-label" style="background:#e74c3c; color:#fff;">🎨 CARICATURA PERSONALE</span>
+            <img src="${caricatureUrl}" class="nfl-photo" style="padding:15px;">
             <div class="winner-info-overlay">
               <div class="winner-prize-text" style="color:var(--gold-light);">🏆 Premio: ${w.prizeDesc}</div>
             </div>
@@ -867,7 +870,6 @@
         `;
         container.appendChild(item);
 
-        /* Sequenza di Animazione: Selfie al centro -> Scivola a sinistra -> Comparsa Cartoon a destra */
         setTimeout(() => {
           const selfieBox = document.getElementById(`selfie-box-${w.cardId}`);
           const cartoonBox = document.getElementById(`cartoon-box-${w.cardId}`);
@@ -879,14 +881,22 @@
     }
 
     function hideWinnerScreen() {
-      const audioEl = document.getElementById('tarara-audio');
-      if(audioEl) { audioEl.pause(); }
+      const bgAudio = document.getElementById('bg-music');
+      const winAudio = document.getElementById('win-music');
+
+      if(winAudio) { winAudio.pause(); }
+      if(bgAudio) { bgAudio.volume = 0.35; bgAudio.play().catch(e => {}); }
+
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      const audioEl = document.getElementById('tarara-audio');
-      if(audioEl) { audioEl.pause(); }
+      const bgAudio = document.getElementById('bg-music');
+      const winAudio = document.getElementById('win-music');
+
+      if(winAudio) { winAudio.pause(); }
+      if(bgAudio) { bgAudio.volume = 0.35; bgAudio.play().catch(e => {}); }
+
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
