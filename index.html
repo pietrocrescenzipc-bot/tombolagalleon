@@ -6,284 +6,266 @@
     <title>Tombola Evento - PMU & The Galleon</title>
     <style>
         :root {
-            --primary: #c0392b;
-            --secondary: #f39c12;
-            --bg: #1a1a1a;
-            --text: #ffffff;
-            --board-bg: #2c3e50;
-            --extracted: #27ae60;
+            --bg-color: #0b0e14;
+            --panel-bg: #151d2a;
+            --cell-bg: linear-gradient(180deg, #2b394e 0%, #1c2636 100%);
+            --cell-border: #3b4d66;
+            --cell-extracted: linear-gradient(180deg, #d35400 0%, #a04000 100%);
+            --text-color: #ffffff;
+            --gold: #f39c12;
+            --blue-btn: #2980b9;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
-        /* Banner per sblocco audio */
+        /* Banner di attivazione Audio */
         #audio-unlock-banner {
-            background-color: #e67e22;
+            background: linear-gradient(90deg, #e67e22, #d35400);
             color: white;
             text-align: center;
-            padding: 12px 20px;
+            padding: 10px 20px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             width: 100%;
-            max-width: 900px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: background 0.3s;
+            max-width: 1200px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         #audio-unlock-banner:hover {
-            background-color: #d35400;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: var(--secondary);
-            margin: 0;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .container {
-            display: flex;
-            gap: 30px;
-            max-width: 1200px;
+        /* Top Bar Controlli */
+        .top-bar {
             width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Sezione Estrazione Ultimo Numero */
-        .display-section {
+            max-width: 1200px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            background: var(--board-bg);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-            min-width: 280px;
+            margin-bottom: 8px;
         }
 
-        .current-number {
-            font-size: 6rem;
+        .brand-title {
+            color: var(--gold);
             font-weight: bold;
-            color: var(--secondary);
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid var(--secondary);
-            margin-bottom: 20px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
 
-        .btn {
-            background-color: var(--primary);
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            background-color: var(--blue-btn);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
             font-weight: bold;
-            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-            margin: 5px;
         }
 
-        .btn:hover {
-            background-color: #e74c3c;
-            transform: scale(1.05);
+        .nav-btn.orange {
+            background-color: #e67e22;
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        /* Contenitore Principale */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--panel-bg);
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
         }
 
-        .btn-win {
-            background-color: var(--secondary);
-            color: #000;
+        /* Header Evento */
+        .event-header {
+            background: linear-gradient(180deg, #1f2d40 0%, #121a26 100%);
+            border: 1px solid var(--cell-border);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            margin-bottom: 12px;
+            position: relative;
         }
 
-        .btn-win:hover {
-            background-color: #f1c40f;
+        .btn-fullscreen {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        /* Tabellone 1-90 */
-        .board-section {
-            background: var(--board-bg);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-        }
-
+        /* Tabellone 90 numeri */
         .board {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 8px;
-            max-width: 600px;
+            gap: 6px;
+            margin-bottom: 12px;
         }
 
         .cell {
-            aspect-ratio: 1;
-            background: rgba(255,255,255,0.1);
-            border-radius: 6px;
+            background: var(--cell-bg);
+            border: 1px solid var(--cell-border);
+            border-radius: 8px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #a0a0a0;
-            transition: all 0.3s;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         .cell.extracted {
-            background-color: var(--extracted);
-            color: white;
-            font-size: 1.3rem;
-            box-shadow: 0 0 10px rgba(39, 174, 96, 0.6);
+            background: var(--cell-extracted);
+            border-color: #e67e22;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(211, 84, 0, 0.8);
         }
 
-        .cell.latest {
-            background-color: var(--secondary);
-            color: black;
-            animation: pulse 1s infinite alternate;
-        }
-
-        @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
+        /* Footer Info Vincita */
+        .game-info-footer {
+            background: linear-gradient(180deg, #1a2536 0%, #0d131d 100%);
+            border: 1px solid var(--cell-border);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Banner sblocco Audio -->
+    <!-- Banner Sblocco Audio per Browser -->
     <div id="audio-unlock-banner" onclick="unlockAudio()">
         🔊 CLICCA QUI PER ATTIVARE L'AUDIO E LA MUSICA DI SOTTOFONDO
     </div>
 
-    <header>
-        <h1>🏴‍☠️ Tombola Evento 🏴‍☠️</h1>
-        <p>PMU & The Galleon</p>
-    </header>
-
-    <div class="container">
-        <!-- Pannello di Controllo / Estrazione -->
-        <div class="display-section">
-            <div class="current-number" id="current-number">--</div>
-            <button class="btn" onclick="extractNumber()">ESTRAI NUMERO</button>
-            <button class="btn btn-win" onclick="playWinSound()">🏆 VINCITA!</button>
-            <button class="btn" style="background-color: #7f8c8d; margin-top: 20px;" onclick="resetGame()">AZZERA TAVOLA</button>
-        </div>
-
-        <!-- Tabellone 90 Numeri -->
-        <div class="board-section">
-            <div class="board" id="board"></div>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="brand-title">PMU & THE GALLEON</div>
+        <div class="nav-buttons">
+            <button class="nav-btn orange">Maxischermo</button>
+            <button class="nav-btn">Regia</button>
+            <button class="nav-btn">Le mie Cartelle</button>
+            <button class="nav-btn">Pass QR</button>
         </div>
     </div>
 
-    <!-- Elementi Audio -->
+    <!-- Pannello Tabellone -->
+    <div class="main-container">
+        <div class="event-header">
+            PALLAVOLO MEDIA UMBRA & THE GALLEON PIZZERIA
+            <button class="btn-fullscreen" onclick="toggleFullScreen()">FULLSCREEN</button>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div class="game-info-footer" id="game-status">
+            🎯 SI GIOCA PER: AMBO — PREMIO: BUONO CAFFÈ
+        </div>
+    </div>
+
+    <!-- Tracce Audio -->
     <audio id="bg-music" src="sottofondo.mp3" loop preload="auto"></audio>
     <audio id="win-sound" src="vincita.mp3" preload="auto"></audio>
 
     <script>
-        const extractedNumbers = new Set();
-        let lastExtracted = null;
+        const boardEl = document.getElementById('board');
+        const bgMusic = document.getElementById('bg-music');
+        const winSound = document.getElementById('win-sound');
 
-        // Inizializza Tabellone
-        const boardElement = document.getElementById('board');
+        // Genera il tabellone 1-90
         function initBoard() {
-            boardElement.innerHTML = '';
+            boardEl.innerHTML = '';
             for (let i = 1; i <= 90; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                cell.id = `cell-${i}`;
+                cell.id = `num-${i}`;
                 cell.innerText = i;
-                boardElement.appendChild(cell);
+                cell.onclick = () => toggleNumber(i);
+                boardEl.appendChild(cell);
             }
         }
         initBoard();
 
-        // Sblocco Audio Manuale
-        function unlockAudio() {
-            const bgMusic = document.getElementById('bg-music');
-            const winSound = document.getElementById('win-sound');
+        // Seleziona/Deseleziona Numero
+        function toggleNumber(num) {
+            const cell = document.getElementById(`num-${num}`);
+            if (cell) {
+                cell.classList.toggle('extracted');
+            }
+        }
 
+        // Funzione per attivare e sbloccare la musica
+        function unlockAudio() {
             bgMusic.play().then(() => {
                 document.getElementById('audio-unlock-banner').style.display = 'none';
-            }).catch(err => {
-                console.log("Sblocco audio in corso...", err);
+            }).catch(e => {
+                console.log("Sblocco audio fallito:", e);
             });
 
-            // Pre-carica l'effetto sonoro
             winSound.load();
         }
 
-        // Estrazione Numero
-        function extractNumber() {
-            if (extractedNumbers.size >= 90) {
-                alert("Tutti i numeri sono stati estratti!");
-                return;
-            }
-
-            let num;
-            do {
-                num = Math.floor(Math.random() * 90) + 1;
-            } while (extractedNumbers.has(num));
-
-            extractedNumbers.add(num);
-
-            // Rimuovi lo stato "latest" dal precedente
-            if (lastExtracted) {
-                const prevCell = document.getElementById(`cell-${lastExtracted}`);
-                if (prevCell) {
-                    prevCell.classList.remove('latest');
-                    prevCell.classList.add('extracted');
-                }
-            }
-
-            // Aggiorna numero corrente e tabellone
-            lastExtracted = num;
-            document.getElementById('current-number').innerText = num;
-            const currentCell = document.getElementById(`cell-${num}`);
-            if (currentCell) {
-                currentCell.classList.add('extracted', 'latest');
-            }
-        }
-
-        // Suono Vincita
-        function playWinSound() {
-            const winSound = document.getElementById('win-sound');
+        // Riproduce l'effetto vincita
+        function triggerWin() {
             winSound.currentTime = 0;
             winSound.play().catch(e => console.log("Errore audio vincita:", e));
         }
 
-        // Reset Gioco
-        function resetGame() {
-            if (confirm("Sei sicuro di voler azzerare il tabellone?")) {
-                extractedNumbers.clear();
-                lastExtracted = null;
-                document.getElementById('current-number').innerText = '--';
-                initBoard();
+        // Schermo Intero
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
     </script>
