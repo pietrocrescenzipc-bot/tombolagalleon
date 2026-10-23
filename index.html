@@ -183,12 +183,15 @@
     #view-giocatore, #view-regia, #view-stampa { max-width: 900px; margin: 0 auto; overflow-y: auto; }
     .player-header { background: #161f30; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #2a3b54; }
     .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
-    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 25px; }
+    .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 25px; position: relative; }
+    .card-digital.pending { border-color: #f39c12; opacity: 0.85; }
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; }
     .tombola-classic-grid { display: grid !important; grid-template-columns: repeat(9, 1fr) !important; gap: 3px; background: #0a0e17; padding: 6px; border-radius: 8px; border: 1px solid #2c3e59; }
     .tombola-cell { aspect-ratio: 1; background: #162232; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.95rem; color: #fff; cursor: pointer; border: 1px solid #2c3e59; user-select: none; }
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
     .tombola-cell.marked { background: #ea580c; color: #fff; border-color: #fff; }
+
+    .pending-badge-banner { background: #f39c12; color: #000; font-weight: 900; text-align: center; padding: 6px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem; text-transform: uppercase; }
 
     #fullscreen-card-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98); z-index: 9999; display: none; flex-direction: column; padding: 10px; justify-content: center; align-items: center;
@@ -201,7 +204,7 @@
     .panel-card { background: var(--card-bg); border-radius: 10px; padding: 20px; border: 1px solid #2a3b54; margin-bottom: 20px; }
     .panel-title { color: var(--gold); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #2a3b54; padding-bottom: 8px; }
     .btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-size: 1rem; }
-    .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
+    .btn-sm { padding: 6px 12px; font-size: 0.85rem; width: auto; }
     .btn-danger { background: #e74c3c; color: #fff; }
     .btn-success { background: #2ecc71; color: #fff; }
     .form-group { margin-bottom: 12px; text-align: left; }
@@ -213,7 +216,7 @@
 </head>
 <body>
 
-  <!-- ELEMENTI AUDIO -->
+  <!-- AUDIO -->
   <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
@@ -301,7 +304,7 @@
           </div>
         </div>
         <div class="panel-card">
-          <h3 class="panel-title">Partecipanti Registrati <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
+          <h3 class="panel-title">Partecipanti e Approvazioni <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
           <div id="regia-cards-list" style="max-height: 400px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
         </div>
       </div>
@@ -641,6 +644,7 @@
         mode: playMode,
         grid: cardGrid,
         marked: {},
+        approved: false, // LA CARTELLA PARTE IN ATTESA DI APPROVAZIONE REGIA
         createdAt: Date.now()
       };
       cardRef.set(cardData).then(() => {
@@ -651,6 +655,18 @@
         document.getElementById('player-name').value = '';
         renderMyCards();
       });
+    }
+
+    // FUNZIONE PER APPROVARE LE CARTELLE DALLA REGIA
+    function approveCard(cardKey) {
+      db.ref(`cards/${cardKey}/approved`).set(true);
+    }
+
+    // FUNZIONE PER RIFIUTARE/ELIMINARE CARTELLA DALLA REGIA
+    function rejectCard(cardKey) {
+      if(confirm("Sei sicuro di voler rifiutare ed eliminare questa cartella?")) {
+        db.ref(`cards/${cardKey}`).remove();
+      }
     }
 
     function renderMyCards() {
@@ -664,10 +680,20 @@
         db.ref('cards/' + key).once('value', snapshot => {
           const card = snapshot.val();
           if(!card) return;
-          let html = `<div class="card-digital">
+          
+          let isApproved = card.approved === true;
+          let pendingClass = isApproved ? '' : ' pending';
+          
+          let html = `<div class="card-digital${pendingClass}">`;
+          
+          if(!isApproved) {
+            html += `<div class="pending-badge-banner">⏳ IN ATTESA DI APPROVAZIONE DALLA REGIA</div>`;
+          }
+
+          html += `
             <div class="card-header-info">
               <div><strong>${card.name}</strong> <span style="font-size:0.8rem; color:var(--gold);">(${card.mode === 'auto' ? 'Automatica' : 'Manuale'})</span></div>
-              <button class="btn btn-sm" style="background:#38bdf8; color:#000; padding:4px 8px; font-size:0.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>
+              ${isApproved ? `<button class="btn btn-sm" style="background:#38bdf8; color:#000; padding:4px 8px; font-size:0.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>` : ''}
             </div>
             <div class="tombola-classic-grid">`;
           
@@ -677,9 +703,9 @@
             if(val === 0) {
               html += `<div class="tombola-cell empty"></div>`;
             } else {
-              let drawnClass = drawnNumbers.includes(val) ? ' drawn-num' : '';
+              let drawnClass = (isApproved && drawnNumbers.includes(val)) ? ' drawn-num' : '';
               let markedClass = isMarked ? ' marked' : '';
-              let clickAttr = card.mode === 'manual' ? `onclick="toggleManualMark('${key}', ${i}, ${val})"` : '';
+              let clickAttr = (isApproved && card.mode === 'manual') ? `onclick="toggleManualMark('${key}', ${i}, ${val})"` : '';
               html += `<div class="tombola-cell${markedClass}${drawnClass}" ${clickAttr}>${val}</div>`;
             }
           }
@@ -703,7 +729,7 @@
     function openFullscreenCard(cardKey) {
       db.ref('cards/' + cardKey).once('value', snapshot => {
         const card = snapshot.val();
-        if(!card) return;
+        if(!card || !card.approved) return;
         document.getElementById('fs-card-title').innerText = `Cartella di ${card.name}`;
         const container = document.getElementById('fs-card-grid-container');
         let html = `<div class="tombola-classic-grid">`;
@@ -738,6 +764,9 @@
 
         Object.keys(cardsObj).forEach(cardId => {
           let card = cardsObj[cardId];
+          // VERIFICA VINCITA SOLO PER CARTELLE APPROVATE
+          if (!card.approved) return;
+
           let matchesCount = 0;
           for(let i = 0; i < 27; i++) {
             let val = card.grid[i];
@@ -939,6 +968,8 @@
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
+
+      // GESTIONE LISTA REGIA CON PULSANTI DI APPROVAZIONE/RIFIUTO
       db.ref('cards').on('value', snap => {
         const val = snap.val();
         const count = val ? Object.keys(val).length : 0;
@@ -952,9 +983,26 @@
             let listHtml = '';
             Object.keys(val).forEach(k => {
               let c = val[k];
-              listHtml += `<div style="padding: 6px; border-bottom: 1px solid #2a3b54; display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>${c.name}</strong> (${c.mode})</span>
-                <img src="${c.photo}" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);" />
+              let isApproved = c.approved === true;
+              
+              listHtml += `<div style="padding: 8px; border-bottom: 1px solid #2a3b54; display: flex; justify-content: space-between; align-items: center; background: ${isApproved ? 'transparent' : 'rgba(243, 156, 18, 0.15)'}; margin-bottom: 4px; border-radius: 6px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <img src="${c.photo}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);" />
+                  <div>
+                    <div><strong>${c.name}</strong> <span style="font-size:0.75rem; color:#aaa;">(${c.mode})</span></div>
+                    <div style="font-size:0.75rem; color:${isApproved ? '#2ecc71' : '#f39c12'}; font-weight:bold;">
+                      ${isApproved ? '✓ APPROVATA' : '⏳ IN ATTESA'}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  ${!isApproved ? `
+                    <button class="btn btn-sm btn-success" style="margin-right: 4px;" onclick="approveCard('${k}')">✓ Approva</button>
+                    <button class="btn btn-sm btn-danger" onclick="rejectCard('${k}')">✕</button>
+                  ` : `
+                    <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">Elimina</button>
+                  `}
+                </div>
               </div>`;
             });
             listEl.innerHTML = listHtml;
