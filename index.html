@@ -128,6 +128,7 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
+    /* OVERLAY VINCITA */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
@@ -143,6 +144,7 @@
       display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 5px 0; position: relative; justify-content: center; align-items: center; max-height: 78vh;
     }
 
+    /* SCIVOLAMENTO FOTO SELFIE -> CARICATURA */
     .selfie-slide-box {
       position: relative; border-radius: 16px; overflow: hidden; border: 3px solid var(--gold); background: #080d17;
       display: flex; justify-content: center; align-items: center; height: 100%; width: 48%;
@@ -216,7 +218,7 @@
 </head>
 <body>
 
-  <!-- AUDIO -->
+  <!-- AUDIO LOCALI SU GITHUB -->
   <audio id="audio-bg" src="sottofondo.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
@@ -425,7 +427,7 @@
             btn.style.color = "#000";
           }).catch(e => {
             console.error("Errore riproduzione:", e);
-            alert("Impossibile riprodurre l'audio. Assicurati che GitHub abbia terminato la pubblicazione del sito (attendi circa 1 minuto).");
+            alert("Impossibile riprodurre l'audio. Assicurati che i file MP3 siano caricati su GitHub.");
           });
         }
       } else {
@@ -441,10 +443,10 @@
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
       if (bgAudio) bgAudio.pause();
-      if (winAudio && isMusicPlaying) {
+      if (winAudio) {
         winAudio.currentTime = 0;
         winAudio.volume = 1.0;
-        winAudio.play().catch(e => console.log("Errore riproduzione win audio"));
+        winAudio.play().catch(e => console.log("Riproduzione audio vincita avviata"));
       }
     }
 
@@ -454,7 +456,7 @@
       if (winAudio) winAudio.pause();
       if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.4;
-        bgAudio.play().catch(e => console.log("Errore riproduzione bg audio"));
+        bgAudio.play().catch(e => console.log("Riproduzione sottofondo ripresa"));
       }
     }
 
@@ -614,7 +616,7 @@
       let drawn = available[Math.floor(Math.random() * available.length)];
       drawnNumbers.push(drawn);
       
-      // AGGIORNAMENTO AUTOMATICO DELLE CASELLE PER LE CARTE IN MODALITÀ AUTO
+      // MARCATURA AUTOMATICA SCHEDE AUTO
       db.ref('cards').once('value', snapshot => {
         const cardsObj = snapshot.val();
         if(cardsObj) {
@@ -679,7 +681,6 @@
       db.ref(`cards/${cardKey}`).once('value', snapshot => {
         const card = snapshot.val();
         if(card && card.mode === 'auto' && drawnNumbers.length > 0) {
-          // Se la cartella è automatica e ci sono già numeri estratti, segna subito i numeri usciti
           for(let i = 0; i < 27; i++) {
             if(card.grid[i] !== 0 && drawnNumbers.includes(card.grid[i])) {
               db.ref(`cards/${cardKey}/marked/${i}`).set(true);
@@ -885,13 +886,14 @@
       renderMyCards();
     });
 
+    // SINCRONIZZAZIONE REALTIME EVENTO VINCITA
     db.ref('currentWinner').on('value', snapshot => {
       const winner = snapshot.val();
       const modal = document.getElementById('winner-modal');
       const regiaAlert = document.getElementById('regia-win-alert');
       
       if(winner) {
-        playWinMusic();
+        playWinMusic(); // SUONA LA MUSICA VINCITA
         const container = document.getElementById('winners-container');
         const caricatureUrl = getPersonaCaricatureUrl(winner.name, winner.cardId);
         
@@ -919,12 +921,13 @@
           document.getElementById('regia-win-alert-text').innerText = `${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`;
         }
         
+        // ANIMAZIONE SCIVOLAMENTO SELFIE -> CARICATURA DOPO 2 SECONDI
         setTimeout(() => {
           const selfieBox = document.getElementById('box-selfie');
           const cartoonBox = document.getElementById('box-cartoon');
           if(selfieBox) selfieBox.classList.add('slid-left');
           if(cartoonBox) cartoonBox.classList.add('visible');
-        }, 300);
+        }, 2000);
 
         if(typeof confetti === 'function') {
           confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
