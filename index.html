@@ -211,11 +211,7 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
   </style>
 </head>
-<body onclick="startGlobalAudioContext()" onkeydown="startGlobalAudioContext()">
-
-  <!-- AUDIO MP3 REALE PER IL SOTTOFONDO E LA VINCITA -->
-  <audio id="audio-bg" src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" loop preload="auto"></audio>
-  <audio id="audio-win" src="https://assets.mixkit.co/music/preview/mixkit-party-start-222.mp3" preload="auto"></audio>
+<body onclick="enableAudioAndStartDisco()" onkeydown="enableAudioAndStartDisco()">
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -254,6 +250,14 @@
     </div>
 
     <div id="regia-content" style="display: none;">
+      
+      <!-- PULSANTE DI ABILITAZIONE SBLOCCO AUDIO BROWSER -->
+      <div class="panel-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71); text-align: center; margin-bottom: 20px;">
+        <button class="btn" style="background: #fff; color: #000; font-size: 1.2rem; font-weight: 900; padding: 15px;" onclick="enableAudioAndStartDisco()">
+          🔊 CLICCA QUI PER ATTIVARE L'AUDIO ED IL RITMO DISCO 80s
+        </button>
+      </div>
+
       <div class="current-stage-badge">
         🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span>
       </div>
@@ -401,39 +405,80 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    /* GESTIONE AUDIO MP3 CONTINUA E SENZA ERRORI */
-    let audioStarted = false;
+    /* GENERATORE AUDIO INTERNO INFALLIBILE SITO/TV PERFETTO PER LOCALE */
+    let audioCtx = null;
+    let isDiscoActive = false;
+    let discoInterval = null;
 
-    function startGlobalAudioContext() {
-      if (!audioStarted) {
-        audioStarted = true;
-        const bgAudio = document.getElementById('audio-bg');
-        if (bgAudio) {
-          bgAudio.volume = 0.4;
-          bgAudio.play().catch(e => console.log("Attesa interazione utente per audio"));
-        }
+    function enableAudioAndStartDisco() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (!isDiscoActive) {
+        startDisco80Beat();
       }
     }
 
-    function playWinMusic() {
-      const bgAudio = document.getElementById('audio-bg');
-      const winAudio = document.getElementById('audio-win');
-      if (bgAudio) bgAudio.pause();
-      if (winAudio) {
-        winAudio.currentTime = 0;
-        winAudio.volume = 1.0;
-        winAudio.play().catch(e => console.log("Errore riproduzione win audio"));
-      }
+    /* RITMO FUNKY DISCO 80s INTERNO ILLIMITATO */
+    function startDisco80Beat() {
+      if (isDiscoActive) return;
+      isDiscoActive = true;
+      let beatStep = 0;
+      const discoPitches = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00];
+
+      discoInterval = setInterval(() => {
+        if (!audioCtx || !isDiscoActive) return;
+        
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+
+        // Synth funky basso alternato
+        osc.type = (beatStep % 2 === 0) ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(discoPitches[beatStep % discoPitches.length], audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.22);
+
+        beatStep++;
+      }, 220);
     }
 
-    function resumeBgMusic() {
-      const bgAudio = document.getElementById('audio-bg');
-      const winAudio = document.getElementById('audio-win');
-      if (winAudio) winAudio.pause();
-      if (bgAudio) {
-        bgAudio.volume = 0.4;
-        bgAudio.play().catch(e => console.log("Errore riproduzione bg audio"));
-      }
+    function stopDiscoBeat() {
+      isDiscoActive = false;
+      if (discoInterval) clearInterval(discoInterval);
+    }
+
+    /* CANZONE FESTOSA DELLA VINCITA "A PALLA" */
+    function playWinSound() {
+      stopDiscoBeat();
+      if (!audioCtx) return;
+
+      const victoryNotes = [523.25, 659.25, 783.99, 1046.50, 880.00, 1046.50];
+      victoryNotes.forEach((freq, idx) => {
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.15));
+
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime + (idx * 0.15));
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (idx * 0.15) + 0.5);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(audioCtx.currentTime + (idx * 0.15));
+        osc.stop(audioCtx.currentTime + (idx * 0.15) + 0.5);
+      });
     }
 
     /* CARICATURA SIMPATICA E SORRIDENTE */
@@ -443,7 +488,7 @@
     }
 
     function switchView(viewId) {
-      startGlobalAudioContext();
+      enableAudioAndStartDisco();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
@@ -855,7 +900,7 @@
     }
 
     function showWinnersOnScreen(winnersObj) {
-      playWinMusic();
+      playWinSound();
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -894,12 +939,12 @@
     }
 
     function hideWinnerScreen() {
-      resumeBgMusic();
+      startDisco80Beat();
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      resumeBgMusic();
+      startDisco80Beat();
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
