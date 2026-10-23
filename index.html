@@ -34,7 +34,7 @@
       display: flex; justify-content: space-between; align-items: center;
       border-bottom: 2px solid var(--gold);
       position: sticky; top: 0; z-index: 100;
-      height: 50px;
+      height: 45px;
     }
     .brand-title { font-size: 1rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
     .nav-tabs { display: flex; gap: 6px; }
@@ -48,105 +48,110 @@
     .view-section { display: none; padding: 10px; width: 100%; margin: 0 auto; }
     .view-section.active { display: block; }
 
-    /* MAXISCHERMO TV OTTIMIZZATO PER RIEMPIMENTO PROPORZIONALE */
+    /* MAXISCHERMO TV - MASSIMA OCCUPAZIONE VERTICALE E ORIZZONTALE */
     #view-tabellone {
-      max-width: 100vw !important;
-      height: calc(100vh - 50px);
-      padding: 6px 12px;
+      width: 100vw !important;
+      height: calc(100vh - 45px);
+      padding: 2px 6px;
       display: none;
       flex-direction: column;
       justify-content: space-between;
       box-sizing: border-box;
       background: linear-gradient(180deg, #1d3e9e 0%, #173280 40%, #0d1e52 100%);
+      overflow: hidden;
     }
     #view-tabellone.active { display: flex; }
 
     /* Modalità Fullscreen Integrale */
     :fullscreen header { display: none !important; }
-    :fullscreen #view-tabellone { height: 100vh !important; padding: 6px 12px !important; }
+    :fullscreen #view-tabellone { height: 100vh !important; padding: 2px 6px !important; }
 
     /* Banner Superiore TV Stile 10eLotto */
     .top-banner {
       background: #0d1628;
-      padding: 4px 12px; border-radius: 6px; border: 2px solid #38bdf8;
+      padding: 2px 10px; border-radius: 6px; border: 2px solid #38bdf8;
       display: flex; justify-content: space-between; align-items: center;
-      height: 38px; flex-shrink: 0; margin-bottom: 4px;
+      height: 34px; flex-shrink: 0; margin-bottom: 2px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    .banner-text { font-size: clamp(0.85rem, 1.3vw, 1.3rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 3px 10px; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
+    .banner-text { font-size: clamp(0.85rem, 1.2vw, 1.2rem); color: #ffffff; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+    .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 3px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
     
-    /* GRIGLIA 90 NUMERI TV - PERFETTAMENTE BILANCIATA ORIZZONTALMENTE E VERTICALMENTE */
+    /* GRIGLIA 90 NUMERI TV - FORZATURA COMPATTA PER ANNULLARE GLI SPAZI VUOTI VERTICALI */
     .grid-90 {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
       grid-template-rows: repeat(9, 1fr);
-      gap: 3px;
+      gap: 1px 2px;
       background: rgba(8, 15, 30, 0.4);
-      padding: 6px 12px;
-      border-radius: 10px;
+      padding: 2px;
+      border-radius: 8px;
       border: 2px solid rgba(255, 255, 255, 0.25);
       flex-grow: 1;
       width: 100%;
+      height: calc(100% - 80px);
       min-height: 0;
-      align-items: center;
-      justify-items: center;
+      align-items: stretch;
+      justify-items: stretch;
     }
 
     .grid-cell {
       display: flex; justify-content: center; align-items: center;
       width: 100%; height: 100%;
+      padding: 1px;
     }
 
-    /* PALLINE BILIARDO 3D TV - LARGHEZZA FLESSIBILE E PERFETTA */
+    /* PALLINE BILIARDO 3D TV - GRANDI, CIRCOLARI E QUASI A TOCCARSI IN VERTICALE */
     .lotto-ball {
-      width: clamp(32px, 8.8vh, 76px);
-      height: clamp(32px, 8.8vh, 76px);
+      width: 100%;
+      height: 100%;
+      max-width: 9.2vw;
+      max-height: 9.2vh;
       aspect-ratio: 1;
       border-radius: 50%;
       background: var(--ball-3d-blue);
-      border: 2.5px solid #ffffff;
+      border: 2px solid #ffffff;
       color: #ffffff;
       font-weight: 900;
-      font-size: clamp(1rem, 3.8vh, 2.3rem);
+      font-size: clamp(1rem, 3.8vh, 2.5rem);
       display: flex; justify-content: center; align-items: center;
-      user-select: none; margin: 0 auto;
-      box-shadow: inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.6);
+      user-select: none; margin: auto;
+      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8), inset 2px 2px 5px rgba(255,255,255,0.6), 0 3px 8px rgba(0,0,0,0.6);
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     /* PALLINA ESTRATTA 3D BRILLANTE */
     .lotto-ball.drawn {
       background: var(--ball-3d-orange);
-      border: 2.5px solid #ffffff;
+      border: 2px solid #ffffff;
       color: #ffffff;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      box-shadow: 0 0 25px rgba(255, 140, 0, 0.95), inset -5px -5px 10px rgba(0,0,0,0.7), inset 4px 4px 8px rgba(255,255,255,0.9);
+      box-shadow: 0 0 22px rgba(255, 140, 0, 0.95), inset -4px -4px 8px rgba(0,0,0,0.7), inset 3px 3px 6px rgba(255,255,255,0.9);
       animation: ballPop 0.4s ease-out;
     }
 
     @keyframes ballPop {
       0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.18); }
+      70% { transform: scale(1.15); }
       100% { transform: scale(1); opacity: 1; }
     }
     
     /* Box Banner Premio In Palio Ora sul Maxischermo */
     .current-prize-banner-box {
-      margin-top: 4px;
+      margin-top: 2px;
       background: #0c1526;
-      padding: 4px 15px;
+      padding: 2px 10px;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 2px solid var(--gold);
-      height: 42px;
+      height: 36px;
       flex-shrink: 0;
-      box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+      box-shadow: 0 0 12px rgba(243, 156, 18, 0.4);
     }
     .current-prize-text {
-      font-size: clamp(0.9rem, 1.6vw, 1.4rem);
+      font-size: clamp(0.85rem, 1.5vw, 1.3rem);
       font-weight: 900;
       color: var(--gold-light);
       text-transform: uppercase;
@@ -156,15 +161,15 @@
 
     /* Banner Scorrevole Vincitori sul Maxischermo */
     .winners-ticker-container {
-      margin-top: 3px;
+      margin-top: 2px;
       background: #0c1526;
       border: 1px solid var(--gold);
       border-radius: 6px;
       overflow: hidden;
       white-space: nowrap;
-      padding: 3px 0;
+      padding: 2px 0;
       display: none;
-      height: 28px;
+      height: 26px;
       flex-shrink: 0;
     }
     .winners-ticker-text {
@@ -181,7 +186,7 @@
       100% { transform: translate3d(-100%, 0, 0); }
     }
 
-    /* OVERLAY ESTRAZIONE GIGANTE 3D CON EFFETTO ROTATIVO SFERICO CORRETTO */
+    /* OVERLAY ESTRAZIONE GIGANTE 3D CON ROTAZIONE SFERICA */
     #extraction-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(6, 10, 18, 0.96); backdrop-filter: blur(15px);
@@ -464,7 +469,7 @@
     </div>
   </header>
 
-  <!-- TABELLONE MAXISCHERMO OTTIMIZZATO -->
+  <!-- TABELLONE MAXISCHERMO OTTIMIZZATO PER TV -->
   <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
@@ -618,841 +623,4 @@
     <div class="giant-ball-container">
       <div id="overlay-ball" class="giant-ball-10lotto">--</div>
     </div>
-    <div id="overlay-smorfia" class="smorfia-sticker">--</div>
-  </div>
-
-  <!-- MODALE VINCITORE CON SCHERMO DIVISO (FOTO + PERSONAGGIO CARTOON 3D STILE NFL) -->
-  <div id="winner-modal">
-    <div class="winner-box">
-      <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
-      
-      <div id="winners-container" class="winners-flex-row"></div>
-      
-      <button class="btn btn-sm btn-success" style="padding: 12px; font-size: 1.1rem; width: 100%; border-radius: 12px; flex-shrink: 0;" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
-    </div>
-  </div>
-
-  <!-- SCHERMATA VINCITORI FINALI (MOSTRATA PER 10 SECONDI) -->
-  <div id="game-over-overlay">
-    <div class="game-over-title">GAME OVER!</div>
-    <div class="game-over-subtitle">Che Partita Eccezionale! Ecco i Nostri Grandi Vincitori:</div>
-    
-    <div id="final-winners-container" class="final-winners-grid"></div>
-    <p style="color: var(--gold-light); font-size: 1.1rem; margin-top: 10px;">⏳ Reindirizzamento in corso...</p>
-  </div>
-
-  <!-- UNICA SCHERMATA FINALE D'ATTESA E RIPARTENZA REGIA -->
-  <div id="next-game-overlay">
-    <div class="rejoin-callout-box">
-      ⏳ La prossima partita inizierà tra pochissimo, acquista subito la tua scheda vincente.
-    </div>
-
-    <!-- PULSANTE REGIA PER INIZIARE LA NUOVA PARITA -->
-    <button class="btn btn-sm btn-danger" style="max-width: 400px; padding: 15px; font-size: 1.1rem; background: #900C3F; border-radius: 12px; cursor: pointer; border: 2px solid var(--gold);" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button>
-  </div>
-
-  <script>
-    const firebaseConfig = {
-      databaseURL: "https://tombola-galleon-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    /* LISTA PERSONAGGI DEI CARTONI ANIMATI FAMOSI CON TRIDIMENSIONALITÀ 3D E AVATAR CARTOON 3D */
-    const cartoon3DCharacters = [
-      { name: "Super Mario 3D", url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" }, // Pikachu 3D Art
-      { name: "Homer Simpson", url: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=HomerSimpson3D&radius=50" },
-      { name: "SpongeBob 3D", url: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=SpongeBob3D&radius=50" },
-      { name: "Shrek 3D", url: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Shrek3D&radius=50" },
-      { name: "Mickey Mouse 3D", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=MickeyMouse&radius=50" },
-      { name: "Minion 3D", url: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Minion3D&radius=50" },
-      { name: "Bugs Bunny 3D", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=BugsBunny3D&radius=50" },
-      { name: "Buzz Lightyear 3D", url: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=BuzzLightyear&radius=50" }
-    ];
-
-    const smorfia = {
-      1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula",
-      11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa",
-      21: "La donna nuda", 22: "'O pazzo", 23: "'O scemo", 24: "Le guardie", 25: "Natale", 26: "Ninetta", 27: "Il vaso", 28: "I zizie", 29: "Il padre dei bimbi", 30: "Le palle del tenente",
-      31: "Il padrone di casa", 32: "Il capitone", 33: "L'anni 'e Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le castagnette", 37: "Il monaco", 38: "Le mazzate", 39: "La corda al collo", 40: "Il secchio",
-      41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte che parla", 49: "La carne", 50: "Il pane",
-      51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento",
-      61: "Il cacciatore", 62: "Il morto acciso", 63: "La sposa", 64: "La marsina", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa cotta", 69: "Sott'e 'ncoppa", 70: "Il palazzo",
-      71: "L'uomo di merda", 72: "La meraviglia", 73: "L'ospedale", 74: "La grotta", 75: "Pullecenella", 76: "La fontana", 77: "'E diavule", 78: "La bella figliola", 79: "Il ladro", 80: "La bocca",
-      81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura"
-    };
-
-    const PRIZE_STAGES = ['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA', 'TOMBOLA', 'TOMBOLINO'];
-    let currentStageIndex = 0;
-
-    let drawnNumbers = [];
-    let activeCards = {};
-    let confirmedWinnersList = [];
-    let prizesConfig = {
-      AMBO: "Buono Caffè",
-      TERNO: "Birra Media",
-      QUATERNA: "Pizza Omaggio",
-      CINQUINA: "Menu Cena per 2",
-      TOMBOLA: "Super Premio Finale",
-      TOMBOLINO: "Cesto Natalizio / Speciale"
-    };
-
-    let regiaAuth = false;
-    let currentPlayerPhoto = "";
-    let confettiInterval = null;
-    let gameOverTimer = null;
-    let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
-
-    function switchView(viewId) {
-      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('view-' + viewId).classList.add('active');
-      document.getElementById('btn-' + viewId).classList.add('active');
-    }
-
-    function initBoard() {
-      const grid = document.getElementById('board-grid');
-      if(!grid) return;
-      grid.innerHTML = '';
-      for(let i = 1; i <= 90; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell';
-        cell.innerHTML = `<div class="lotto-ball" id="cell-${i}">${i}</div>`;
-        grid.appendChild(cell);
-      }
-    }
-
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
-      else { if (document.exitFullscreen) document.exitFullscreen(); }
-    }
-
-    function playAlertBeep() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(600, ctx.currentTime);
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
-      } catch(e){}
-    }
-
-    function handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 600;
-            canvas.height = 600;
-            ctx.drawImage(img, 0, 0, 600, 600);
-            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.85);
-            document.getElementById('player-photo-preview').src = currentPlayerPhoto;
-            document.querySelector("label[for='camera-input']").style.background = "#2ecc71";
-            document.querySelector("label[for='camera-input']").innerText = "✓ Selfie Acquisito";
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function showPlayerForm() {
-      document.getElementById('player-form-container').style.display = 'block';
-      document.getElementById('add-more-container').style.display = 'none';
-    }
-
-    function generateTombolaClassicGrid() {
-      let grid = Array(3).fill(null).map(() => Array(9).fill(null));
-      let rowCols = [];
-      for(let r = 0; r < 3; r++) {
-        let cols = [];
-        while(cols.length < 5) {
-          let c = Math.floor(Math.random() * 9);
-          if(!cols.includes(c)) cols.push(c);
-        }
-        cols.sort((a,b) => a - b);
-        rowCols.push(cols);
-      }
-
-      let colRows = Array(9).fill(null).map(() => []);
-      for(let r = 0; r < 3; r++) {
-        rowCols[r].forEach(c => colRows[c].push(r));
-      }
-
-      for(let c = 0; c < 9; c++) {
-        let count = colRows[c].length;
-        if(count === 0) continue;
-        let min = (c === 0) ? 1 : c * 10;
-        let max = (c === 8) ? 90 : (c * 10 + 9);
-        let nums = [];
-        while(nums.length < count) {
-          let n = Math.floor(Math.random() * (max - min + 1)) + min;
-          if(!nums.includes(n)) nums.push(n);
-        }
-        nums.sort((a, b) => a - b);
-        colRows[c].sort((a, b) => a - b);
-        colRows[c].forEach((r, idx) => {
-          grid[r][c] = nums[idx];
-        });
-      }
-
-      let flatObj = {};
-      let index = 0;
-      for(let r = 0; r < 3; r++) {
-        for(let c = 0; c < 9; c++) {
-          flatObj[index] = grid[r][c] !== null ? grid[r][c] : 0;
-          index++;
-        }
-      }
-      return flatObj;
-    }
-
-    function updateStageVisuals() {
-      const stageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO FINITO';
-      const prizeName = prizesConfig[stageName] || '';
-      
-      const displayRegia = document.getElementById('current-stage-display');
-      if(displayRegia) displayRegia.innerText = stageName;
-
-      const boardBanner = document.getElementById('board-current-prize-display');
-      if(boardBanner) {
-        if(currentStageIndex < PRIZE_STAGES.length) {
-          boardBanner.innerHTML = `🎯 SI GIOCA PER: <span style="color: #fff;">${stageName}</span> — PREMIO: <span style="color: var(--gold-light);">${prizeName}</span>`;
-        } else {
-          boardBanner.innerHTML = `🏁 PARTITA COMPLETATA!`;
-        }
-      }
-    }
-
-    // --- SINCRONIZZAZIONE REALTIME CLOUD ---
-    db.ref('game/currentStageIndex').on('value', (snapshot) => {
-      currentStageIndex = snapshot.val() || 0;
-      updateStageVisuals();
-
-      if(currentStageIndex >= PRIZE_STAGES.length) {
-        triggerGameOverSequence();
-      } else {
-        document.getElementById('game-over-overlay').style.display = 'none';
-        document.getElementById('next-game-overlay').style.display = 'none';
-        if(confettiInterval) {
-          clearInterval(confettiInterval);
-          confettiInterval = null;
-        }
-        if(gameOverTimer) {
-          clearTimeout(gameOverTimer);
-          gameOverTimer = null;
-        }
-      }
-    });
-
-    db.ref('game/drawnNumbers').on('value', (snapshot) => {
-      drawnNumbers = snapshot.val() || [];
-      updateBoardVisuals();
-    });
-
-    db.ref('cards').on('value', (snapshot) => {
-      activeCards = snapshot.val() || {};
-      renderPlayerCards();
-      if(regiaAuth) updateRegiaCardList();
-    });
-
-    db.ref('game/config').on('value', (snapshot) => {
-      const config = snapshot.val();
-      if(config) {
-        if(config.brand) {
-          document.getElementById('brand-header-title').innerText = config.brand;
-          document.getElementById('cfg-brand').value = config.brand;
-        }
-        if(config.banner) {
-          document.getElementById('banner-main-title').innerText = config.banner;
-          document.getElementById('cfg-banner').value = config.banner;
-        }
-      }
-    });
-
-    db.ref('game/prizes').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if(data) {
-        prizesConfig = data;
-        document.getElementById('prize-ambo').value = prizesConfig.AMBO || '';
-        document.getElementById('prize-terno').value = prizesConfig.TERNO || '';
-        document.getElementById('prize-quaterna').value = prizesConfig.QUATERNA || '';
-        document.getElementById('prize-cinquina').value = prizesConfig.CINQUINA || '';
-        document.getElementById('prize-tombola').value = prizesConfig.TOMBOLA || '';
-        document.getElementById('prize-tombolino').value = prizesConfig.TOMBOLINO || '';
-        updateStageVisuals();
-      }
-    });
-
-    db.ref('game/lastExtraction').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if(data && data.number) {
-        showExtractionAnimation(data.number);
-      }
-    });
-
-    db.ref('game/winners').on('value', (snapshot) => {
-      const winners = snapshot.val();
-      const alertBox = document.getElementById('regia-win-alert');
-      const alertText = document.getElementById('regia-win-alert-text');
-
-      if(winners && Object.keys(winners).length > 0) {
-        showWinnersOnScreen(winners);
-        playAlertBeep();
-        
-        let names = Object.values(winners).map(w => `🏆 ${w.prizeType}: ${w.name} - Premio: ${w.prizeDesc}`).join('<br>');
-        if(alertText) alertText.innerHTML = names;
-        if(alertBox) alertBox.style.display = 'block';
-      } else {
-        hideWinnerScreen();
-        if(alertBox) alertBox.style.display = 'none';
-      }
-    });
-
-    db.ref('game/confirmedWinners').on('value', (snapshot) => {
-      confirmedWinnersList = snapshot.val() || [];
-      updateWinnersTicker();
-      if(currentStageIndex >= PRIZE_STAGES.length) {
-        triggerGameOverSequence();
-      }
-    });
-
-    function saveOrganizersConfig() {
-      const brand = document.getElementById('cfg-brand').value;
-      const banner = document.getElementById('cfg-banner').value;
-      db.ref('game/config').set({ brand: brand, banner: banner })
-        .then(() => alert('Nomi organizzatori aggiornati con successo!'));
-    }
-
-    function savePrizesConfig() {
-      prizesConfig = {
-        AMBO: document.getElementById('prize-ambo').value,
-        TERNO: document.getElementById('prize-terno').value,
-        QUATERNA: document.getElementById('prize-quaterna').value,
-        CINQUINA: document.getElementById('prize-cinquina').value,
-        TOMBOLA: document.getElementById('prize-tombola').value,
-        TOMBOLINO: document.getElementById('prize-tombolino').value
-      };
-      db.ref('game/prizes').set(prizesConfig)
-        .then(() => {
-          updateStageVisuals();
-          alert('Configurazione premi salvata con successo!');
-        });
-    }
-
-    function updateBoardVisuals() {
-      for(let i = 1; i <= 90; i++) {
-        const cell = document.getElementById('cell-' + i);
-        if(cell) {
-          cell.className = 'lotto-ball';
-          cell.innerText = i;
-        }
-      }
-      drawnNumbers.forEach(n => {
-        const cell = document.getElementById('cell-' + n);
-        if(cell) {
-          cell.classList.add('drawn');
-        }
-      });
-      renderPlayerCards();
-    }
-
-    function updateWinnersTicker() {
-      const tickerContainer = document.getElementById('board-winners-ticker');
-      const tickerText = document.getElementById('board-winners-ticker-text');
-      if(!tickerContainer || !tickerText) return;
-
-      if(confirmedWinnersList && confirmedWinnersList.length > 0) {
-        let uniqueMap = {};
-        confirmedWinnersList.forEach(w => {
-          let key = w.cardId + '_' + w.prizeType;
-          uniqueMap[key] = w;
-        });
-
-        let textParts = Object.values(uniqueMap).map(w => `🏆 ${w.prizeType}: ${w.name} - Premio: ${w.prizeDesc}`);
-        tickerText.innerText = textParts.join('   ---   ');
-        tickerContainer.style.display = 'block';
-      } else {
-        tickerContainer.style.display = 'none';
-      }
-    }
-
-    function addPlayerCard() {
-      if(!currentPlayerPhoto) {
-        alert('Attenzione: Devi scattare o caricare un selfie obbligatorio prima di generare la cartella!');
-        return;
-      }
-
-      const nameInput = document.getElementById('player-name');
-      const name = nameInput.value.trim();
-      if(!name) return alert('Inserisci il tuo Nome e Cognome!');
-
-      const playMode = document.getElementById('play-mode').value;
-
-      const btn = document.getElementById('generate-card-btn');
-      btn.disabled = true;
-      btn.innerText = 'Generazione in corso...';
-
-      const uniqueKey = 'card_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-      const cardId = Math.floor(Math.random() * 9000) + 1000;
-      const cardGridObj = generateTombolaClassicGrid();
-
-      const cardData = { 
-        uniqueKey: uniqueKey, 
-        id: cardId, 
-        name: name, 
-        photo: currentPlayerPhoto, 
-        grid: cardGridObj, 
-        mode: playMode,
-        status: 'IN ATTESA' 
-      };
-      
-      db.ref('cards/' + uniqueKey).set(cardData)
-        .then(() => {
-          btn.disabled = false;
-          btn.innerText = '+ Genera Nuova Cartella';
-          
-          localMyCardsKeys.push(uniqueKey);
-          localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
-
-          document.getElementById('player-form-container').style.display = 'none';
-          document.getElementById('add-more-container').style.display = 'block';
-
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          renderPlayerCards();
-        })
-        .catch(err => {
-          btn.disabled = false;
-          btn.innerText = '+ Genera Nuova Cartella';
-          alert('Errore di connessione. Verifica la rete e riprova.');
-        });
-    }
-
-    function renderPlayerCards() {
-      const container = document.getElementById('player-cards-list');
-      if(!container) return;
-      container.innerHTML = '';
-
-      const cardsArray = Object.values(activeCards).filter(c => localMyCardsKeys.includes(c.uniqueKey));
-
-      if(cardsArray.length === 0) {
-        container.innerHTML = '<div class="panel-card" style="text-align:center; color:#888;">Non hai ancora generato alcuna cartella. Compila il modulo sopra per iniziare!</div>';
-        return;
-      }
-
-      if(localMyCardsKeys.length > 0) {
-        document.getElementById('player-form-container').style.display = 'none';
-        document.getElementById('add-more-container').style.display = 'block';
-      }
-
-      cardsArray.forEach(card => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card-digital';
-
-        let gridHTML = '<div class="tombola-classic-grid">';
-        let gridArray = [];
-        if (card.grid) {
-          if (Array.isArray(card.grid)) gridArray = card.grid;
-          else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
-        }
-
-        gridArray.forEach(num => {
-          if(!num || num === 0) {
-            gridHTML += `<div class="tombola-cell empty"></div>`;
-          } else {
-            const isDrawn = drawnNumbers.includes(num);
-            let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
-            gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
-          }
-        });
-        gridHTML += '</div>';
-
-        const statusColor = card.status === 'ATTIVA' ? '#2ecc71' : '#f1c40f';
-        const statusText = card.status === 'ATTIVA' ? `✓ ATTIVA (${card.mode === 'auto' ? 'Auto' : 'Manuale'})` : '⏳ IN ATTESA DI CONVALIDA';
-        
-        let fullscreenBtnHTML = '';
-        if (card.status === 'ATTIVA') {
-          fullscreenBtnHTML = `<button class="btn btn-sm" style="background:var(--gold); color:#000; width:100%; margin-top:8px;" onclick="openFullscreenCard('${card.uniqueKey}')">🔍 Ingrandisci a Tutto Schermo</button>`;
-        }
-
-        cardDiv.innerHTML = `
-          <div class="card-header-info">
-            <div><strong>Scheda #${card.id}</strong> - ${card.name}</div>
-            <div style="color: ${statusColor}; font-size:0.8rem; font-weight:bold;">${statusText}</div>
-          </div>
-          ${gridHTML}
-          ${fullscreenBtnHTML}
-        `;
-        container.appendChild(cardDiv);
-      });
-    }
-
-    function openFullscreenCard(cardKey) {
-      const card = activeCards[cardKey];
-      if(!card) return;
-
-      document.getElementById('fs-card-title').innerText = `Cartella #${card.id} - ${card.name}`;
-      
-      let gridHTML = '<div class="tombola-classic-grid">';
-      let gridArray = [];
-      if (card.grid) {
-        if (Array.isArray(card.grid)) gridArray = card.grid;
-        else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
-      }
-
-      gridArray.forEach(num => {
-        if(!num || num === 0) {
-          gridHTML += `<div class="tombola-cell empty"></div>`;
-        } else {
-          const isDrawn = drawnNumbers.includes(num);
-          let markClass = isDrawn && card.mode === 'auto' ? 'marked' : '';
-          gridHTML += `<div class="tombola-cell ${markClass}" ${card.mode === 'manual' ? 'onclick="this.classList.toggle(\'marked\')"' : ''}>${num}</div>`;
-        }
-      });
-      gridHTML += '</div>';
-
-      document.getElementById('fs-card-grid-container').innerHTML = gridHTML;
-      document.getElementById('fullscreen-card-overlay').style.display = 'flex';
-    }
-
-    function closeFullscreenCard() {
-      document.getElementById('fullscreen-card-overlay').style.display = 'none';
-    }
-
-    function checkRegiaAuth() {
-      const pass = document.getElementById('regia-pass').value;
-      if(pass === '27') {
-        regiaAuth = true;
-        document.getElementById('regia-login').style.display = 'none';
-        document.getElementById('regia-content').style.display = 'block';
-        updateRegiaCardList();
-      } else { alert('Password errata!'); }
-    }
-
-    function updateRegiaCardList() {
-      if(!regiaAuth) return;
-      const list = document.getElementById('regia-cards-list');
-      const countEl = document.getElementById('participants-count');
-      
-      const cardsArray = Object.values(activeCards);
-      if(countEl) countEl.innerText = `(Totale: ${cardsArray.length})`;
-
-      if(cardsArray.length === 0) {
-        if(list) list.innerHTML = '<i>Nessun partecipante registrato.</i>';
-        return;
-      }
-
-      if(list) list.innerHTML = '';
-
-      cardsArray.forEach(card => {
-        const cardKey = card.uniqueKey || card.id;
-        if(list) {
-          const item = document.createElement('div');
-          item.style.cssText = 'padding: 10px; margin-bottom: 8px; background: #0e1622; border-radius: 8px; border: 1px solid #2a3b54; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;';
-          const isAttiva = card.status === 'ATTIVA';
-          item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:8px;">
-              <img src="${card.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
-              <div><strong>#${card.id}</strong> - ${card.name} <br><small style="color:${isAttiva?'#2ecc71':'#f1c40f'}">Stato: ${card.status} (${card.mode})</small></div>
-            </div>
-            <div style="display: flex; gap: 6px;">
-              ${!isAttiva ? `<button class="btn btn-sm btn-success" onclick="regiaActivateSpecificCard('${cardKey}')">✓ Convalida</button>` : `<span style="color:#2ecc71; font-weight:bold; font-size:0.85rem;">In Gioco</span>`}
-              <button class="btn btn-sm btn-danger" onclick="removeCard('${cardKey}')">Elimina</button>
-            </div>
-          `;
-          list.appendChild(item);
-        }
-      });
-    }
-
-    function regiaActivateSpecificCard(cardKey) {
-      db.ref('cards/' + cardKey + '/status').set('ATTIVA');
-    }
-
-    function checkAutomaticWins() {
-      if (currentStageIndex >= PRIZE_STAGES.length) return;
-
-      const targetPrize = PRIZE_STAGES[currentStageIndex];
-      let detectedWinners = {};
-
-      Object.values(activeCards).forEach(card => {
-        if (card.status !== 'ATTIVA') return;
-
-        let gridArray = [];
-        if (card.grid) {
-          if (Array.isArray(card.grid)) gridArray = card.grid;
-          else gridArray = Object.keys(card.grid).sort((a,b) => a - b).map(k => card.grid[k]);
-        }
-
-        if (['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA'].includes(targetPrize)) {
-          let neededCount = 2;
-          if (targetPrize === 'TERNO') neededCount = 3;
-          if (targetPrize === 'QUATERNA') neededCount = 4;
-          if (targetPrize === 'CINQUINA') neededCount = 5;
-
-          for (let r = 0; r < 3; r++) {
-            let rowMatched = 0;
-            for (let c = 0; c < 9; c++) {
-              let num = gridArray[r * 9 + c];
-              if (num && num !== 0 && drawnNumbers.includes(num)) {
-                rowMatched++;
-              }
-            }
-
-            if (rowMatched === neededCount) {
-              let winKey = card.uniqueKey + '_r' + r + '_' + targetPrize;
-              detectedWinners[winKey] = {
-                winKey: winKey,
-                name: card.name,
-                photo: card.photo,
-                prizeType: targetPrize,
-                prizeDesc: prizesConfig[targetPrize] || targetPrize,
-                cardId: card.id,
-                customDesc: `Riga ${r+1}`
-              };
-            }
-          }
-        }
-
-        if (targetPrize === 'TOMBOLA') {
-          let allCardNums = gridArray.filter(n => n && n !== 0);
-          let allMatched = allCardNums.length > 0 && allCardNums.every(n => drawnNumbers.includes(n));
-          if (allMatched) {
-            let winKey = card.uniqueKey + '_tombola';
-            detectedWinners[winKey] = {
-              winKey: winKey,
-              name: card.name,
-              photo: card.photo,
-              prizeType: 'TOMBOLA',
-              prizeDesc: prizesConfig['TOMBOLA'] || 'Tombola',
-              cardId: card.id,
-              customDesc: `Cartella Completa!`
-            };
-          }
-        }
-
-        if (targetPrize === 'TOMBOLINO') {
-          let allCardNums = gridArray.filter(n => n && n !== 0);
-          let allMatched = allCardNums.length > 0 && allCardNums.every(n => drawnNumbers.includes(n));
-          let alreadyWonTombola = confirmedWinnersList.some(w => w.cardId === card.id && w.prizeType === 'TOMBOLA');
-
-          if (allMatched && !alreadyWonTombola) {
-            let winKey = card.uniqueKey + '_tombolino';
-            detectedWinners[winKey] = {
-              winKey: winKey,
-              name: card.name,
-              photo: card.photo,
-              prizeType: 'TOMBOLINO',
-              prizeDesc: prizesConfig['TOMBOLINO'] || 'Tombolino',
-              cardId: card.id,
-              customDesc: `Cartella Completa (Tombolino)!`
-            };
-          }
-        }
-      });
-
-      if (Object.keys(detectedWinners).length > 0) {
-        db.ref('game/winners').set(detectedWinners);
-      }
-    }
-
-    function removeCard(cardKey) {
-      if(confirm('Vuoi eliminare questa scheda?')) {
-        db.ref('cards/' + cardKey).remove();
-        localMyCardsKeys = localMyCardsKeys.filter(k => k !== cardKey);
-        localStorage.setItem('my_tombola_cards', JSON.stringify(localMyCardsKeys));
-        renderPlayerCards();
-      }
-    }
-
-    function drawNumber() {
-      if(drawnNumbers.length >= 90) return alert('Tutti i numeri sono stati estratti!');
-      let n;
-      do { n = Math.floor(Math.random() * 90) + 1; } while(drawnNumbers.includes(n));
-      
-      drawnNumbers.push(n);
-      db.ref('game/drawnNumbers').set(drawnNumbers);
-      db.ref('game/lastExtraction').set({ number: n, time: Date.now() });
-
-      setTimeout(() => {
-        checkAutomaticWins();
-      }, 500);
-    }
-
-    function showExtractionAnimation(n) {
-      const overlay = document.getElementById('extraction-overlay');
-      const ballEl = document.getElementById('overlay-ball');
-      
-      ballEl.style.animation = 'none';
-      void ballEl.offsetWidth; // Trigger reflow per riavviare l'animazione
-      ballEl.style.animation = 'rollSphere3D 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-
-      ballEl.innerText = n;
-      document.getElementById('overlay-smorfia').innerText = smorfia[n] ? `${n} - ${smorfia[n]}` : `Numero ${n}`;
-      overlay.style.display = 'flex';
-      setTimeout(() => { overlay.style.display = 'none'; }, 2800);
-    }
-
-    /* SCHERMATA VINCITORE A SCHERMO DIVISO STILE MAXISCHERMO NFL CON PERSONAGGIO CARTOON 3D */
-    function showWinnersOnScreen(winnersObj) {
-      const container = document.getElementById('winners-container');
-      container.innerHTML = '';
-
-      Object.values(winnersObj).forEach(w => {
-        const item = document.createElement('div');
-        item.style.cssText = "width: 100%; height: 100%;";
-
-        // Seleziona un personaggio cartoon 3D unico basato su ID scheda
-        const charIdx = Math.abs(w.cardId) % cartoon3DCharacters.length;
-        const cartoon = cartoon3DCharacters[charIdx];
-
-        item.innerHTML = `
-          <div class="nfl-split-card">
-            <!-- LATO SINISTRO: FOTO REALE CLIENTE -->
-            <div class="nfl-half-box">
-              <span class="nfl-badge-label">📸 SELFIE VINCITORE</span>
-              <img src="${w.photo}" class="nfl-photo" alt="${w.name}">
-              <div class="winner-info-overlay">
-                <div class="winner-name-text">${w.name}</div>
-                <div class="winner-prize-text">🏆 Vinto: ${w.prizeType}!</div>
-              </div>
-            </div>
-
-            <!-- LATO DESTRO: PERSONAGGIO CARTOON 3D CON NOME -->
-            <div class="nfl-half-box">
-              <span class="nfl-badge-label" style="background:#e74c3c; color:#fff;">🎬 SOSIA CARTOON 3D</span>
-              <img src="${cartoon.url}" class="nfl-photo cartoon-3d-img" alt="${cartoon.name}">
-              <div class="winner-info-overlay">
-                <div class="winner-name-text" style="color:var(--gold-light);">${cartoon.name}</div>
-                <div class="winner-prize-text">Premio: ${w.prizeDesc}</div>
-              </div>
-            </div>
-          </div>
-        `;
-        container.appendChild(item);
-      });
-
-      document.getElementById('winner-modal').style.display = 'flex';
-
-      if(confettiInterval) clearInterval(confettiInterval);
-      confettiInterval = setInterval(() => {
-        confetti({ particleCount: 80, spread: 140, origin: { y: 0.5 } });
-      }, 400);
-    }
-
-    function hideWinnerScreen() {
-      document.getElementById('winner-modal').style.display = 'none';
-      if(confettiInterval) {
-        clearInterval(confettiInterval);
-        confettiInterval = null;
-      }
-    }
-
-    function confirmAndCloseWinnerModal() {
-      db.ref('game/winners').once('value', snapshot => {
-        const currentWinners = snapshot.val();
-        if(currentWinners) {
-          let updatedList = [...confirmedWinnersList];
-          Object.values(currentWinners).forEach(w => {
-            if(!updatedList.some(item => item.cardId === w.cardId && item.prizeType === w.prizeType)) {
-              updatedList.push(w);
-            }
-          });
-          db.ref('game/confirmedWinners').set(updatedList);
-        }
-
-        currentStageIndex++;
-        db.ref('game/currentStageIndex').set(currentStageIndex);
-        db.ref('game/winners').remove();
-      });
-    }
-
-    function triggerGameOverSequence() {
-      const container = document.getElementById('final-winners-container');
-      if(container) {
-        container.innerHTML = '';
-        let uniqueMap = {};
-        confirmedWinnersList.forEach(w => {
-          let key = w.name + '_' + w.prizeType;
-          uniqueMap[key] = w;
-        });
-
-        Object.values(uniqueMap).forEach(w => {
-          const card = document.createElement('div');
-          card.className = 'final-winner-card';
-          card.innerHTML = `
-            <img src="${w.photo}" class="final-winner-photo" alt="${w.name}">
-            <div class="final-winner-name">${w.name}</div>
-            <div class="final-winner-badge">🏆 ${w.prizeType}</div>
-          `;
-          container.appendChild(card);
-        });
-      }
-
-      document.getElementById('game-over-overlay').style.display = 'flex';
-      document.getElementById('next-game-overlay').style.display = 'none';
-
-      if(!confettiInterval) {
-        confettiInterval = setInterval(() => {
-          confetti({ particleCount: 80, spread: 140, origin: { y: 0.4 } });
-        }, 600);
-      }
-
-      if(gameOverTimer) clearTimeout(gameOverTimer);
-      gameOverTimer = setTimeout(() => {
-        document.getElementById('game-over-overlay').style.display = 'none';
-        document.getElementById('next-game-overlay').style.display = 'flex';
-        if(confettiInterval) {
-          clearInterval(confettiInterval);
-          confettiInterval = null;
-        }
-      }, 10000);
-    }
-
-    function resetGame() {
-      if(confirm('Vuoi resettare la partita corrente e azzerare tutto per iniziare un nuovo gioco?')) {
-        db.ref('game').remove().then(() => {
-          db.ref('cards').remove().then(() => {
-            localStorage.removeItem('my_tombola_cards');
-            localMyCardsKeys = [];
-            confirmedWinnersList = [];
-            currentStageIndex = 0;
-            updateWinnersTicker();
-            document.getElementById('game-over-overlay').style.display = 'none';
-            document.getElementById('next-game-overlay').style.display = 'none';
-            if(confettiInterval) {
-              clearInterval(confettiInterval);
-              confettiInterval = null;
-            }
-            if(gameOverTimer) {
-              clearTimeout(gameOverTimer);
-              gameOverTimer = null;
-            }
-            showPlayerForm();
-            window.location.reload();
-          });
-        });
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-      initBoard();
-      
-      if (window.location.hash === '#giocatore') {
-        switchView('giocatore');
-      }
-
-      try {
-        const qrUrl = window.location.href.split('#')[0] + '#giocatore';
-        new QRCode(document.getElementById("qrcode-global"), { text: qrUrl, width: 140, height: 140 });
-      } catch(e){}
-    });
-  </script>
-</body>
-</html>
+    <div id="overlay-smorfia" class="smorfia-
