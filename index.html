@@ -209,9 +209,20 @@
     .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a4b68; background: #0e1622; color: #fff; font-size: 1rem; }
     .current-stage-badge { background: #111a28; border: 2px solid var(--gold); padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; color: var(--gold-light); }
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
+    
+    /* Controllo Audio 80s Flottante */
+    .audio-control-badge {
+      position: fixed; bottom: 12px; right: 12px; background: #161f30; border: 2px solid var(--gold);
+      color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer;
+      z-index: 99999; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
   </style>
 </head>
-<body onclick="triggerMillionaireAudio()" onkeydown="triggerMillionaireAudio()" ontouchstart="triggerMillionaireAudio()">
+<body>
+
+  <div class="audio-control-badge" id="audio-badge" onclick="toggle80sMusic()">
+    🎵 Medley 80s: <span id="audio-status-text" style="color:#e74c3c;">DISATTIVATO</span>
+  </div>
 
   <header>
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
@@ -352,7 +363,7 @@
 
   <div id="winner-modal">
     <div class="winner-box">
-      <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
+      <div class="winner-title-header">🎉 VINCITA IN SALA! (TARARA - OMUL) 🎉</div>
       <div id="winners-container" class="winners-flex-row"></div>
       <button class="btn btn-sm btn-success btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
     </div>
@@ -397,93 +408,150 @@
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     
-    /* GENERATORE AUDIO DI TENSIONE STILE "CHI VUOL ESSERE MILIONARIO?" */
+    // GESTIONE AUDIO WEB AUDIO API (MEDLEY 80s & TARARA DI OMUL)
     let audioCtx = null;
-    let tensionInterval = null;
-    let isTensionActive = false;
+    let is80sPlaying = false;
+    let medleyInterval = null;
+    let tararaInterval = null;
 
-    function triggerMillionaireAudio() {
+    function initAudioContext() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      if (!isTensionActive) {
-        startMillionaireTensionLoop();
+    }
+
+    function toggle80sMusic() {
+      initAudioContext();
+      is80sPlaying = !is80sPlaying;
+      const statusText = document.getElementById('audio-status-text');
+      
+      if (is80sPlaying) {
+        statusText.innerText = "ATTIVO";
+        statusText.style.color = "#2ecc71";
+        start80sMedleyLoop();
+      } else {
+        statusText.innerText = "DISATTIVATO";
+        statusText.style.color = "#e74c3c";
+        stop80sMedleyLoop();
       }
     }
 
-    function startMillionaireTensionLoop() {
-      if (isTensionActive) return;
-      isTensionActive = true;
+    // Motore sintetizzatore di sottofondo Medley Anni '80 (Arpeggi synthwave con basso pulsante)
+    function start80sMedleyLoop() {
+      if (medleyInterval) clearInterval(medleyInterval);
+      
+      // Progressioni di accordi stile Synthwave / Pop Anni 80 (Am - F - C - G)
+      const chords = [
+        [220.00, 261.63, 329.63], // Am
+        [174.61, 220.00, 261.63], // F
+        [130.81, 164.81, 196.00], // C
+        [196.00, 246.94, 293.66]  // G
+      ];
+      const bassNotes = [110.00, 87.31, 65.41, 98.00];
+      let step = 0;
 
-      tensionInterval = setInterval(() => {
-        if (!audioCtx || !isTensionActive) return;
-
+      medleyInterval = setInterval(() => {
+        if (!is80sPlaying || !audioCtx) return;
         let now = audioCtx.currentTime;
+        let chordIdx = Math.floor(step / 4) % chords.length;
+        let noteInChord = step % chords[chordIdx].length;
 
-        let osc1 = audioCtx.createOscillator();
-        let gain1 = audioCtx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(65.41, now);
-        osc1.frequency.exponentialRampToValueAtTime(32.70, now + 0.15);
+        // Basso pulsante 80s
+        let bassOsc = audioCtx.createOscillator();
+        let bassGain = audioCtx.createGain();
+        bassOsc.type = 'sawtooth';
+        bassOsc.frequency.setValueAtTime(bassNotes[chordIdx], now);
         
-        gain1.gain.setValueAtTime(0.5, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        let filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, now);
 
-        osc1.connect(gain1);
-        gain1.connect(audioCtx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.2);
+        bassGain.gain.setValueAtTime(0.15, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
-        setTimeout(() => {
-          if (!audioCtx || !isTensionActive) return;
-          let now2 = audioCtx.currentTime;
-          let osc2 = audioCtx.createOscillator();
-          let gain2 = audioCtx.createGain();
-          osc2.type = 'sine';
-          osc2.frequency.setValueAtTime(73.42, now2);
-          osc2.frequency.exponentialRampToValueAtTime(36.71, now2 + 0.15);
+        bassOsc.connect(filter);
+        filter.connect(bassGain);
+        bassGain.connect(audioCtx.destination);
+        bassOsc.start(now);
+        bassOsc.stop(now + 0.3);
 
-          gain2.gain.setValueAtTime(0.6, now2);
-          gain2.gain.exponentialRampToValueAtTime(0.001, now2 + 0.2);
+        // Arpeggio Synth SuperSaw
+        let synthOsc = audioCtx.createOscillator();
+        let synthGain = audioCtx.createGain();
+        synthOsc.type = 'square';
+        synthOsc.frequency.setValueAtTime(chords[chordIdx][noteInChord] * 2, now);
 
-          osc2.connect(gain2);
-          gain2.connect(audioCtx.destination);
-          osc2.start(now2);
-          osc2.stop(now2 + 0.2);
-        }, 220);
+        synthGain.gain.setValueAtTime(0.08, now);
+        synthGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
 
-      }, 1400);
+        synthOsc.connect(synthGain);
+        synthGain.connect(audioCtx.destination);
+        synthOsc.start(now);
+        synthOsc.stop(now + 0.25);
+
+        step++;
+      }, 250);
     }
 
-    function stopMillionaireTension() {
-      isTensionActive = false;
-      if (tensionInterval) clearInterval(tensionInterval);
+    function stop80sMedleyLoop() {
+      if (medleyInterval) clearInterval(medleyInterval);
     }
 
-    function playMillionaireVictoryFanfare() {
-      stopMillionaireTension();
-      if (!audioCtx) return;
+    // Riproduzione Brano "Tarara" di Omul (2022) - Elettronica ritmica/ipnotica da club
+    function playTararaOmulSong() {
+      initAudioContext();
+      if (tararaInterval) clearInterval(tararaInterval);
 
-      const chord = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
-      chord.forEach((freq, idx) => {
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
+      // Pattern ritmico ispirato alla traccia minimale/elettronica Tarara (2022)
+      const bassSequence = [146.83, 0, 146.83, 220.00, 196.00, 0, 146.83, 130.81];
+      let tStep = 0;
 
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.08));
+      tararaInterval = setInterval(() => {
+        if (!audioCtx) return;
+        let now = audioCtx.currentTime;
+        let freq = bassSequence[tStep % bassSequence.length];
 
-        gain.gain.setValueAtTime(0.25, audioCtx.currentTime + (idx * 0.08));
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (idx * 0.08) + 1.2);
+        if (freq > 0) {
+          let osc = audioCtx.createOscillator();
+          let gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
 
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
-        osc.start(audioCtx.currentTime + (idx * 0.08));
-        osc.stop(audioCtx.currentTime + (idx * 0.08) + 1.2);
-      });
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        }
+
+        // Accento cassa minimale elettronica
+        if (tStep % 2 === 0) {
+          let kick = audioCtx.createOscillator();
+          let kickGain = audioCtx.createGain();
+          kick.type = 'sine';
+          kick.frequency.setValueAtTime(120, now);
+          kick.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+
+          kickGain.gain.setValueAtTime(0.3, now);
+          kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+          kick.connect(kickGain);
+          kickGain.connect(audioCtx.destination);
+          kick.start(now);
+          kick.stop(now + 0.1);
+        }
+
+        tStep++;
+      }, 180);
+    }
+
+    function stopTararaOmulSong() {
+      if (tararaInterval) clearInterval(tararaInterval);
     }
 
     function getPersonaCaricatureUrl(name, cardId) {
@@ -492,7 +560,6 @@
     }
 
     function switchView(viewId) {
-      triggerMillionaireAudio();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
@@ -904,7 +971,8 @@
     }
 
     function showWinnersOnScreen(winnersObj) {
-      playMillionaireVictoryFanfare();
+      // Avvia la canzone "Tarara" di Omul alla vincita
+      playTararaOmulSong();
 
       const container = document.getElementById('winners-container');
       container.innerHTML = '';
@@ -943,12 +1011,12 @@
     }
 
     function hideWinnerScreen() {
-      startMillionaireTensionLoop();
+      stopTararaOmulSong();
       document.getElementById('winner-modal').style.display = 'none';
     }
 
     function confirmAndCloseWinnerModal() {
-      startMillionaireTensionLoop();
+      stopTararaOmulSong();
       db.ref('game/winners').once('value', snapshot => {
         const currentWinners = snapshot.val();
         if(currentWinners) {
@@ -965,7 +1033,7 @@
     }
 
     function triggerGameOverSequence() {
-      stopMillionaireTension();
+      stopTararaOmulSong();
       const container = document.getElementById('final-winners-container');
       if(container) {
         container.innerHTML = '';
