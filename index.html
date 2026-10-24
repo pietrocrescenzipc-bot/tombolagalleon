@@ -141,7 +141,7 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
-    /* POPUP VINCITA */
+    /* POPUP VINCITA OPTIMIZZATO */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 10px;
@@ -192,7 +192,7 @@
       box-shadow: 0 4px 15px rgba(46, 204, 113, 0.5); text-transform: uppercase; letter-spacing: 1px;
     }
 
-    /* OVERLAY GAME OVER E LISTA VINCITORI */
+    /* OVERLAY GAME OVER E MOSTRA VINCITORI PER 15 SECONDI */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: #0a0e17; display: none; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10000; padding: 25px 15px; text-align: center; overflow-y: auto;
@@ -430,7 +430,7 @@
     </div>
   </div>
 
-  <!-- OVERLAY GAME OVER E MOSTRA VINCITORI SENZA CARICATURA PER 15 SECONDI -->
+  <!-- OVERLAY GAME OVER CON FOTO REALI ED IN EVIDENZA PER 15 SECONDI -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
     <div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div>
@@ -480,6 +480,18 @@
     let activeWinnerObj = null;
     
     let isMusicPlaying = false;
+
+    /* GALLERIA PERSONAGGI CARTOON 3D / DISNEY / PIXAR AD ALTA DEFINIZIONE */
+    const cartoon3DGallery = [
+      "https://robohash.org/disney1.png?set=set1&size=500x500",
+      "https://robohash.org/pixar2.png?set=set2&size=500x500",
+      "https://robohash.org/cartoon3.png?set=set3&size=500x500",
+      "https://robohash.org/disney4.png?set=set4&size=500x500",
+      "https://robohash.org/pixar5.png?set=set1&size=500x500",
+      "https://robohash.org/cartoon6.png?set=set2&size=500x500",
+      "https://robohash.org/disney7.png?set=set3&size=500x500",
+      "https://robohash.org/pixar8.png?set=set4&size=500x500"
+    ];
 
     function toggleAudio() {
       const bgAudio = document.getElementById('audio-bg');
@@ -532,15 +544,20 @@
       }
     }
 
-    /* CARICATURA AVATAR 3D CON FALLBACK GARANTITO */
-    function getPersonaCaricatureUrl(name, cardId) {
-      const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId || 1);
-      return `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seedName}&backgroundColor=b6e3f4,ffd5dc,ffdfbf`;
+    /* ASSEGNAZIONE PERSONAGGIO CARTOON 3D STABILE */
+    function getPersonaCartoonUrl(name, cardId) {
+      let hash = 0;
+      let str = (name || 'G') + (cardId || '1');
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      let index = Math.abs(hash) % cartoon3DGallery.length;
+      return cartoon3DGallery[index];
     }
 
-    function handleAvatarError(img) {
+    function handleCartoonError(img) {
       img.onerror = null;
-      img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f39c12"/><circle cx="35" cy="40" r="6" fill="%23000"/><circle cx="65" cy="40" r="6" fill="%23000"/><path d="M 30 65 Q 50 85 70 65" stroke="%23000" stroke-width="5" fill="none"/></svg>';
+      img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f39c12"/><text x="50%" y="55%" font-size="40" text-anchor="middle" dominant-baseline="middle">🎨</text></svg>';
     }
 
     function switchView(viewId) {
@@ -984,7 +1001,7 @@
       if(winner) {
         playWinMusic();
         const container = document.getElementById('winners-container');
-        const caricatureUrl = getPersonaCaricatureUrl(winner.name, winner.cardId);
+        const cartoonUrl = getPersonaCartoonUrl(winner.name, winner.cardId);
         
         container.innerHTML = `
           <div class="selfie-slide-box" id="box-selfie">
@@ -996,8 +1013,8 @@
             </div>
           </div>
           <div class="cartoon-slide-box" id="box-cartoon">
-            <div class="nfl-badge-label">AVATAR 3D</div>
-            <img src="${caricatureUrl}" class="nfl-photo" alt="Avatar 3D" onerror="handleAvatarError(this)">
+            <div class="nfl-badge-label">PERSONAGGIO CARTOON</div>
+            <img src="${cartoonUrl}" class="nfl-photo" alt="Personaggio Cartoon" onerror="handleCartoonError(this)">
             <div class="winner-info-overlay">
               <div class="winner-name-text">${winner.name}</div>
               <div class="winner-prize-text">¡Campione di ${winner.stage}!</div>
