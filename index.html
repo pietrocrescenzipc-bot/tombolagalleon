@@ -22,20 +22,28 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     html, body { background-color: var(--bg-dark); color: var(--text-light); width: 100vw; height: 100vh; overflow: hidden; }
 
+    /* HEADER CORRETTO E ADATTABILE AI BORDI MOBILE */
     header {
       background: linear-gradient(135deg, #111, #1a2536);
-      padding: 5px 15px; display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 2px solid var(--gold); height: 45px; width: 100vw;
+      padding: 6px 10px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid var(--gold); min-height: 55px; width: 100vw; z-index: 1000; position: relative;
     }
-    .brand-title { font-size: 1rem; font-weight: bold; color: var(--gold); text-transform: uppercase; }
-    .nav-tabs { display: flex; gap: 6px; align-items: center; }
+    .brand-title { font-size: 0.95rem; font-weight: bold; color: var(--gold); text-transform: uppercase; white-space: nowrap; margin-right: 10px; }
+    
+    .nav-tabs { 
+      display: flex; gap: 8px; align-items: center; overflow-x: auto; 
+      padding-bottom: 2px; padding-right: 10px; scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+
     .tab-btn {
       background: #222e42; color: #ccc; border: 1px solid #3a4b68;
-      padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+      padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+      white-space: nowrap; flex-shrink: 0; min-height: 38px;
     }
     .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
 
-    .view-section { display: none; width: 100vw; height: calc(100vh - 45px); overflow: hidden; padding: 4px; }
+    .view-section { display: none; width: 100vw; height: calc(100vh - 55px); overflow: hidden; padding: 4px; }
     .view-section.active { display: flex; flex-direction: column; }
 
     #view-tabellone {
@@ -127,14 +135,14 @@
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
     }
     .winner-box {
-      background: #161f30; padding: 15px; border-radius: 20px; border: 4px solid var(--gold);
-      width: 96vw; height: 94vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+      background: #161f30; padding: 18px; border-radius: 20px; border: 4px solid var(--gold);
+      width: 96vw; height: 92vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
       overflow: hidden;
     }
     .winner-title-header { font-size: 2.2rem; color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
     
     .winners-flex-row {
-      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 5px 0; position: relative; justify-content: center; align-items: center; max-height: 78vh;
+      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 5px 0; position: relative; justify-content: center; align-items: center; max-height: 70vh;
     }
 
     /* SCIVOLAMENTO E TRANSIZIONE FOTO SELFIE -> CARICATURA 3D */
@@ -169,8 +177,12 @@
     .winner-name-text { font-size: 2rem; font-weight: 900; color: #fff; }
     .winner-prize-text { font-size: 1.4rem; color: var(--gold-light); font-weight: 800; }
 
+    /* PULSANTE CONFERMA SCHEDA INGRANDITO E RIALZATO */
     .btn-confirm-banner {
-      padding: 14px 20px; font-size: 1.2rem; width: 100%; border-radius: 12px; flex-shrink: 0; margin-top: 8px; font-weight: 900; cursor: pointer;
+      padding: 16px 24px; font-size: 1.3rem; width: 100%; border-radius: 14px; flex-shrink: 0;
+      margin-bottom: 10px; margin-top: 5px; font-weight: 900; cursor: pointer;
+      background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: 2px solid var(--gold-light);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5); text-transform: uppercase; letter-spacing: 1px;
     }
 
     #game-over-overlay, #next-game-overlay {
@@ -179,7 +191,6 @@
     }
     .game-over-title { font-size: 5rem; font-weight: 900; color: var(--gold); margin-bottom: 10px; }
     
-    /* SCHERMATA PROSSIMA PARTITA RISTRUTTURATA */
     .rejoin-callout-box {
       border: 4px dashed var(--gold); border-radius: 24px; padding: 35px 25px;
       font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; color: var(--gold-light);
@@ -211,7 +222,6 @@
     .fullscreen-card-box .tombola-classic-grid { gap: 4px; padding: 8px; margin: 10px 0; flex-grow: 1; display: grid !important; grid-template-columns: repeat(9, 1fr) !important; align-content: center; }
     .fullscreen-card-box .tombola-cell { font-size: clamp(0.9rem, 3.5vw, 1.8rem); aspect-ratio: 1; border-radius: 6px; }
 
-    /* LAYOUT REGIA RESPONSIVE ED ADATTABILE PER MOBILE */
     .regia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 768px) {
       .regia-grid { grid-template-columns: 1fr !important; }
@@ -228,7 +238,6 @@
     .current-stage-badge { background: #111a28; border: 2px solid var(--gold); padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; color: var(--gold-light); }
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
     
-    /* APPROVAZIONE CARTELLI PIÙ LEGGIBILE ED ELEGANTE */
     .approval-card-item {
       padding: 12px; border-bottom: 1px solid #2a3b54; display: flex; justify-content: space-between; align-items: center;
       background: rgba(22, 34, 52, 0.9); margin-bottom: 8px; border-radius: 8px; border: 1px solid #3a4b68;
@@ -283,7 +292,7 @@
       <div id="regia-win-alert" class="regia-alert-box">
         <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
         <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
-        <button class="btn btn-sm btn-success" style="padding: 10px 20px; font-size: 1rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
+        <button class="btn btn-sm btn-success" style="padding: 12px 20px; font-size: 1.05rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
       </div>
 
       <div class="panel-card" style="margin-bottom: 20px;">
@@ -335,7 +344,6 @@
       <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
       
-      <!-- DOPPIA SCELTA SCATTA SELFIE O CARICA DALLA GALLERIA -->
       <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;">
         <label for="camera-input" class="btn btn-sm" style="background: #e74c3c; color: #fff; cursor: pointer;">📸 Scatta Selfie</label>
         <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
@@ -388,7 +396,7 @@
     <div class="winner-box">
       <div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div>
       <div id="winners-container" class="winners-flex-row"></div>
-      <button class="btn btn-sm btn-success btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
+      <button class="btn btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button>
     </div>
   </div>
 
@@ -399,7 +407,6 @@
     <p style="color: var(--gold-light); font-size: 1.1rem;">⏳ Fine Partita Registrata...</p>
   </div>
 
-  <!-- OVERLAY PROSSIMA PARTITA INGRANDITA CON QR CODE INTEGRATO -->
   <div id="next-game-overlay">
     <div class="rejoin-callout-box">
       ⏳ LA PROSSIMA PARTITA INIZIERÀ TRA POCHISSIMO!<br/>
@@ -493,7 +500,6 @@
       }
     }
 
-    // GENERATORE CARICATURA 3D (DICEBEAR FUN-EMOJI)
     function getPersonaCaricatureUrl(name, cardId) {
       const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId);
       return `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seedName}&backgroundColor=b6e3f4,ffd5dc,ffdfbf`;
@@ -920,7 +926,6 @@
       renderMyCards();
     });
 
-    // EFFETTO TRANSIZIONE E CARICATURA 3D VINCITA
     db.ref('currentWinner').on('value', snapshot => {
       const winner = snapshot.val();
       const modal = document.getElementById('winner-modal');
@@ -956,7 +961,6 @@
           document.getElementById('regia-win-alert-text').innerText = `${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`;
         }
         
-        // TRANSIZIONE LATERALE DOPO 2 SECONDI
         setTimeout(() => {
           const selfieBox = document.getElementById('box-selfie');
           const cartoonBox = document.getElementById('box-cartoon');
@@ -1035,7 +1039,6 @@
         switchView('giocatore');
       }
 
-      // QR CODE PRINCIPALE PASS QR
       new QRCode(document.getElementById("qrcode-global"), {
         text: playerUrl,
         width: 160,
@@ -1045,7 +1048,6 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      // QR CODE NELLA SCHERMATA PROSSIMA PARTITA
       new QRCode(document.getElementById("qrcode-nextgame"), {
         text: playerUrl,
         width: 220,
@@ -1055,7 +1057,6 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      // LISTA APPROVAZIONI REGIA PIÙ CHIARA E LEGGIBILE
       db.ref('cards').on('value', snap => {
         const val = snap.val();
         const count = val ? Object.keys(val).length : 0;
