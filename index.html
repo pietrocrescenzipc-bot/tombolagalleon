@@ -144,17 +144,17 @@
     /* POPUP VINCITA */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
-      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 15px;
+      display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 10px;
     }
     .winner-box {
-      background: #161f30; padding: 18px; border-radius: 20px; border: 4px solid var(--gold);
-      width: 96vw; height: 92vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+      background: #161f30; padding: 12px 18px 15px 18px; border-radius: 20px; border: 4px solid var(--gold);
+      width: 96vw; height: 94vh; max-height: 94vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
       overflow: hidden;
     }
-    .winner-title-header { font-size: 2.2rem; color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+    .winner-title-header { font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
     
     .winners-flex-row {
-      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 5px 0; position: relative; justify-content: center; align-items: center; max-height: 70vh;
+      display: flex; width: 100%; flex-grow: 1; gap: 15px; margin: 4px 0; position: relative; justify-content: center; align-items: center; min-height: 0; max-height: 72vh;
     }
 
     .selfie-slide-box {
@@ -172,30 +172,46 @@
     }
     .cartoon-slide-box.visible { display: flex; opacity: 1; transform: translateX(0) scale(1); }
 
-    .nfl-photo { width: 100%; height: 100%; object-fit: contain; }
+    .nfl-photo { width: 100%; height: 100%; object-fit: contain; background: #0a0e17; }
+    
     .nfl-badge-label {
-      position: absolute; top: 12px; left: 12px; background: var(--gold); color: #000; font-weight: 900;
-      padding: 6px 14px; border-radius: 20px; font-size: 1rem; z-index: 10; text-transform: uppercase;
+      position: absolute; top: 8px; left: 8px; background: var(--gold); color: #000; font-weight: 900;
+      padding: 4px 10px; border-radius: 16px; font-size: 0.85rem; z-index: 10; text-transform: uppercase;
     }
     .winner-info-overlay {
       position: absolute; bottom: 0; left: 0; right: 0; background: rgba(10, 14, 23, 0.92);
-      padding: 12px; text-align: center; z-index: 10;
+      padding: 8px 10px; text-align: center; z-index: 10;
     }
-    .winner-name-text { font-size: 2rem; font-weight: 900; color: #fff; }
-    .winner-prize-text { font-size: 1.4rem; color: var(--gold-light); font-weight: 800; }
+    .winner-name-text { font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 900; color: #fff; }
+    .winner-prize-text { font-size: clamp(0.9rem, 1.4vw, 1.3rem); color: var(--gold-light); font-weight: 800; }
 
     .btn-confirm-banner {
-      padding: 16px 24px; font-size: 1.3rem; width: 100%; border-radius: 14px; flex-shrink: 0;
-      margin-bottom: 10px; margin-top: 5px; font-weight: 900; cursor: pointer;
+      padding: 12px 20px; font-size: clamp(1rem, 1.8vw, 1.2rem); width: 100%; border-radius: 12px; flex-shrink: 0;
+      margin-bottom: 2px; margin-top: 4px; font-weight: 900; cursor: pointer;
       background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; border: 2px solid var(--gold-light);
-      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5); text-transform: uppercase; letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.5); text-transform: uppercase; letter-spacing: 1px;
     }
 
+    /* OVERLAY GAME OVER E LISTA VINCITORI */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: #0a0e17; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; padding: 20px; text-align: center;
+      background: #0a0e17; display: none; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10000; padding: 25px 15px; text-align: center; overflow-y: auto;
     }
-    .game-over-title { font-size: 5rem; font-weight: 900; color: var(--gold); margin-bottom: 10px; }
+    .game-over-title { font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; color: var(--gold); margin-bottom: 5px; text-shadow: 0 4px 15px rgba(243, 156, 18, 0.4); }
+    .game-over-subtitle { font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: #fff; font-weight: 800; margin-bottom: 25px; text-transform: uppercase; }
+
+    .final-winners-grid {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 1200px; margin-bottom: 20px;
+    }
+
+    .final-winner-card {
+      background: #161f30; border: 3px solid var(--gold); border-radius: 16px; width: 220px; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+    .final-winner-photo { width: 100%; height: 180px; object-fit: cover; background: #080d17; }
+    .final-winner-details { padding: 12px 8px; width: 100%; text-align: center; background: #0f172a; }
+    .final-winner-name { font-size: 1.2rem; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .final-winner-stage { font-size: 0.95rem; font-weight: 800; color: var(--gold-light); margin-top: 2px; }
 
     #next-game-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -262,7 +278,6 @@
 </head>
 <body>
 
-  <!-- AUDIO LOCALI E MEDLEY FESTOSO D'AMBIENTE -->
   <audio id="audio-bg" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b16c87e8.mp3?filename=happy-festive-upbeat-10903.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
@@ -415,11 +430,12 @@
     </div>
   </div>
 
+  <!-- OVERLAY GAME OVER E MOSTRA VINCITORI SENZA CARICATURA PER 15 SECONDI -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
-    <div class="game-over-subtitle">Che Partita Eccezionale! Ecco i Nostri Grandi Vincitori:</div>
-    <div id="final-winners-container" class="final-winners-grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; margin-bottom:20px;"></div>
-    <p style="color: var(--gold-light); font-size: 1.1rem;">⏳ Fine Partita Registrata...</p>
+    <div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div>
+    <div id="final-winners-container" class="final-winners-grid"></div>
+    <p style="color: var(--gold-light); font-size: 1.1rem; margin-top: 10px;">⏳ Preparazione prossima partita...</p>
   </div>
 
   <div id="next-game-overlay">
@@ -456,11 +472,12 @@
     let currentStageIndex = 0;
     let drawnNumbers = [];
     let activeCards = {};
-    let confirmedWinnersList = [];
+    let confirmedWinnersObjects = [];
     let prizesConfig = { AMBO: "Buono Caffè", TERNO: "Birra Media", QUATERNA: "Pizza Omaggio", CINQUINA: "Menu Cena per 2", TOMBOLA: "Super Premio Finale", TOMBOLINO: "Cesto Natalizio / Speciale" };
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
+    let activeWinnerObj = null;
     
     let isMusicPlaying = false;
 
@@ -515,10 +532,15 @@
       }
     }
 
-    /* CARICATURA 3D HIGH-QUALITY CLAY MODEL */
+    /* CARICATURA AVATAR 3D CON FALLBACK GARANTITO */
     function getPersonaCaricatureUrl(name, cardId) {
-      const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId);
-      return `https://api.dicebear.com/9.x/clay/svg?seed=${seedName}`;
+      const seedName = encodeURIComponent(name || 'Giocatore') + '_' + Math.abs(cardId || 1);
+      return `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seedName}&backgroundColor=b6e3f4,ffd5dc,ffdfbf`;
+    }
+
+    function handleAvatarError(img) {
+      img.onerror = null;
+      img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f39c12"/><circle cx="35" cy="40" r="6" fill="%23000"/><circle cx="65" cy="40" r="6" fill="%23000"/><path d="M 30 65 Q 50 85 70 65" stroke="%23000" stroke-width="5" fill="none"/></svg>';
     }
 
     function switchView(viewId) {
@@ -889,8 +911,12 @@
     }
 
     function confirmAndCloseWinnerModal() {
+      if(activeWinnerObj) {
+        confirmedWinnersObjects.push(activeWinnerObj);
+        db.ref('allWinnersList').set(confirmedWinnersObjects);
+      }
+      
       db.ref('currentWinner').remove().then(() => {
-        confirmedWinnersList.push(PRIZE_STAGES[currentStageIndex]);
         currentStageIndex++;
         db.ref('gameState/currentStageIndex').set(currentStageIndex);
         document.getElementById('winner-modal').style.display = 'none';
@@ -908,6 +934,7 @@
         db.ref().set({
           gameState: { currentStageIndex: 0, drawnNumbers: [], lastDrawn: 0 },
           currentWinner: null,
+          allWinnersList: null,
           gameOver: null
         }).then(() => {
           location.reload();
@@ -943,8 +970,14 @@
       renderMyCards();
     });
 
+    db.ref('allWinnersList').on('value', snapshot => {
+      const list = snapshot.val();
+      if(list) confirmedWinnersObjects = list;
+    });
+
     db.ref('currentWinner').on('value', snapshot => {
       const winner = snapshot.val();
+      activeWinnerObj = winner;
       const modal = document.getElementById('winner-modal');
       const regiaAlert = document.getElementById('regia-win-alert');
       
@@ -964,7 +997,7 @@
           </div>
           <div class="cartoon-slide-box" id="box-cartoon">
             <div class="nfl-badge-label">AVATAR 3D</div>
-            <img src="${caricatureUrl}" class="nfl-photo" alt="Avatar 3D">
+            <img src="${caricatureUrl}" class="nfl-photo" alt="Avatar 3D" onerror="handleAvatarError(this)">
             <div class="winner-info-overlay">
               <div class="winner-name-text">${winner.name}</div>
               <div class="winner-prize-text">¡Campione di ${winner.stage}!</div>
@@ -1002,15 +1035,33 @@
 
       if(isOver) {
         playWinMusic();
-        gameOverOverlay.style.display = 'flex';
         
         const finalContainer = document.getElementById('final-winners-container');
-        finalContainer.innerHTML = `<div style="font-size: 1.4rem; color: var(--gold); font-weight: bold;">Tutti i premi sono stati assegnati con successo! 🏆</div>`;
+        if(confirmedWinnersObjects && confirmedWinnersObjects.length > 0) {
+          let html = '';
+          confirmedWinnersObjects.forEach(w => {
+            html += `
+              <div class="final-winner-card">
+                <img src="${w.photo}" class="final-winner-photo" alt="${w.name}">
+                <div class="final-winner-details">
+                  <div class="final-winner-name">${w.name}</div>
+                  <div class="final-winner-stage">${w.stage} (${prizesConfig[w.stage] || ''})</div>
+                </div>
+              </div>
+            `;
+          });
+          finalContainer.innerHTML = html;
+        } else {
+          finalContainer.innerHTML = `<div style="font-size: 1.4rem; color: var(--gold); font-weight: bold;">Tutti i premi sono stati assegnati con successo! 🏆</div>`;
+        }
 
+        gameOverOverlay.style.display = 'flex';
+
+        /* MANTENUTO PER 15 SECONDI PRIMA DI PASSARE ALLA SCHERMATA FINALE */
         setTimeout(() => {
           gameOverOverlay.style.display = 'none';
           nextGameOverlay.style.display = 'flex';
-        }, 5000);
+        }, 15000);
       } else {
         gameOverOverlay.style.display = 'none';
         nextGameOverlay.style.display = 'none';
