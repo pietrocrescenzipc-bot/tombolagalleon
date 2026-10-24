@@ -486,6 +486,7 @@
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     let activeWinnerObj = null;
     let isMusicPlaying = false;
+    let allGlobalCardsCache = null;
 
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
@@ -679,6 +680,7 @@
         regiaAuth = true;
         document.getElementById('regia-login').style.display = 'none';
         document.getElementById('regia-content').style.display = 'block';
+        renderRegiaCardsList(allGlobalCardsCache);
       } else {
         alert("Password non corretta!");
       }
@@ -767,7 +769,6 @@
       });
     }
 
-    /* CAMBIO MODALITÀ CON CONFERMA ANTI-ERRORE PER BAMBINI */
     function toggleCardMode(cardKey, currentMode) {
       const isGameStarted = drawnNumbers.length > 0;
       const newMode = currentMode === 'auto' ? 'manual' : 'auto';
@@ -793,6 +794,48 @@
       if(confirm("Sei sicuro di voler rifiutare ed eliminare questa cartella?")) {
         db.ref(`cards/${cardKey}`).remove();
       }
+    }
+
+    function renderRegiaCardsList(cardsObj) {
+      const listEl = document.getElementById('regia-cards-list');
+      const countEl = document.getElementById('participants-count');
+      const count = cardsObj ? Object.keys(cardsObj).length : 0;
+      if(countEl) countEl.innerText = `(Totale: ${count})`;
+
+      if(!listEl || !regiaAuth) return;
+
+      if(!cardsObj || count === 0) {
+        listEl.innerHTML = '<i>Nessun partecipante registrato.</i>';
+        return;
+      }
+
+      let listHtml = '';
+      Object.keys(cardsObj).forEach(k => {
+        let c = cardsObj[k];
+        let isApproved = c.approved === true;
+        
+        listHtml += `<div class="approval-card-item ${isApproved ? '' : 'pending'}">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <img src="${c.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);" onerror="handlePhotoError(this)" />
+            <div>
+              <div style="font-size:1rem; font-weight:bold; color:#fff;">${c.name}</div>
+              <div style="font-size:0.8rem; color:var(--gold-light);">Modalità: ${c.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale'}</div>
+              <div style="font-size:0.75rem; color:${isApproved ? '#2ecc71' : '#f39c12'}; font-weight:bold; margin-top:2px;">
+                ${isApproved ? '✓ Cartella Approvata' : '⏳ In attesa di verifica'}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            ${!isApproved ? `
+              <button class="btn btn-sm btn-success" style="padding:6px 12px; font-size:0.85rem;" onclick="approveCard('${k}')">✓ Approva</button>
+              <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">✕ Rifiuta</button>
+            ` : `
+              <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">Elimina</button>
+            `}
+          </div>
+        </div>`;
+      });
+      listEl.innerHTML = listHtml;
     }
 
     function renderMyCards() {
@@ -987,6 +1030,12 @@
       renderMyCards();
     });
 
+    db.ref('cards').on('value', snap => {
+      allGlobalCardsCache = snap.val();
+      renderRegiaCardsList(allGlobalCardsCache);
+      renderMyCards();
+    });
+
     db.ref('allWinnersList').on('value', snapshot => {
       const list = snapshot.val();
       if(list) confirmedWinnersObjects = list;
@@ -1138,47 +1187,6 @@
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
-      });
-
-      db.ref('cards').on('value', snap => {
-        const val = snap.val();
-        const count = val ? Object.keys(val).length : 0;
-        const countEl = document.getElementById('participants-count');
-        if(countEl) countEl.innerText = `(Totale: ${count})`;
-        const listEl = document.getElementById('regia-cards-list');
-        if(listEl && regiaAuth) {
-          if(count === 0) {
-            listEl.innerHTML = '<i>Nessun partecipante registrato.</i>';
-          } else {
-            let listHtml = '';
-            Object.keys(val).forEach(k => {
-              let c = val[k];
-              let isApproved = c.approved === true;
-              
-              listHtml += `<div class="approval-card-item ${isApproved ? '' : 'pending'}">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <img src="${c.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);" onerror="handlePhotoError(this)" />
-                  <div>
-                    <div style="font-size:1rem; font-weight:bold; color:#fff;">${c.name}</div>
-                    <div style="font-size:0.8rem; color:var(--gold-light);">Modalità: ${c.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale'}</div>
-                    <div style="font-size:0.75rem; color:${isApproved ? '#2ecc71' : '#f39c12'}; font-weight:bold; margin-top:2px;">
-                      ${isApproved ? '✓ Cartella Approvata' : '⏳ In attesa di verifica'}
-                    </div>
-                  </div>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:4px;">
-                  ${!isApproved ? `
-                    <button class="btn btn-sm btn-success" style="padding:6px 12px; font-size:0.85rem;" onclick="approveCard('${k}')">✓ Approva</button>
-                    <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">✕ Rifiuta</button>
-                  ` : `
-                    <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">Elimina</button>
-                  `}
-                </div>
-              </div>`;
-            });
-            listEl.innerHTML = listHtml;
-          }
-        }
       });
     };
   </script>
