@@ -54,7 +54,7 @@
     .view-section { display: none; width: 100vw; min-height: calc(100vh - 55px); padding: 4px; }
     .view-section.active { display: flex; flex-direction: column; }
 
-    /* TABELLONE TV / MAXISCHERMO PARALLELO ED ALLINEATO */
+    /* TABELLONE TV / MAXISCHERMO */
     #view-tabellone {
       background: linear-gradient(180deg, #1d3e9e 0%, #173280 40%, #0d1e52 100%);
       justify-content: space-between; align-items: center;
@@ -472,17 +472,15 @@
     const PRIZE_STAGES = ['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA', 'TOMBOLA', 'TOMBOLINO'];
     let currentStageIndex = 0;
     let drawnNumbers = [];
-    let activeCards = {};
     let confirmedWinnersObjects = [];
     let prizesConfig = { AMBO: "Buono Caffè", TERNO: "Birra Media", QUATERNA: "Pizza Omaggio", CINQUINA: "Menu Cena per 2", TOMBOLA: "Super Premio Finale", TOMBOLINO: "Cesto Natalizio / Speciale" };
     let regiaAuth = false;
     let currentPlayerPhoto = "";
     let localMyCardsKeys = JSON.parse(localStorage.getItem('my_tombola_cards') || '[]');
     let activeWinnerObj = null;
-    
     let isMusicPlaying = false;
 
-    /* GALLERIA AMPIA E HD DI PERSONAGGI CARTONI ANIMATI */
+    /* GALLERIA REALE DI PERSONAGGI FAMOSI DEI CARTONI (SPONGEBOB, HOMER, BUGS BUNNY, TOPOLINO, GUMBALL, PETER GRIFFIN, ECC.) */
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
       "https://upload.wikimedia.org/wikipedia/en/e/ec/Lisa_Simpson.png",
@@ -501,6 +499,7 @@
       "https://upload.wikimedia.org/wikipedia/en/4/4b/Tweety.svg"
     ];
 
+    /* SELEZIONE DIRETTA E CASUALE DALLA GALLERIA PERFETTA */
     function getRandomCartoonUrl() {
       const idx = Math.floor(Math.random() * famousCartoonsGallery.length);
       return famousCartoonsGallery[idx];
@@ -514,7 +513,6 @@
       if (!isMusicPlaying) {
         winAudio.pause();
         bgAudio.volume = 0.35;
-        
         let playPromise = bgAudio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
@@ -523,7 +521,6 @@
             btn.style.background = "var(--gold)";
             btn.style.color = "#000";
           }).catch(e => {
-            console.error("Errore riproduzione:", e);
             alert("Fai un click sulla pagina prima di attivare l'audio.");
           });
         }
@@ -553,7 +550,7 @@
       if (winAudio) winAudio.pause();
       if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.35;
-        bgAudio.play().catch(e => console.log("Ripresa musica sottofondo"));
+        bgAudio.play().catch(e => console.log("Ripresa musica"));
       }
     }
 
@@ -592,6 +589,7 @@
       else { if (document.exitFullscreen) document.exitFullscreen(); }
     }
 
+    /* COMPRESSIONE OTTIMIZZATA PER VELOCITÀ MASSIMA */
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -601,9 +599,9 @@
           img.onload = function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 600; canvas.height = 600;
-            ctx.drawImage(img, 0, 0, 600, 600);
-            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.85);
+            canvas.width = 400; canvas.height = 400;
+            ctx.drawImage(img, 0, 0, 400, 400);
+            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.7);
             document.getElementById('player-photo-preview').src = currentPlayerPhoto;
           };
           img.src = e.target.result;
@@ -716,22 +714,6 @@
       }
       let drawn = available[Math.floor(Math.random() * available.length)];
       drawnNumbers.push(drawn);
-      
-      db.ref('cards').once('value', snapshot => {
-        const cardsObj = snapshot.val();
-        if(cardsObj) {
-          Object.keys(cardsObj).forEach(cardId => {
-            let card = cardsObj[cardId];
-            if(card.approved && card.mode === 'auto') {
-              for(let i = 0; i < 27; i++) {
-                if(card.grid[i] === drawn) {
-                  db.ref(`cards/${cardId}/marked/${i}`).set(true);
-                }
-              }
-            }
-          });
-        }
-      });
 
       db.ref('gameState').set({
         drawnNumbers: drawnNumbers,
@@ -756,16 +738,15 @@
     function addPlayerCard() {
       const nameInput = document.getElementById('player-name').value.trim();
       if(!nameInput) { alert("Inserisci il tuo Nome e Cognome."); return; }
-      if(!currentPlayerPhoto) { alert("È obbligatorio scattare un selfie o caricare una foto!"); return; }
+      if(!currentPlayerPhoto) { alert("È obbligatorio scattare un selfie!"); return; }
       const playMode = document.getElementById('play-mode').value;
       const cardGrid = generateTombolaClassicGrid();
-      const assignedCartoon = getRandomCartoonUrl();
 
       const cardRef = db.ref('cards').push();
       const cardData = {
         name: nameInput,
         photo: currentPlayerPhoto,
-        cartoonUrl: assignedCartoon,
+        cartoonUrl: getRandomCartoonUrl(),
         mode: playMode,
         grid: cardGrid,
         marked: {},
@@ -783,17 +764,7 @@
     }
 
     function approveCard(cardKey) {
-      db.ref(`cards/${cardKey}`).once('value', snapshot => {
-        const card = snapshot.val();
-        if(card && card.mode === 'auto' && drawnNumbers.length > 0) {
-          for(let i = 0; i < 27; i++) {
-            if(card.grid[i] !== 0 && drawnNumbers.includes(card.grid[i])) {
-              db.ref(`cards/${cardKey}/marked/${i}`).set(true);
-            }
-          }
-        }
-        db.ref(`cards/${cardKey}/approved`).set(true);
-      });
+      db.ref(`cards/${cardKey}/approved`).set(true);
     }
 
     function rejectCard(cardKey) {
@@ -818,7 +789,6 @@
           let pendingClass = isApproved ? '' : ' pending';
           
           let html = `<div class="card-digital${pendingClass}">`;
-          
           if(!isApproved) {
             html += `<div class="pending-badge-banner">⏳ IN ATTESA DI APPROVAZIONE DALLA REGIA</div>`;
           }
@@ -832,14 +802,13 @@
           
           for(let i = 0; i < 27; i++) {
             let val = card.grid[i];
-            let isMarked = card.marked && card.marked[i];
+            let isMarked = (card.mode === 'auto' && drawnNumbers.includes(val)) || (card.marked && card.marked[i]);
             if(val === 0) {
               html += `<div class="tombola-cell empty"></div>`;
             } else {
-              let drawnClass = (isApproved && drawnNumbers.includes(val)) ? ' drawn-num' : '';
               let markedClass = isMarked ? ' marked' : '';
               let clickAttr = (isApproved && card.mode === 'manual') ? `onclick="toggleManualMark('${key}', ${i}, ${val})"` : '';
-              html += `<div class="tombola-cell${markedClass}${drawnClass}" ${clickAttr}>${val}</div>`;
+              html += `<div class="tombola-cell${markedClass}" ${clickAttr}>${val}</div>`;
             }
           }
           html += `</div></div>`;
@@ -868,7 +837,7 @@
         let html = `<div class="tombola-classic-grid">`;
         for(let i = 0; i < 27; i++) {
           let val = card.grid[i];
-          let isMarked = card.marked && card.marked[i];
+          let isMarked = (card.mode === 'auto' && drawnNumbers.includes(val)) || (card.marked && card.marked[i]);
           if(val === 0) {
             html += `<div class="tombola-cell empty"></div>`;
           } else {
@@ -909,9 +878,6 @@
               if(val !== 0 && drawnNumbers.includes(val)) {
                 rowCounts[r]++;
                 totalMatches++;
-                if(card.mode === 'auto') {
-                  db.ref(`cards/${cardId}/marked/${idx}`).set(true);
-                }
               }
             }
           }
@@ -993,10 +959,6 @@
       renderMyCards();
     });
 
-    db.ref('cards').on('value', () => {
-      renderMyCards();
-    });
-
     db.ref('allWinnersList').on('value', snapshot => {
       const list = snapshot.val();
       if(list) confirmedWinnersObjects = list;
@@ -1011,7 +973,6 @@
       if(winner) {
         playWinMusic();
         const container = document.getElementById('winners-container');
-        const cartoonUrl = winner.cartoonUrl || getRandomCartoonUrl();
         
         container.innerHTML = `
           <div class="selfie-slide-box" id="box-selfie">
@@ -1024,7 +985,7 @@
           </div>
           <div class="cartoon-slide-box" id="box-cartoon">
             <div class="nfl-badge-label">PERSONAGGIO CARTOON</div>
-            <img src="${cartoonUrl}" class="nfl-photo-cartoon" alt="Personaggio Cartoon" onerror="handleCartoonError(this)">
+            <img src="${winner.cartoonUrl}" class="nfl-photo-cartoon" alt="Personaggio Cartoon" onerror="handleCartoonError(this)">
             <div class="winner-info-overlay">
               <div class="winner-name-text">${winner.name}</div>
               <div class="winner-prize-text">¡Campione di ${winner.stage}!</div>
@@ -1157,7 +1118,7 @@
         const countEl = document.getElementById('participants-count');
         if(countEl) countEl.innerText = `(Totale: ${count})`;
         const listEl = document.getElementById('regia-cards-list');
-        if(listEl) {
+        if(listEl && regiaAuth) {
           if(count === 0) {
             listEl.innerHTML = '<i>Nessun partecipante registrato.</i>';
           } else {
