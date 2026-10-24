@@ -193,7 +193,7 @@
       box-shadow: 0 4px 15px rgba(46, 204, 113, 0.5); text-transform: uppercase; letter-spacing: 1px;
     }
 
-    /* OVERLAY GAME OVER E MOSTRA VINCITORI PER 15 SECONDI */
+    /* OVERLAY GAME OVER */
     #game-over-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: #0a0e17; display: none; flex-direction: column; justify-content: flex-start; align-items: center; z-index: 10000; padding: 25px 15px; text-align: center; overflow-y: auto;
@@ -431,7 +431,7 @@
     </div>
   </div>
 
-  <!-- OVERLAY GAME OVER CON FOTO REALI ED IN EVIDENZA PER 15 SECONDI -->
+  <!-- OVERLAY GAME OVER -->
   <div id="game-over-overlay">
     <div class="game-over-title">GAME OVER!</div>
     <div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div>
@@ -482,7 +482,7 @@
     
     let isMusicPlaying = false;
 
-    /* GALLERIA IMMAGINI PULITE E HD DI PERSONAGGI FAMOSI DEI CARTONI (SPONGEBOB, SIMPSON, TOPOLINO, GUMBALL, GRIFFIN) */
+    /* AMPIA GALLERIA DI PERSONAGGI FAMOSI HD (DISTRIBUZIONE CASUALE INFINITA) */
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
       "https://upload.wikimedia.org/wikipedia/en/e/ec/Lisa_Simpson.png",
@@ -491,7 +491,14 @@
       "https://upload.wikimedia.org/wikipedia/en/a/a5/Gumball_Watterson.png",
       "https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png",
       "https://upload.wikimedia.org/wikipedia/en/1/17/Bugs_Bunny.svg",
-      "https://upload.wikimedia.org/wikipedia/en/f/f4/Daffy_Duck.svg"
+      "https://upload.wikimedia.org/wikipedia/en/f/f4/Daffy_Duck.svg",
+      "https://upload.wikimedia.org/wikipedia/en/a/a6/Bart_Simpson.png",
+      "https://upload.wikimedia.org/wikipedia/en/b/b8/Marge_Simpson.png",
+      "https://upload.wikimedia.org/wikipedia/en/6/62/Patric_Star.png",
+      "https://upload.wikimedia.org/wikipedia/en/8/8f/Squidward_Tentacles.svg",
+      "https://upload.wikimedia.org/wikipedia/en/9/9c/Donald_Duck.svg",
+      "https://upload.wikimedia.org/wikipedia/en/7/7b/Goofy.svg",
+      "https://upload.wikimedia.org/wikipedia/en/4/4b/Tweety.svg"
     ];
 
     function toggleAudio() {
@@ -545,12 +552,12 @@
       }
     }
 
-    /* ASSEGNAZIONE AUTOMATICA PERSONAGGIO CARTONE ANIMATO HD */
+    /* SELEZIONE CASUALE DISTRIBUITA PER INFINITE CARTELLE */
     function getPersonaCartoonUrl(name, cardId) {
+      let combined = (name || 'Player') + "_" + (cardId || Math.random()) + "_" + Date.now();
       let hash = 0;
-      let str = (name || 'G') + (cardId || '1');
-      for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      for (let i = 0; i < combined.length; i++) {
+        hash = combined.charCodeAt(i) + ((hash << 5) - hash);
       }
       let index = Math.abs(hash) % famousCartoonsGallery.length;
       return famousCartoonsGallery[index];
@@ -1075,7 +1082,6 @@
 
         gameOverOverlay.style.display = 'flex';
 
-        /* MANTENUTO PER 15 SECONDI PRIMA DI PASSARE ALLA SCHERMATA FINALE */
         setTimeout(() => {
           gameOverOverlay.style.display = 'none';
           nextGameOverlay.style.display = 'flex';
@@ -1130,4 +1136,60 @@
         width: 160,
         height: 160,
         colorDark: "#000000",
-        colorLight: "#ffffff
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      new QRCode(document.getElementById("qrcode-nextgame"), {
+        text: playerUrl,
+        width: 200,
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      db.ref('cards').on('value', snap => {
+        const val = snap.val();
+        const count = val ? Object.keys(val).length : 0;
+        const countEl = document.getElementById('participants-count');
+        if(countEl) countEl.innerText = `(Totale: ${count})`;
+        const listEl = document.getElementById('regia-cards-list');
+        if(listEl) {
+          if(count === 0) {
+            listEl.innerHTML = '<i>Nessun partecipante registrato.</i>';
+          } else {
+            let listHtml = '';
+            Object.keys(val).forEach(k => {
+              let c = val[k];
+              let isApproved = c.approved === true;
+              
+              listHtml += `<div class="approval-card-item ${isApproved ? '' : 'pending'}">
+                <div style="display:flex; align-items:center; gap:12px;">y
+                  <img src="${c.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);" />
+                  <div>
+                    <div style="font-size:1rem; font-weight:bold; color:#fff;">${c.name}</div>
+                    <div style="font-size:0.8rem; color: var(--gold-light);">Modalità: ${c.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale'}</div>
+                    <div style="font-size:0.75rem; color:${isApproved ? '#2ecc71' : '#f39c12'}; font-weight:bold; margin-top:2px;">
+                      ${isApproved ? '✓ Cartella Approvata' : '⏳ In attesa di verifica'}
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  ${!isApproved ? `
+                    <button class="btn btn-sm btn-success" style="padding:6px 12px; font-size:0.85rem;" onclick="approveCard('${k}')">✓ Approva</button>
+                    <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">✕ Rifiuta</button>
+                  ` : `
+                    <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="rejectCard('${k}')">Elimina</button>
+                  `}
+                </div>
+              </div>`;
+            });
+            listEl.innerHTML = listHtml;
+          }
+        }
+      });
+    };
+  </script>
+</body>
+</html>
