@@ -245,6 +245,13 @@
     .tombola-cell.empty { background: #090d14; border-color: #121a26; cursor: default; }
     .tombola-cell.marked { background: #ea580c; color: #fff; border-color: #fff; }
 
+    .mode-switch-btn {
+      background: #0d1628; color: var(--gold-light); border: 1.5px solid var(--gold);
+      padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
+    }
+    .mode-switch-btn:active { transform: scale(0.95); }
+
     .pending-badge-banner { background: #f39c12; color: #000; font-weight: 900; text-align: center; padding: 6px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem; text-transform: uppercase; }
 
     #fullscreen-card-overlay {
@@ -385,7 +392,7 @@
 
       <div class="form-group" style="max-width: 320px; margin: 0 auto 12px auto;"><input type="text" id="player-name" placeholder="Inserisci Nome e Cognome"></div>
       <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;">
-        <label style="color: var(--gold); font-weight: bold;">Modalità di Marcatura Cartella:</label>
+        <label style="color: var(--gold); font-weight: bold;">Modalità Iniziale di Marcatura:</label>
         <select id="play-mode" style="margin-top: 4px;">
           <option value="auto">🤖 Automatica (Segna il sistema)</option>
           <option value="manual">✍️ Manuale (Segno io con un tocco)</option>
@@ -480,7 +487,6 @@
     let activeWinnerObj = null;
     let isMusicPlaying = false;
 
-    /* GALLERIA REALE DI PERSONAGGI FAMOSI DEI CARTONI (SPONGEBOB, HOMER, BUGS BUNNY, TOPOLINO, GUMBALL, PETER GRIFFIN, ECC.) */
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
       "https://upload.wikimedia.org/wikipedia/en/e/ec/Lisa_Simpson.png",
@@ -499,7 +505,6 @@
       "https://upload.wikimedia.org/wikipedia/en/4/4b/Tweety.svg"
     ];
 
-    /* SELEZIONE DIRETTA E CASUALE DALLA GALLERIA PERFETTA */
     function getRandomCartoonUrl() {
       const idx = Math.floor(Math.random() * famousCartoonsGallery.length);
       return famousCartoonsGallery[idx];
@@ -589,7 +594,6 @@
       else { if (document.exitFullscreen) document.exitFullscreen(); }
     }
 
-    /* COMPRESSIONE OTTIMIZZATA PER VELOCITÀ MASSIMA */
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -763,6 +767,24 @@
       });
     }
 
+    /* CAMBIO MODALITÀ CON CONFERMA ANTI-ERRORE PER BAMBINI */
+    function toggleCardMode(cardKey, currentMode) {
+      const isGameStarted = drawnNumbers.length > 0;
+      const newMode = currentMode === 'auto' ? 'manual' : 'auto';
+      const labelNewMode = newMode === 'auto' ? 'AUTOMATICA (segna il sistema)' : 'MANUALE (segni tu le caselle)';
+
+      let confirmMsg = `Vuoi cambiare la marcatura della cartella in modalità ${labelNewMode}?`;
+      if(isGameStarted) {
+        confirmMsg = `ATTENZIONE: La partita è già iniziata!\nSei sicuro di voler cambiare la marcatura in: ${labelNewMode}?`;
+      }
+
+      if (confirm(confirmMsg)) {
+        db.ref(`cards/${cardKey}/mode`).set(newMode).then(() => {
+          renderMyCards();
+        });
+      }
+    }
+
     function approveCard(cardKey) {
       db.ref(`cards/${cardKey}/approved`).set(true);
     }
@@ -787,6 +809,7 @@
           
           let isApproved = card.approved === true;
           let pendingClass = isApproved ? '' : ' pending';
+          let modeLabel = card.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale';
           
           let html = `<div class="card-digital${pendingClass}">`;
           if(!isApproved) {
@@ -795,7 +818,12 @@
 
           html += `
             <div class="card-header-info">
-              <div><strong>${card.name}</strong> <span style="font-size:0.8rem; color:var(--gold);">(${card.mode === 'auto' ? 'Automatica' : 'Manuale'})</span></div>
+              <div>
+                <strong>${card.name}</strong> 
+                <button class="mode-switch-btn" onclick="toggleCardMode('${key}', '${card.mode}')" title="Clicca per cambiare modalità">
+                  ${modeLabel} ⚙️
+                </button>
+              </div>
               ${isApproved ? `<button class="btn btn-sm" style="background:#38bdf8; color:#000; padding:4px 8px; font-size:0.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>` : ''}
             </div>
             <div class="tombola-classic-grid">`;
