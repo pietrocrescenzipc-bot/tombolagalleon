@@ -239,12 +239,17 @@
     .photo-preview { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--gold); object-fit: cover; margin: 10px auto; display: block; background: #0a0e17; }
     .card-digital { background: #1c283a; border: 2px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 25px; position: relative; }
     .card-digital.pending { border-color: #f39c12; opacity: 0.85; }
-    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; }
+    .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; }
     
-    /* AVVISO MODALITÀ MANUALE VISIBILE */
+    /* BANNER PREMIO ATTUALE NELLA CARTELLA */
+    .card-stage-banner {
+      background: rgba(243, 156, 18, 0.18); border: 1px solid var(--gold); color: var(--gold-light);
+      font-size: 0.82rem; font-weight: 900; text-align: center; padding: 5px; border-radius: 6px; margin-bottom: 8px; text-transform: uppercase;
+    }
+
     .manual-hint-banner {
-      background: rgba(243, 156, 18, 0.2); border: 1.5px dashed var(--gold); color: var(--gold-light);
-      font-size: 0.82rem; font-weight: 800; text-align: center; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px;
+      background: rgba(243, 156, 18, 0.12); border: 1.5px dashed var(--gold); color: var(--gold-light);
+      font-size: 0.78rem; font-weight: 800; text-align: center; padding: 6px; border-radius: 6px; margin-bottom: 8px;
     }
 
     .tombola-classic-grid { display: grid !important; grid-template-columns: repeat(9, 1fr) !important; gap: 3px; background: #0a0e17; padding: 6px; border-radius: 8px; border: 1px solid #2c3e59; }
@@ -296,9 +301,9 @@
   <audio id="audio-bg" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b16c87e8.mp3?filename=happy-festive-upbeat-10903.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
 
-  <header>
+  <header id="main-header">
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
-    <div class="nav-tabs">
+    <div class="nav-tabs" id="header-nav-tabs">
       <button class="tab-btn" onclick="toggleAudio()" id="btn-audio" style="background: #222e42; color: var(--gold-light); border-color: var(--gold);">🔇 Musica: OFF</button>
       <button class="tab-btn active" onclick="switchView('tabellone')" id="btn-tabellone">Maxischermo</button>
       <button class="tab-btn" onclick="switchView('regia')" id="btn-regia">Regia</button>
@@ -385,6 +390,10 @@
   </div>
 
   <div id="view-giocatore" class="view-section">
+    <div style="text-align: right; padding: 6px 15px 0 0;">
+      <button class="btn btn-sm" style="background: #38bdf8; color: #000; font-weight: bold;" onclick="switchView('tabellone')">📺 Mostra Maxischermo</button>
+    </div>
+    
     <div id="player-form-container" class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
@@ -496,6 +505,7 @@
     let allGlobalCardsCache = null;
     let activeFullscreenKey = null;
 
+    /* GALLERIA CARTOON AMPIA E VARIABILE (URL Wikimedia SVG/PNG diretti) */
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
       "https://upload.wikimedia.org/wikipedia/en/e/ec/Lisa_Simpson.png",
@@ -511,7 +521,12 @@
       "https://upload.wikimedia.org/wikipedia/en/8/8f/Squidward_Tentacles.svg",
       "https://upload.wikimedia.org/wikipedia/en/9/9c/Donald_Duck.svg",
       "https://upload.wikimedia.org/wikipedia/en/7/7b/Goofy.svg",
-      "https://upload.wikimedia.org/wikipedia/en/4/4b/Tweety.svg"
+      "https://upload.wikimedia.org/wikipedia/en/4/4b/Tweety.svg",
+      "https://upload.wikimedia.org/wikipedia/en/5/53/Stewie_Griffin.png",
+      "https://upload.wikimedia.org/wikipedia/en/0/0d/Garfield.jpg",
+      "https://upload.wikimedia.org/wikipedia/en/b/b5/Popeye_the_Sailor.png",
+      "https://upload.wikimedia.org/wikipedia/en/2/22/Charlie_Brown.png",
+      "https://upload.wikimedia.org/wikipedia/en/d/de/Pikachu_artwork_%28Pokémon%29.png"
     ];
 
     function getRandomCartoonUrl() {
@@ -582,7 +597,8 @@
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('view-' + viewId).classList.add('active');
-      document.getElementById('btn-' + viewId).classList.add('active');
+      const tabBtn = document.getElementById('btn-' + viewId);
+      if(tabBtn) tabBtn.classList.add('active');
       window.scrollTo(0, 0);
     }
 
@@ -680,6 +696,7 @@
           boardBanner.innerHTML = `🎯 <span style="color: #fff;">PARTITA CONCLUSA IN TUTTI I PREMI!</span>`;
         }
       }
+      renderMyCards();
     }
 
     function checkRegiaAuth() {
@@ -855,6 +872,10 @@
         container.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">Non hai ancora generato alcuna cartella.</div>';
         return;
       }
+      
+      const currentStageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO';
+      const currentPrizeDesc = prizesConfig[currentStageName] || '';
+
       localMyCardsKeys.forEach(key => {
         db.ref('cards/' + key).once('value', snapshot => {
           const card = snapshot.val();
@@ -870,6 +891,7 @@
           }
 
           html += `
+            <div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div>
             <div class="card-header-info">
               <div>
                 <strong>${card.name}</strong> 
@@ -923,10 +945,13 @@
         const card = snapshot.val();
         if(!card || !card.approved) return;
         let modeLabel = card.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale';
+        const currentStageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO';
+        const currentPrizeDesc = prizesConfig[currentStageName] || '';
+
         document.getElementById('fs-card-title').innerHTML = `Cartella di ${card.name} <button class="mode-switch-btn" onclick="toggleCardMode('${cardKey}', '${card.mode}')">${modeLabel} ⚙️</button>`;
         const container = document.getElementById('fs-card-grid-container');
         
-        let html = '';
+        let html = `<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div>`;
         if(card.mode === 'manual') {
           html += `<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
         }
@@ -1195,8 +1220,18 @@
       const baseUrl = window.location.origin + window.location.pathname;
       const playerUrl = baseUrl + "#giocatore";
 
+      // SE L'UTENTE ENTRA CON IL QR CODE DEL TAVOLO (#giocatore), NASCONDIAMO DALLA BARRA SUPERIORE 
+      // LA REGIA E IL PASS QR, LASCIANDO SOLO IL MAXISCHERMO E LE CARTELLE DEL GIOCATORE
       if (window.location.hash === "#giocatore") {
+        document.getElementById('btn-regia').style.display = 'none';
+        document.getElementById('btn-stampa').style.display = 'none';
         switchView('giocatore');
+      } else {
+        if (window.location.hash === "#regia") {
+          switchView('regia');
+        } else {
+          switchView('tabellone');
+        }
       }
 
       new QRCode(document.getElementById("qrcode-global"), {
