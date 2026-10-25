@@ -241,7 +241,6 @@
     .card-digital.pending { border-color: #f39c12; opacity: 0.85; }
     .card-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #2a3b54; padding-bottom: 6px; }
     
-    /* BANNER PREMIO ATTUALE NELLA CARTELLA */
     .card-stage-banner {
       background: rgba(243, 156, 18, 0.18); border: 1px solid var(--gold); color: var(--gold-light);
       font-size: 0.82rem; font-weight: 900; text-align: center; padding: 5px; border-radius: 6px; margin-bottom: 8px; text-transform: uppercase;
@@ -505,7 +504,6 @@
     let allGlobalCardsCache = null;
     let activeFullscreenKey = null;
 
-    /* GALLERIA CARTOON AMPIA E VARIABILE (URL Wikimedia SVG/PNG diretti) */
     const famousCartoonsGallery = [
       "https://upload.wikimedia.org/wikipedia/en/3/3b/SpongeBob_SquarePants_character.svg",
       "https://upload.wikimedia.org/wikipedia/en/e/ec/Lisa_Simpson.png",
@@ -573,10 +571,22 @@
       }
     }
 
-    function resumeBgMusic() {
+    function stopAllAudioCompletely() {
       const bgAudio = document.getElementById('audio-bg');
       const winAudio = document.getElementById('audio-win');
-      if (winAudio) winAudio.pause();
+      if (bgAudio) {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
+      }
+      if (winAudio) {
+        winAudio.pause();
+        winAudio.currentTime = 0;
+      }
+    }
+
+    function resumeBgMusic() {
+      stopAllAudioCompletely();
+      const bgAudio = document.getElementById('audio-bg');
       if (bgAudio && isMusicPlaying) {
         bgAudio.volume = 0.35;
         bgAudio.play().catch(e => console.log("Ripresa musica"));
@@ -1027,6 +1037,8 @@
     }
 
     function confirmAndCloseWinnerModal() {
+      stopAllAudioCompletely();
+
       if(activeWinnerObj) {
         confirmedWinnersObjects.push(activeWinnerObj);
         db.ref('allWinnersList').set(confirmedWinnersObjects);
@@ -1047,6 +1059,7 @@
 
     function resetGame() {
       if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")) {
+        stopAllAudioCompletely();
         db.ref().set({
           gameState: { currentStageIndex: 0, drawnNumbers: [], lastDrawn: 0 },
           currentWinner: null,
@@ -1142,7 +1155,7 @@
       } else {
         modal.style.display = 'none';
         if(regiaAlert) regiaAlert.style.display = 'none';
-        resumeBgMusic();
+        stopAllAudioCompletely();
       }
     });
 
@@ -1220,8 +1233,6 @@
       const baseUrl = window.location.origin + window.location.pathname;
       const playerUrl = baseUrl + "#giocatore";
 
-      // SE L'UTENTE ENTRA CON IL QR CODE DEL TAVOLO (#giocatore), NASCONDIAMO DALLA BARRA SUPERIORE 
-      // LA REGIA E IL PASS QR, LASCIANDO SOLO IL MAXISCHERMO E LE CARTELLE DEL GIOCATORE
       if (window.location.hash === "#giocatore") {
         document.getElementById('btn-regia').style.display = 'none';
         document.getElementById('btn-stampa').style.display = 'none';
