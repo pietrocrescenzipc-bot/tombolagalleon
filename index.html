@@ -613,7 +613,6 @@
       const tabBtn = document.getElementById('btn-' + viewId);
       if(tabBtn) tabBtn.classList.add('active');
       
-      // Se siamo sul tabellone e l'utente arriva dal QR code giocatore, mostra il pulsante per tornare indietro
       const backBtn = document.getElementById('btn-back-to-cards');
       if (backBtn) {
         if (viewId === 'tabellone' && window.location.hash === "#giocatore") {
@@ -1228,7 +1227,7 @@
       }
     });
 
-    db.ref('prizesConfig').on('value', snapshot =>5 {
+    db.ref('prizesConfig').on('value', snapshot => {
       const pCfg = snapshot.val();
       if(pCfg) {
         prizesConfig = pCfg;
@@ -1250,7 +1249,7 @@
       if (window.location.hash === "#giocatore") {
         document.getElementById('btn-regia').style.display = 'none';
         document.getElementById('btn-stampa').style.display = 'none';
-        document.getElementById('btn-tabellone').style.display = 'none'; // Nasconde il tabellone dalla barra standard se preferisci pulizia totale
+        document.getElementById('btn-tabellone').style.display = 'none';
         switchView('giocatore');
       } else {
         if (window.location.hash === "#regia") {
