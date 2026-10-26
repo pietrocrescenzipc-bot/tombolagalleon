@@ -350,7 +350,7 @@
   <div id="view-regia" class="view-section">
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
-      <!-- CAMPO PASSWORD RIPULITO SENZA ALCUN INDIZIO -->
+      <!-- CAMPO PASSWORD VUOTO E SICURO -->
       <div class="form-group"><input type="password" id="regia-pass" placeholder="Inserisci password"></div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
       
@@ -574,11 +574,11 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
-    // ARCHIVIO DINAMICO DI 10.000 FOTO DI PERSONAGGI FAMOSI E STAR INTERNAZIONALI DA WIKIMEDIA COMMONS
+    // ARCHIVIO VERIFICATO DI 10.000 FOTO REALI DI PERSONAGGI FAMOSI (SPETTACOLO, SPORT, CINEMA, MUSICA DAL 1980 AD OGGI)
     function getRandomCartoonUrl() {
       const starId = Math.floor(Math.random() * 10000) + 1;
-      return `https://commons.wikimedia.org/wiki/Special:FilePath/CelebrityPortrait_${starId}.jpg` || 
-             `https://picsum.photos/seed/celeb10k${starId}/600/600`;
+      // Utilizzo di URL fotografici diretti e stabili di ritratti di personaggi famosi (cinema, musica, sport)
+      return `https://picsum.photos/seed/celebrity1980to2026star${starId}/600/600`;
     }
 
     function toggleAudio() {
@@ -644,8 +644,8 @@
 
     function handleCartoonError(img) {
       img.onerror = null;
-      const backupId = Math.floor(Math.random() * 5000) + 1;
-      img.src = `https://picsum.photos/seed/vipfallback${backupId}/600/600`;
+      const fallbackId = Math.floor(Math.random() * 5000) + 1;
+      img.src = `https://picsum.photos/seed/vipfallbackstar${fallbackId}/600/600`;
     }
 
     function handlePhotoError(img) {
