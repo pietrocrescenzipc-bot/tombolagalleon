@@ -24,7 +24,7 @@
 </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tombola Evento - PMU & The Galleon - 2000 VIP No Repeat</title>
+  <title>Tombola Evento - PMU & The Galleon</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/canvas-confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -49,7 +49,7 @@
     .tab-btn.active { background: var(--gold); color: #000; border-color: var(--gold-light); }
     .view-section { display: none; width: 100vw; min-height: calc(100vh - 55px); padding: 4px; }
     .view-section.active { display: flex; flex-direction: column; }
-    #view-tabellone { background: linear-gradient(180deg, #1d3e9e 0%, #173280 40%, #0d1e52 100%); justify-content: space-between; align-items: center; height: calc(100vh - 55px); overflow: hidden; }
+    #view-tabellone { background: linear-gradient(180deg, #1d3e9e 0%, #173280 40%, #0d1e52 100%); justify-content: space-between; align-items: center; transform: none !important; perspective: none !important; height: calc(100vh - 55px); overflow: hidden; }
     :fullscreen header { display: none !important; }
     :fullscreen #view-tabellone { height: 100vh !important; }
     .top-banner { background: #0d1628; padding: 4px 12px; border-radius: 6px; border: 2px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; height: 42px; width: 100%; flex-shrink: 0; margin-bottom: 2px; }
@@ -58,7 +58,7 @@
     .last-drawn-label { font-size: 0.75rem; font-weight: 900; color: var(--gold-light); text-transform: uppercase; }
     .last-drawn-number-badge { width: 26px; height: 26px; border-radius: 50%; background: var(--oval-3d-orange); border: 2px solid #fff; color: #fff; font-weight: 900; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; text-shadow: 0 1px 2px rgba(0,0,0,0.8); box-shadow: 0 0 10px rgba(255, 128, 0, 0.8); }
     .fullscreen-btn { background: var(--gold); color: #000; border: none; padding: 4px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
-    .grid-90 { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(9, 1fr); gap: 3px 4px; background: rgba(8, 15, 30, 0.4); padding: 6px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.25); flex-grow: 1; width: 100%; height: 100%; min-height: 0; align-items: stretch; justify-items: stretch; }
+    .grid-90 { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(9, 1fr); gap: 3px 4px; background: rgba(8, 15, 30, 0.4); padding: 6px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.25); flex-grow: 1; width: 100%; height: 100%; min-height: 0; align-items: stretch; justify-items: stretch; transform: none !important; box-shadow: none !important; }
     .grid-cell { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; padding: 0; }
     .lotto-ball { width: 100%; height: 100%; border-radius: 50px; background: var(--oval-3d-blue); border: 2.5px solid #7293c7; outline: 1px solid #000; color: #ffffff; font-weight: 900; font-size: clamp(1.3rem, 4.8vh, 3.2rem); text-shadow: 0 3px 6px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; user-select: none; margin: auto; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.5), 0 3px 6px rgba(0,0,0,0.6); transition: all 0.2s ease-in-out; }
     .lotto-ball.drawn { background: var(--oval-3d-orange); border: 2.5px solid #ffffff; outline: 2.5px solid var(--gold); color: #ffffff; text-shadow: 0 3px 8px rgba(0,0,0,0.95), 0 0 15px rgba(255,255,255,0.6); box-shadow: 0 0 25px rgba(255, 128, 0, 0.95), inset -4px -4px 8px rgba(0,0,0,0.8), inset 3px 3px 6px rgba(255,255,255,0.9); }
@@ -131,14 +131,11 @@
     .regia-alert-box { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; padding: 20px; border-radius: 12px; border: 3px solid var(--gold); font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
     .approval-card-item { padding: 12px; border-bottom: 1px solid #2a3b54; display: flex; justify-content: space-between; align-items: center; background: rgba(22, 34, 52, 0.9); margin-bottom: 8px; border-radius: 8px; border: 1px solid #3a4b68; }
     .approval-card-item.pending { background: rgba(243, 156, 18, 0.12); border-color: var(--gold); }
-    .vip-counter-badge { background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; }
   </style>
 </head>
 <body>
-
   <audio id="audio-bg" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b16c87e8.mp3?filename=happy-festive-upbeat-10903.mp3" loop preload="auto"></audio>
   <audio id="audio-win" src="vincita.mp3" preload="auto"></audio>
-
   <header id="main-header">
     <div class="brand-title" id="brand-header-title">PMU & The Galleon</div>
     <div class="nav-tabs" id="header-nav-tabs">
@@ -149,13 +146,11 @@
       <button class="tab-btn" onclick="switchView('stampa')" id="btn-stampa">Pass QR</button>
     </div>
   </header>
-
   <div id="view-tabellone" class="view-section active">
     <div class="top-banner">
       <div class="banner-text" id="banner-main-title">Pallavolo Media Umbra & The Galleon Pizzeria</div>
       <div style="display: flex; gap: 8px; align-items: center;">
         <div class="last-drawn-widget"><span class="last-drawn-label">Ultimo:</span><div class="last-drawn-number-badge" id="banner-last-drawn-val">--</div></div>
-        <div class="vip-counter-badge" id="vip-counter-badge">VIP POOL: 2000</div>
         <button class="fullscreen-btn" id="btn-back-to-cards" style="display: none; background: #38bdf8; color: #000;" onclick="switchView('giocatore')">🎯 Le mie Cartelle</button>
         <button class="fullscreen-btn" onclick="toggleFullscreen()">FULLSCREEN</button>
       </div>
@@ -163,122 +158,52 @@
     <div class="grid-90" id="board-grid"></div>
     <div class="current-prize-banner-box"><div class="current-prize-text" id="board-current-prize-display">🎯 SI GIOCA PER: <span style="color: #fff;">AMBO</span> — PREMIO: <span style="color: var(--gold-light);">Buono Caffè</span></div></div>
   </div>
-
   <div id="view-regia" class="view-section">
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
       <div class="form-group"><input type="password" id="regia-pass" placeholder="Inserisci password"></div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
-      <div style="margin-top: 15px; border-top: 1px solid #2a3b54; padding-top: 12px;">
-        <a href="#" onclick="openRecoveryModal()" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: underline;">🔑 Password dimenticata? Richiedi via WhatsApp o Mail</a>
-      </div>
+      <div style="margin-top: 15px; border-top: 1px solid #2a3b54; padding-top: 12px;"><a href="#" onclick="openRecoveryModal()" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: underline;">🔑 Password dimenticata? Richiedi via WhatsApp o Mail</a></div>
     </div>
     <div id="regia-content" style="display: none;">
-      <div class="current-stage-badge">🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span> <span class="vip-counter-badge" id="vip-counter-regia">POOL VIP: 0/2000 usate</span></div>
-      <div id="regia-win-alert" class="regia-alert-box">
-        <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2>
-        <p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p>
-        <button class="btn btn-sm btn-success" style="padding: 12px 20px; font-size: 1.05rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button>
-      </div>
-      <div class="panel-card" style="margin-bottom: 20px;">
-        <h3 class="panel-title">👥 Organizzatori e Collaboratori</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-          <div class="form-group"><label>Titolo Testata / Brand</label><input type="text" id="cfg-brand" value="PMU & The Galleon"></div>
-          <div class="form-group"><label>Titolo Banner Maxischermo</label><input type="text" id="cfg-banner" value="Pallavolo Media Umbra & The Galleon Pizzeria"></div>
-        </div>
-        <button class="btn btn-sm btn-success" onclick="saveOrganizersConfig()">Salva Nomi Organizzatori</button>
-      </div>
-      <div class="panel-card" style="margin-bottom: 20px;">
-        <h3 class="panel-title">🎁 Personalizzazione Premi in Palio</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-          <div class="form-group"><label>Premio AMBO</label><input type="text" id="prize-ambo" value="Buono Caffè"></div>
-          <div class="form-group"><label>Premio TERNO</label><input type="text" id="prize-terno" value="Birra Media"></div>
-          <div class="form-group"><label>Premio QUATERNA</label><input type="text" id="prize-quaterna" value="Pizza Omaggio"></div>
-          <div class="form-group"><label>Premio CINQUINA</label><input type="text" id="prize-cinquina" value="Menu Cena per 2"></div>
-          <div class="form-group"><label>Premio TOMBOLA</label><input type="text" id="prize-tombola" value="Super Premio Finale"></div>
-          <div class="form-group"><label>Premio TOMBOLINO</label><input type="text" id="prize-tombolino" value="Cesto Natalizio / Speciale"></div>
-        </div>
-        <button class="btn btn-sm btn-success" onclick="savePrizesConfig()">Salva Configurazione Premi</button>
-      </div>
-      <div class="regia-grid">
-        <div class="panel-card">
-          <h3 class="panel-title">Controllo Estrazione</h3>
-          <div style="margin-bottom: 25px;"><button class="btn btn-success" style="padding: 16px; font-size: 1.2rem; width: 100%;" onclick="drawNumber()">🎲 ESTRAI NUMERO</button></div>
-          <h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4>
-          <button class="btn btn-sm" style="background:#222e42; color:#fff; border:1px solid #3a4b68; width: 100%; padding: 12px; margin-bottom: 25px;" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button>
-          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c; margin-top: 40px;">
-            <div style="font-size: 0.85rem; color: #e74c3c; font-weight: bold; margin-bottom: 8px;">⚠️ ZONA PERICOLOSA (NUOVA PARTITA)</div>
-            <button class="btn btn-danger" style="background: #900C3F;" onclick="resetGame()">🔄 Azzera e Inizia Nuova Partita</button>
-          </div>
-        </div>
-        <div class="panel-card">
-          <h3 class="panel-title">Partecipanti e Approvazioni <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3>
-          <div id="regia-cards-list" style="max-height: 450px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div>
-        </div>
-      </div>
+      <div class="current-stage-badge">🎯 PREMIO ATTUALMENTE IN PALIO: <span id="current-stage-display" style="color: var(--gold); font-size: 1.3rem;">AMBO</span></div>
+      <div id="regia-win-alert" class="regia-alert-box"><h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">🎉 ATTENZIONE REGIA: NUOVA VINCITA IN SALA! 🎉</h2><p id="regia-win-alert-text" style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 12px;"></p><button class="btn btn-sm btn-success" style="padding: 12px 20px; font-size: 1.05rem;" onclick="confirmAndCloseWinnerModal()">✓ Convalida Vincita e Passa al Premio Successivo</button></div>
+      <div class="panel-card" style="margin-bottom: 20px;"><h3 class="panel-title">👥 Organizzatori e Collaboratori</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;"><div class="form-group"><label>Titolo Testata / Brand</label><input type="text" id="cfg-brand" value="PMU & The Galleon"></div><div class="form-group"><label>Titolo Banner Maxischermo</label><input type="text" id="cfg-banner" value="Pallavolo Media Umbra & The Galleon Pizzeria"></div></div><button class="btn btn-sm btn-success" onclick="saveOrganizersConfig()">Salva Nomi Organizzatori</button></div>
+      <div class="panel-card" style="margin-bottom: 20px;"><h3 class="panel-title">🎁 Personalizzazione Premi in Palio</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;"><div class="form-group"><label>Premio AMBO</label><input type="text" id="prize-ambo" value="Buono Caffè"></div><div class="form-group"><label>Premio TERNO</label><input type="text" id="prize-terno" value="Birra Media"></div><div class="form-group"><label>Premio QUATERNA</label><input type="text" id="prize-quaterna" value="Pizza Omaggio"></div><div class="form-group"><label>Premio CINQUINA</label><input type="text" id="prize-cinquina" value="Menu Cena per 2"></div><div class="form-group"><label>Premio TOMBOLA</label><input type="text" id="prize-tombola" value="Super Premio Finale"></div><div class="form-group"><label>Premio TOMBOLINO</label><input type="text" id="prize-tombolino" value="Cesto Natalizio / Speciale"></div></div><button class="btn btn-sm btn-success" onclick="savePrizesConfig()">Salva Configurazione Premi</button></div>
+      <div class="regia-grid"><div class="panel-card"><h3 class="panel-title">Controllo Estrazione</h3><div style="margin-bottom: 25px;"><button class="btn btn-success" style="padding: 16px; font-size: 1.2rem; width: 100%;" onclick="drawNumber()">🎲 ESTRAI NUMERO</button></div><h4 style="color: var(--gold); margin-bottom: 10px;">Verifica Manuale Vincite</h4><button class="btn btn-sm" style="background:#222e42; color:#fff; border:1px solid #3a4b68; width: 100%; padding: 12px; margin-bottom: 25px;" onclick="checkAutomaticWins()">🔍 Scansiona e Verifica Vincite</button><div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #e74c3c; margin-top: 40px;"><div style="font-size: 0.85rem; color: #e74c3c; font-weight: bold; margin-bottom: 8px;">⚠️ ZONA PERICOLOSA (NUOVA PARTITA)</div><button class="btn btn-danger" style="background: #900C3F;" onclick="resetGame()">🔄 Azzera e Inizia Nuova Partita</button></div></div><div class="panel-card"><h3 class="panel-title">Partecipanti e Approvazioni <span id="participants-count" style="color: var(--gold); font-size: 1.1rem;">(Totale: 0)</span></h3><div id="regia-cards-list" style="max-height: 450px; overflow-y: auto;"><i>Nessun partecipante registrato.</i></div></div></div>
     </div>
   </div>
-
   <div id="view-giocatore" class="view-section">
     <div style="text-align: right; padding: 8px 15px 0 0;"><button class="btn btn-sm" style="background: #38bdf8; color: #000; font-weight: bold; padding: 8px 16px; font-size: 0.95rem; box-shadow: 0 3px 10px rgba(0,0,0,0.3);" onclick="switchView('tabellone')">📺 Vedi Maxischermo Tabellone</button></div>
     <div id="player-form-container" class="player-header">
       <h3 style="color: var(--gold); margin-bottom: 10px; font-size: 1.3rem;">Crea le tue Cartelle</h3>
       <img id="player-photo-preview" src="https://via.placeholder.com/100/162232/ffffff?text=Selfie" class="photo-preview" alt="Foto Profilo">
-      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;">
-        <label for="camera-input" class="btn btn-sm" style="background: #e74c3c; color: #fff; cursor: pointer;">📸 Scatta Selfie</label>
-        <input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)">
-        <label for="gallery-input" class="btn btn-sm" style="background: #3498db; color: #fff; cursor: pointer;">📁 Scegli da Galleria</label>
-        <input type="file" id="gallery-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
-      </div>
+      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;"><label for="camera-input" class="btn btn-sm" style="background: #e74c3c; color: #fff; cursor: pointer;">📸 Scatta Selfie</label><input type="file" id="camera-input" accept="image/*" capture="user" style="display: none;" onchange="handlePhotoUpload(event)"><label for="gallery-input" class="btn btn-sm" style="background: #3498db; color: #fff; cursor: pointer;">📁 Scegli da Galleria</label><input type="file" id="gallery-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)"></div>
       <div class="form-group" style="max-width: 320px; margin: 0 auto 12px auto;"><input type="text" id="player-name" placeholder="Inserisci Nome e Cognome"></div>
-      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;">
-        <label style="color: var(--gold); font-weight: bold;">Modalità Iniziale di Marcatura:</label>
-        <select id="play-mode" style="margin-top: 4px;"><option value="auto">🤖 Automatica (Segna il sistema)</option><option value="manual">✍️ Manuale (Segno io con un tocco)</option></select>
-      </div>
-      <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella (con VIP unico)</button>
-      <div style="margin-top: 10px; font-size: 0.8rem; color: #38bdf8;">🎬 Ad ogni cartella verrà abbinato un VIP diverso su 2000 disponibili, senza ripetizioni</div>
+      <div class="form-group" style="max-width: 320px; margin: 0 auto 15px auto; text-align: left;"><label style="color: var(--gold); font-weight: bold;">Modalità Iniziale di Marcatura:</label><select id="play-mode" style="margin-top: 4px;"><option value="auto">🤖 Automatica (Segna il sistema)</option><option value="manual">✍️ Manuale (Segno io con un tocco)</option></select></div>
+      <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
       <div style="margin-top: 15px;"><a href="#" onclick="openRecoveryModal()" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: underline;">🔑 Assistenza / Recupero Credenziali</a></div>
     </div>
     <div id="add-more-container" style="text-align: center; margin-bottom: 20px; display: none;"><button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button></div>
     <div id="player-cards-list"></div>
   </div>
-
-  <div id="view-stampa" class="view-section" style="text-align: center;">
-    <div class="panel-card" style="display: inline-block;"><h3 class="panel-title">QR Code Tavolo Cliente</h3><p style="margin-bottom: 15px; color: #ccc;">Scansiona questo QR Code per generare le tue cartelle.</p><div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div></div>
-  </div>
-
-  <div id="recovery-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.95); z-index: 10001; display: none; justify-content: center; align-items: center; padding: 15px;">
-    <div class="panel-card" style="max-width: 420px; width: 100%; text-align: center; border: 3px solid var(--gold);">
-      <h3 class="panel-title" style="font-size: 1.3rem;">🔑 Recupero o Assistenza</h3>
-      <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Scegli come desideri contattare l'amministratore o recuperare i dati della serata:</p>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <button class="btn" style="background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaWhatsApp()">💬 Invia messaggio WhatsApp</button>
-        <button class="btn" style="background: #3498db; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaEmail()">✉️ Invia richiesta via Email</button>
-      </div>
-      <button class="btn btn-danger" style="margin-top: 25px; padding: 10px;" onclick="closeRecoveryModal()">Chiudi</button>
-    </div>
-  </div>
-
+  <div id="view-stampa" class="view-section" style="text-align: center;"><div class="panel-card" style="display: inline-block;"><h3 class="panel-title">QR Code Tavolo Cliente</h3><p style="margin-bottom: 15px; color: #ccc;">Scansiona questo QR Code per generare le tue cartelle.</p><div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div></div></div>
+  <div id="recovery-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.95); z-index: 10001; display: none; justify-content: center; align-items: center; padding: 15px;"><div class="panel-card" style="max-width: 420px; width: 100%; text-align: center; border: 3px solid var(--gold);"><h3 class="panel-title" style="font-size: 1.3rem;">🔑 Recupero o Assistenza</h3><p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Scegli come desideri contattare l'amministratore o recuperare i dati della serata:</p><div style="display: flex; flex-direction: column; gap: 12px;"><button class="btn" style="background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaWhatsApp()">💬 Invia messaggio WhatsApp</button><button class="btn" style="background: #3498db; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaEmail()">✉️ Invia richiesta via Email</button></div><button class="btn btn-danger" style="margin-top: 25px; padding: 10px;" onclick="closeRecoveryModal()">Chiudi</button></div></div>
   <div id="fullscreen-card-overlay"><div class="fullscreen-card-box"><h3 id="fs-card-title" style="color: var(--gold); font-size: 1.2rem;">--</h3><div id="fs-card-grid-container"></div><button class="btn btn-danger" style="padding: 10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button></div></div>
   <div id="extraction-overlay"><div class="giant-ball-container"><div id="overlay-ball" class="giant-ball-10lotto">--</div></div><div id="overlay-smorfia" class="smorfia-sticker">--</div></div>
   <div id="winner-modal"><div class="winner-box"><div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div><div id="winners-container" class="winners-flex-row"></div><button class="btn btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button></div></div>
   <div id="game-over-overlay"><div class="game-over-title">GAME OVER!</div><div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div><div id="final-winners-container" class="final-winners-grid"></div><p style="color: var(--gold-light); font-size: 1.1rem; margin-top: 10px;">⏳ Preparazione prossima partita...</p></div>
   <div id="next-game-overlay"><div class="rejoin-callout-box">⏳ LA PROSSIMA PARTITA INIZIERÀ TRA POCHISSIMO!<br/><span style="font-size: 0.6em; color: #fff;">SCANSIONA IL QR CODE QUI SOTTO E GENERA LE TUE CARTELLE:</span></div><div class="qr-container-nextgame"><div id="qrcode-nextgame"></div></div><button class="btn btn-sm btn-danger" style="width: 90vw; max-width: 420px; padding: 18px; font-size: 1.2rem; background: #900C3F; border-radius: 12px; margin-top: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); flex-shrink: 0;" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button></div>
-
   <script>
     const firebaseConfig = { databaseURL: "https://tombola-galleon-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const smorfia = { 1: "L'Italia", 2: "'A piccerella", 3: "'A gatta", 4: "'O fierno", 5: "'A mano", 6: "Chella ca guarda 'n terra", 7: "Rifutt' e miez'", 8: "E' Sposaliz'", 9: "Figlio 'e nnove mese", 10: "'A fasula", 11: "E' surice", 12: "'E surdate", 13: "Sant'Antoni'", 14: "E' buco 'e culo", 15: "Il ragazzo", 16: "'O culo", 17: "'A disgrazia", 18: "'O sang", 19: "E' risate", 20: "La festa", 21: "La donna nuda", 22: "'O pazzo", 23: "'O scemo", 24: "Le guardie", 25: "Natale", 26: "Ninetta", 27: "Il vaso", 28: "I zizie", 29: "Il padre dei bimbi", 30: "Le palle del tenente", 31: "Il padrone di casa", 32: "Il capitone", 33: "L'anni 'e Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le castagnette", 37: "Il monaco", 38: "Le mazzate", 39: "La corda al collo", 40: "Il secchio", 41: "Il coltello", 42: "Il caffè", 43: "La donna di balcone", 44: "Le prigioni", 45: "Il vino buono", 46: "I denari", 47: "Il morto", 48: "'O morte che parla", 49: "La carne", 50: "Il pane", 51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento", 61: "Il cacciatore", 62: "Il morto acciso", 63: "La sposa", 64: "La marsina", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa cotta", 69: "Sott'e 'ncoppa", 70: "Il palazzo", 71: "L'uomo di merda", 72: "La meraviglia", 73: "L'ospedale", 74: "La grotta", 75: "Pullecenella", 76: "La fontana", 77: "'E diavule", 78: "La bella figliola", 79: "Il ladro", 80: "La bocca", 81: "I fior", 82: "La tavola imbandita", 83: "Il maltempo", 84: "La chiesa", 85: "Le anime del purgatorio", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "'A paura" };
     const PRIZE_STAGES = ['AMBO', 'TERNO', 'QUATERNA', 'CINQUINA', 'TOMBOLA', 'TOMBOLINO'];
 
-    // === NUOVO SISTEMA VIP 2000 FOTO SENZA RIPETIZIONE ===
+    // === SISTEMA VIP NASCOSTO: 2000 FOTO IN CIRCOLO SENZA RIPETIZIONE ===
     const VIP_POOL_SIZE = 2000;
-    // Archivio misto 1980-2026 con seed unici che non si ripetono mai fino a 2000
     function getVipUrlByIndex(idx) {
-      // Usiamo 2000 seed diversi, ognuno genera sempre la stessa foto (no ripetizione)
-      // idx va da 0 a 1999
       const safeIdx = idx % VIP_POOL_SIZE;
       return `https://picsum.photos/seed/vip_celebrity_1980_2026_pool_${safeIdx}/600/600`;
     }
@@ -294,173 +219,50 @@
     let isMusicPlaying = false;
     let allGlobalCardsCache = null;
     let activeFullscreenKey = null;
-    let globalVipCounter = 0; // contatore globale sincronizzato da Firebase
-
-    // Sincronizza contatore VIP da Firebase
-    db.ref('vipCounter').on('value', snap => {
-      globalVipCounter = snap.val() || 0;
-      updateVipCounterUI();
-    });
-
-    function updateVipCounterUI() {
-      const badge = document.getElementById('vip-counter-badge');
-      const badgeRegia = document.getElementById('vip-counter-regia');
-      if(badge) badge.innerText = `VIP POOL: ${globalVipCounter % VIP_POOL_SIZE}/${VIP_POOL_SIZE} usate`;
-      if(badgeRegia) badgeRegia.innerText = `POOL VIP: ${globalVipCounter % VIP_POOL_SIZE}/${VIP_POOL_SIZE} usate — in circolo senza ripetizione`;
-    }
 
     function openRecoveryModal() { document.getElementById('recovery-modal').style.display = 'flex'; }
     function closeRecoveryModal() { document.getElementById('recovery-modal').style.display = 'none'; }
-    function recoverViaWhatsApp() {
-      const phoneNumber = "393391318613"; 
-      const text = encodeURIComponent("Ciao! Ho richiesto il recupero delle credenziali per la Tombola PMU & The Galleon. La password della regia è: 27");
-      window.open(`https://wa.me/${phoneNumber}?text=${text}`, '_blank');
-    }
-    function recoverViaEmail() {
-      const email = "supporto@pmu-galleon.it"; 
-      const subject = encodeURIComponent("Recupero Password / Assistenza Tombola");
-      const body = encodeURIComponent("Salve, richiedo assistenza o il recupero delle credenziali per la Tombola PMU & The Galleon. Password regia: 27");
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    }
+    function recoverViaWhatsApp() { const phoneNumber = "393391318613"; const text = encodeURIComponent("Ciao! Ho richiesto il recupero delle credenziali per la Tombola PMU & The Galleon. La password della regia è: 27"); window.open(`https://wa.me/${phoneNumber}?text=${text}`, '_blank'); }
+    function recoverViaEmail() { const email = "supporto@pmu-galleon.it"; const subject = encodeURIComponent("Recupero Password / Assistenza Tombola"); const body = encodeURIComponent("Salve, richiedo assistenza o il recupero delle credenziali per la Tombola PMU & The Galleon. Password regia: 27"); window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; }
 
     function toggleAudio() {
-      const bgAudio = document.getElementById('audio-bg');
-      const winAudio = document.getElementById('audio-win');
-      const btn = document.getElementById('btn-audio');
-      if (!isMusicPlaying) {
-        winAudio.pause(); bgAudio.volume = 0.35;
-        let playPromise = bgAudio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            isMusicPlaying = true;
-            btn.innerText = "🔊 Musica: ON"; btn.style.background = "var(--gold)"; btn.style.color = "#000";
-          }).catch(e => { alert("Fai un click sulla pagina prima di attivare l'audio."); });
-        }
-      } else {
-        bgAudio.pause(); isMusicPlaying = false;
-        btn.innerText = "🔇 Musica: OFF"; btn.style.background = "#222e42"; btn.style.color = "var(--gold-light)";
-      }
+      const bgAudio = document.getElementById('audio-bg'); const winAudio = document.getElementById('audio-win'); const btn = document.getElementById('btn-audio');
+      if (!isMusicPlaying) { winAudio.pause(); bgAudio.volume = 0.35; let playPromise = bgAudio.play(); if (playPromise !== undefined) { playPromise.then(() => { isMusicPlaying = true; btn.innerText = "🔊 Musica: ON"; btn.style.background = "var(--gold)"; btn.style.color = "#000"; }).catch(e => { alert("Fai un click sulla pagina prima di attivare l'audio."); }); } }
+      else { bgAudio.pause(); isMusicPlaying = false; btn.innerText = "🔇 Musica: OFF"; btn.style.background = "#222e42"; btn.style.color = "var(--gold-light)"; }
     }
-    function playWinMusic() {
-      const bgAudio = document.getElementById('audio-bg'); const winAudio = document.getElementById('audio-win');
-      if (bgAudio) bgAudio.pause();
-      if (winAudio) { winAudio.currentTime = 0; winAudio.volume = 1.0; winAudio.play().catch(e => console.log("Audio vincita avviato")); }
-    }
-    function stopAllAudioCompletely() {
-      const bgAudio = document.getElementById('audio-bg'); const winAudio = document.getElementById('audio-win');
-      if (bgAudio) { bgAudio.pause(); bgAudio.currentTime = 0; }
-      if (winAudio) { winAudio.pause(); winAudio.currentTime = 0; }
-    }
-    function resumeBgMusic() {
-      stopAllAudioCompletely();
-      const bgAudio = document.getElementById('audio-bg');
-      if (bgAudio && isMusicPlaying) { bgAudio.volume = 0.35; bgAudio.play().catch(e => console.log("Ripresa musica")); }
-    }
+    function playWinMusic() { const bgAudio = document.getElementById('audio-bg'); const winAudio = document.getElementById('audio-win'); if (bgAudio) bgAudio.pause(); if (winAudio) { winAudio.currentTime = 0; winAudio.volume = 1.0; winAudio.play().catch(e => console.log("Audio vincita avviato")); } }
+    function stopAllAudioCompletely() { const bgAudio = document.getElementById('audio-bg'); const winAudio = document.getElementById('audio-win'); if (bgAudio) { bgAudio.pause(); bgAudio.currentTime = 0; } if (winAudio) { winAudio.pause(); winAudio.currentTime = 0; } }
+    function resumeBgMusic() { stopAllAudioCompletely(); const bgAudio = document.getElementById('audio-bg'); if (bgAudio && isMusicPlaying) { bgAudio.volume = 0.35; bgAudio.play().catch(e => console.log("Ripresa musica")); } }
     function handleCartoonError(img) { img.onerror = null; const fallbackId = Math.floor(Math.random() * 5000) + 1; img.src = `https://picsum.photos/seed/vipfallbackstar${fallbackId}/600/600`; }
     function handlePhotoError(img) { img.onerror = null; img.src = 'https://via.placeholder.com/500/162232/ffffff?text=Selfie+Vincitore'; }
-    function switchView(viewId) {
-      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('view-' + viewId).classList.add('active');
-      const tabBtn = document.getElementById('btn-' + viewId); if(tabBtn) tabBtn.classList.add('active');
-      const backBtn = document.getElementById('btn-back-to-cards');
-      if (backBtn) {
-        if (viewId === 'tabellone' && window.location.hash === "#giocatore") backBtn.style.display = 'inline-block';
-        else backBtn.style.display = 'none';
-      }
-      window.scrollTo(0, 0);
-    }
-    function initBoard() {
-      const grid = document.getElementById('board-grid'); if(!grid) return; grid.innerHTML = '';
-      for(let i = 1; i <= 90; i++) { const cell = document.createElement('div'); cell.className = 'grid-cell'; cell.innerHTML = `<div class="lotto-ball" id="cell-${i}">${i}</div>`; grid.appendChild(cell); }
-    }
+    function switchView(viewId) { document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active'); const tabBtn = document.getElementById('btn-' + viewId); if(tabBtn) tabBtn.classList.add('active'); const backBtn = document.getElementById('btn-back-to-cards'); if (backBtn) { if (viewId === 'tabellone' && window.location.hash === "#giocatore") backBtn.style.display = 'inline-block'; else backBtn.style.display = 'none'; } window.scrollTo(0, 0); }
+    function initBoard() { const grid = document.getElementById('board-grid'); if(!grid) return; grid.innerHTML = ''; for(let i = 1; i <= 90; i++) { const cell = document.createElement('div'); cell.className = 'grid-cell'; cell.innerHTML = `<div class="lotto-ball" id="cell-${i}">${i}</div>`; grid.appendChild(cell); } }
     function toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } else { if (document.exitFullscreen) document.exitFullscreen(); } }
-    function handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-            canvas.width = 400; canvas.height = 400; ctx.drawImage(img, 0, 0, 400, 400);
-            currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.7);
-            document.getElementById('player-photo-preview').src = currentPlayerPhoto;
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+    function handlePhotoUpload(event) { const file = event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = 400; canvas.height = 400; ctx.drawImage(img, 0, 0, 400, 400); currentPlayerPhoto = canvas.toDataURL('image/jpeg', 0.7); document.getElementById('player-photo-preview').src = currentPlayerPhoto; }; img.src = e.target.result; }; reader.readAsDataURL(file); } }
     function showPlayerForm() { document.getElementById('player-form-container').style.display = 'block'; document.getElementById('add-more-container').style.display = 'none'; }
-    function generateTombolaClassicGrid() {
-      let grid = Array(3).fill(null).map(() => Array(9).fill(null)); let rowCols = [];
-      for(let r = 0; r < 3; r++) { let cols = []; while(cols.length < 5) { let c = Math.floor(Math.random() * 9); if(!cols.includes(c)) cols.push(c); } cols.sort((a,b) => a - b); rowCols.push(cols); }
-      let colRows = Array(9).fill(null).map(() => []);
-      for(let r = 0; r < 3; r++) { rowCols[r].forEach(c => colRows[c].push(r)); }
-      for(let c = 0; c < 9; c++) {
-        let count = colRows[c].length; if(count === 0) continue;
-        let min = (c === 0) ? 1 : c * 10; let max = (c === 8) ? 90 : (c * 10 + 9);
-        let nums = []; while(nums.length < count) { let n = Math.floor(Math.random() * (max - min + 1)) + min; if(!nums.includes(n)) nums.push(n); }
-        nums.sort((a, b) => a - b); colRows[c].sort((a, b) => a - b);
-        colRows[c].forEach((r, idx) => { grid[r][c] = nums[idx]; });
-      }
-      let flatObj = {}; let index = 0;
-      for(let r = 0; r < 3; r++) { for(let c = 0; c < 9; c++) { flatObj[index] = grid[r][c] !== null ? grid[r][c] : 0; index++; } }
-      return flatObj;
-    }
-    function updateStageVisuals() {
-      const stageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO FINITO'; const prizeName = prizesConfig[stageName] || '';
-      const displayRegia = document.getElementById('current-stage-display'); if(displayRegia) displayRegia.innerText = stageName;
-      const boardBanner = document.getElementById('board-current-prize-display');
-      if(boardBanner) {
-        if(currentStageIndex < PRIZE_STAGES.length) boardBanner.innerHTML = `🎯 SI GIOCA PER: <span style="color: #fff;">${stageName}</span> — PREMIO: <span style="color: var(--gold-light);">${prizeName}</span>`;
-        else boardBanner.innerHTML = `🎯 <span style="color: #fff;">PARTITA CONCLUSA IN TUTTI I PREMI!</span>`;
-      }
-      renderMyCards();
-    }
-    function checkRegiaAuth() {
-      const pass = document.getElementById('regia-pass').value;
-      if(pass === "27") { regiaAuth = true; document.getElementById('regia-login').style.display = 'none'; document.getElementById('regia-content').style.display = 'block'; renderRegiaCardsList(allGlobalCardsCache); }
-      else alert("Password non corretta!");
-    }
+    function generateTombolaClassicGrid() { let grid = Array(3).fill(null).map(() => Array(9).fill(null)); let rowCols = []; for(let r = 0; r < 3; r++) { let cols = []; while(cols.length < 5) { let c = Math.floor(Math.random() * 9); if(!cols.includes(c)) cols.push(c); } cols.sort((a,b) => a - b); rowCols.push(cols); } let colRows = Array(9).fill(null).map(() => []); for(let r = 0; r < 3; r++) { rowCols[r].forEach(c => colRows[c].push(r)); } for(let c = 0; c < 9; c++) { let count = colRows[c].length; if(count === 0) continue; let min = (c === 0) ? 1 : c * 10; let max = (c === 8) ? 90 : (c * 10 + 9); let nums = []; while(nums.length < count) { let n = Math.floor(Math.random() * (max - min + 1)) + min; if(!nums.includes(n)) nums.push(n); } nums.sort((a, b) => a - b); colRows[c].sort((a, b) => a - b); colRows[c].forEach((r, idx) => { grid[r][c] = nums[idx]; }); } let flatObj = {}; let index = 0; for(let r = 0; r < 3; r++) { for(let c = 0; c < 9; c++) { flatObj[index] = grid[r][c] !== null ? grid[r][c] : 0; index++; } } return flatObj; }
+    function updateStageVisuals() { const stageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO FINITO'; const prizeName = prizesConfig[stageName] || ''; const displayRegia = document.getElementById('current-stage-display'); if(displayRegia) displayRegia.innerText = stageName; const boardBanner = document.getElementById('board-current-prize-display'); if(boardBanner) { if(currentStageIndex < PRIZE_STAGES.length) boardBanner.innerHTML = `🎯 SI GIOCA PER: <span style="color: #fff;">${stageName}</span> — PREMIO: <span style="color: var(--gold-light);">${prizeName}</span>`; else boardBanner.innerHTML = `🎯 <span style="color: #fff;">PARTITA CONCLUSA IN TUTTI I PREMI!</span>`; } renderMyCards(); }
+    function checkRegiaAuth() { const pass = document.getElementById('regia-pass').value; if(pass === "27") { regiaAuth = true; document.getElementById('regia-login').style.display = 'none'; document.getElementById('regia-content').style.display = 'block'; renderRegiaCardsList(allGlobalCardsCache); } else alert("Password non corretta!"); }
     function saveOrganizersConfig() { const brand = document.getElementById('cfg-brand').value; const banner = document.getElementById('cfg-banner').value; db.ref('config').update({ brand, banner }); alert("Configurazione salvata!"); }
-    function savePrizesConfig() {
-      prizesConfig.AMBO = document.getElementById('prize-ambo').value; prizesConfig.TERNO = document.getElementById('prize-terno').value; prizesConfig.QUATERNA = document.getElementById('prize-quaterna').value; prizesConfig.CINQUINA = document.getElementById('prize-cinquina').value; prizesConfig.TOMBOLA = document.getElementById('prize-tombola').value; prizesConfig.TOMBOLINO = document.getElementById('prize-tombolino').value;
-      db.ref('prizesConfig').set(prizesConfig); updateStageVisuals(); alert("Premi salvati!");
-    }
-    function drawNumber() {
-      if(currentStageIndex >= PRIZE_STAGES.length) { alert("La partita è già conclusa per tutti i premi!"); return; }
-      let available = []; for(let i = 1; i <= 90; i++) { if(!drawnNumbers.includes(i)) available.push(i); }
-      if(available.length === 0) { alert("Tutti i numeri sono stati estratti!"); return; }
-      let drawn = available[Math.floor(Math.random() * available.length)]; drawnNumbers.push(drawn);
-      db.ref('gameState').set({ drawnNumbers: drawnNumbers, currentStageIndex: currentStageIndex, lastDrawn: drawn, timestamp: Date.now() }).then(() => { checkAutomaticWins(); });
-    }
-    function showExtractionAnimation(num) {
-      const overlay = document.getElementById('extraction-overlay'); const ball = document.getElementById('overlay-ball'); const smorfiaText = document.getElementById('overlay-smorfia');
-      ball.innerText = num; smorfiaText.innerText = num + " - " + (smorfia[num] || "Numero fortunato"); overlay.style.display = 'flex';
-      setTimeout(() => { overlay.style.display = 'none'; }, 3200);
-    }
+    function savePrizesConfig() { prizesConfig.AMBO = document.getElementById('prize-ambo').value; prizesConfig.TERNO = document.getElementById('prize-terno').value; prizesConfig.QUATERNA = document.getElementById('prize-quaterna').value; prizesConfig.CINQUINA = document.getElementById('prize-cinquina').value; prizesConfig.TOMBOLA = document.getElementById('prize-tombola').value; prizesConfig.TOMBOLINO = document.getElementById('prize-tombolino').value; db.ref('prizesConfig').set(prizesConfig); updateStageVisuals(); alert("Premi salvati!"); }
+    function drawNumber() { if(currentStageIndex >= PRIZE_STAGES.length) { alert("La partita è già conclusa per tutti i premi!"); return; } let available = []; for(let i = 1; i <= 90; i++) { if(!drawnNumbers.includes(i)) available.push(i); } if(available.length === 0) { alert("Tutti i numeri sono stati estratti!"); return; } let drawn = available[Math.floor(Math.random() * available.length)]; drawnNumbers.push(drawn); db.ref('gameState').set({ drawnNumbers: drawnNumbers, currentStageIndex: currentStageIndex, lastDrawn: drawn, timestamp: Date.now() }).then(() => { checkAutomaticWins(); }); }
+    function showExtractionAnimation(num) { const overlay = document.getElementById('extraction-overlay'); const ball = document.getElementById('overlay-ball'); const smorfiaText = document.getElementById('overlay-smorfia'); ball.innerText = num; smorfiaText.innerText = num + " - " + (smorfia[num] || "Numero fortunato"); overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 3200); }
 
-    // === FIX PRINCIPALE: GENERA CARTELLA CON VIP UNICO DA POOL 2000 ===
+    // === GENERA CARTELLA - VIP NASCOSTO, SENZA MOSTRARE NULLA ===
     function addPlayerCard() {
       const nameInput = document.getElementById('player-name').value.trim();
       if(!nameInput) { alert("Inserisci il tuo Nome e Cognome."); return; }
       if(!currentPlayerPhoto) { alert("È obbligatorio scattare un selfie!"); return; }
       const playMode = document.getElementById('play-mode').value;
-
       const btn = document.getElementById('generate-card-btn');
-      btn.disabled = true; btn.innerText = "⏳ Assegno VIP unico...";
+      const originalText = btn.innerText;
+      btn.disabled = true; btn.innerText = "⏳ Genero cartella...";
 
-      // Transaction Firebase: prende il prossimo indice VIP senza ripetizioni
-      db.ref('vipCounter').transaction(current => {
-        return (current || 0) + 1;
-      }, (error, committed, snapshot) => {
-        btn.disabled = false; btn.innerText = "+ Genera Nuova Cartella (con VIP unico)";
-        if(error || !committed) { alert("Errore assegnazione VIP, riprova."); return; }
-
-        const newCounter = snapshot.val(); // es. 1,2,3...
-        const vipIndex = (newCounter - 1) % VIP_POOL_SIZE; // 0-1999 in circolo
+      db.ref('vipCounter').transaction(current => { return (current || 0) + 1; }, (error, committed, snapshot) => {
+        btn.disabled = false; btn.innerText = originalText;
+        if(error || !committed) { alert("Riprova, errore temporaneo."); return; }
+        const newCounter = snapshot.val();
+        const vipIndex = (newCounter - 1) % VIP_POOL_SIZE;
         const vipPhoto = getVipUrlByIndex(vipIndex);
         const cardGrid = generateTombolaClassicGrid();
         const cardRef = db.ref('cards').push();
@@ -469,7 +271,6 @@
           photo: currentPlayerPhoto,
           vipPhoto: vipPhoto,
           vipIndex: vipIndex,
-          vipNumber: vipIndex + 1, // 1-2000 per visualizzazione
           mode: playMode,
           grid: cardGrid,
           marked: {},
@@ -487,21 +288,11 @@
       });
     }
 
-    function toggleCardMode(cardKey, currentMode) {
-      const isGameStarted = drawnNumbers.length > 0;
-      const newMode = currentMode === 'auto' ? 'manual' : 'auto';
-      const labelNewMode = newMode === 'auto' ? 'AUTOMATICA (segna il sistema)' : 'MANUALE (segni tu le caselle)';
-      let confirmMsg = `Vuoi cambiare la marcatura della cartella in modalità ${labelNewMode}?`;
-      if(isGameStarted) confirmMsg = `ATTENZIONE: La partita è già iniziata!\nSei sicuro di voler cambiare la marcatura in: ${labelNewMode}?`;
-      if (confirm(confirmMsg)) {
-        db.ref(`cards/${cardKey}/mode`).set(newMode).then(() => { renderMyCards(); if(activeFullscreenKey === cardKey) openFullscreenCard(cardKey); });
-      }
-    }
+    function toggleCardMode(cardKey, currentMode) { const isGameStarted = drawnNumbers.length > 0; const newMode = currentMode === 'auto' ? 'manual' : 'auto'; const labelNewMode = newMode === 'auto' ? 'AUTOMATICA (segna il sistema)' : 'MANUALE (segni tu le caselle)'; let confirmMsg = `Vuoi cambiare la marcatura della cartella in modalità ${labelNewMode}?`; if(isGameStarted) confirmMsg = `ATTENZIONE: La partita è già iniziata!\nSei sicuro di voler cambiare la marcatura in: ${labelNewMode}?`; if (confirm(confirmMsg)) { db.ref(`cards/${cardKey}/mode`).set(newMode).then(() => { renderMyCards(); if(activeFullscreenKey === cardKey) openFullscreenCard(cardKey); }); } }
     function approveCard(cardKey) { db.ref(`cards/${cardKey}/approved`).set(true); }
     function rejectCard(cardKey) { if(confirm("Sei sicuro di voler rifiutare ed eliminare questa cartella?")) { db.ref(`cards/${cardKey}`).remove(); } }
     function renderRegiaCardsList(cardsObj) {
-      const listEl = document.getElementById('regia-cards-list'); const countEl = document.getElementById('participants-count');
-      const count = cardsObj ? Object.keys(cardsObj).length : 0;
+      const listEl = document.getElementById('regia-cards-list'); const countEl = document.getElementById('participants-count'); const count = cardsObj ? Object.keys(cardsObj).length : 0;
       if(countEl) countEl.innerText = `(Totale: ${count})`;
       if(!listEl || !regiaAuth) return;
       if(!cardsObj || count === 0) { listEl.innerHTML = '<i>Nessun partecipante registrato.</i>'; return; }
@@ -511,9 +302,8 @@
         listHtml += `<div class="approval-card-item ${isApproved ? '' : 'pending'}">
           <div style="display:flex; align-items:center; gap:12px;">
             <img src="${c.photo}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);" onerror="handlePhotoError(this)" />
-            ${c.vipPhoto ? `<img src="${c.vipPhoto}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #38bdf8;" onerror="handleCartoonError(this)" title="VIP #${c.vipNumber || ''}" />` : ''}
             <div>
-              <div style="font-size:1rem; font-weight:bold; color:#fff;">${c.name} ${c.vipNumber ? `<span style='font-size:0.75rem; color:#38bdf8;'>#VIP ${c.vipNumber}/2000</span>` : ''}</div>
+              <div style="font-size:1rem; font-weight:bold; color:#fff;">${c.name}</div>
               <div style="font-size:0.8rem; color:var(--gold-light);">Modalità: ${c.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale'}</div>
               <div style="font-size:0.75rem; color:${isApproved ? '#2ecc71' : '#f39c12'}; font-weight:bold; margin-top:2px;">${isApproved ? '✓ Cartella Approvata' : '⏳ In attesa di verifica'}</div>
             </div>
@@ -535,9 +325,7 @@
           let isApproved = card.approved === true; let pendingClass = isApproved ? '' : ' pending'; let modeLabel = card.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale';
           let html = `<div class="card-digital${pendingClass}">`;
           if(!isApproved) html += `<div class="pending-badge-banner">⏳ IN ATTESA DI APPROVAZIONE DALLA REGIA</div>`;
-          html += `<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc} ${card.vipNumber ? `| VIP #${card.vipNumber}/2000` : ''}</div>
-            <div class="card-header-info"><div><strong>${card.name}</strong> <button class="mode-switch-btn" onclick="toggleCardMode('${key}', '${card.mode}')" title="Clicca per cambiare modalità">${modeLabel} ⚙️</button></div>${isApproved ? `<button class="btn btn-sm" style="background:#38bdf8; color:#000; padding:4px 8px; font-size:0.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>` : ''}</div>`;
-          if(card.vipPhoto) html += `<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; background:rgba(56,189,248,0.1); border:1px solid #38bdf8; padding:6px; border-radius:8px;"><img src="${card.vipPhoto}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #38bdf8;" onerror="handleCartoonError(this)" /><span style="font-size:0.8rem; color:#38bdf8; font-weight:800;">VIP abbinato #${card.vipNumber || card.vipIndex+1}/2000 — non si ripeterà fino a fine circolo</span></div>`;
+          html += `<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div><div class="card-header-info"><div><strong>${card.name}</strong> <button class="mode-switch-btn" onclick="toggleCardMode('${key}', '${card.mode}')" title="Clicca per cambiare modalità">${modeLabel} ⚙️</button></div>${isApproved ? `<button class="btn btn-sm" style="background:#38bdf8; color:#000; padding:4px 8px; font-size:0.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>` : ''}</div>`;
           if(card.mode === 'manual') html += `<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
           html += `<div class="tombola-classic-grid">`;
           for(let i = 0; i < 27; i++) { let val = card.grid[i]; let isMarked = (card.mode === 'auto' && drawnNumbers.includes(val)) || (card.marked && card.marked[i]); if(val === 0) { html += `<div class="tombola-cell empty"></div>`; } else { let markedClass = isMarked ? ' marked' : ''; let clickAttr = (isApproved && card.mode === 'manual') ? `onclick="toggleManualMark('${key}', ${i}, ${val})"` : ''; html += `<div class="tombola-cell${markedClass}" ${clickAttr}>${val}</div>`; } }
@@ -545,22 +333,15 @@
         });
       });
     }
-    function toggleManualMark(cardKey, cellIndex, numVal) {
-      if(!drawnNumbers.includes(numVal)) { alert("⚠️ Il numero " + numVal + " non è ancora uscito! Puoi cliccare solo i numeri estratti dalla regia."); return; }
-      db.ref(`cards/${cardKey}/marked/${cellIndex}`).once('value', snapshot => {
-        let currentStatus = snapshot.val();
-        db.ref(`cards/${cardKey}/marked/${cellIndex}`).set(!currentStatus).then(() => { renderMyCards(); if(activeFullscreenKey === cardKey) openFullscreenCard(cardKey); });
-      });
-    }
+    function toggleManualMark(cardKey, cellIndex, numVal) { if(!drawnNumbers.includes(numVal)) { alert("⚠️ Il numero " + numVal + " non è ancora uscito! Puoi cliccare solo i numeri estratti dalla regia."); return; } db.ref(`cards/${cardKey}/marked/${cellIndex}`).once('value', snapshot => { let currentStatus = snapshot.val(); db.ref(`cards/${cardKey}/marked/${cellIndex}`).set(!currentStatus).then(() => { renderMyCards(); if(activeFullscreenKey === cardKey) openFullscreenCard(cardKey); }); }); }
     function openFullscreenCard(cardKey) {
       activeFullscreenKey = cardKey;
       db.ref('cards/' + cardKey).once('value', snapshot => {
         const card = snapshot.val(); if(!card || !card.approved) return;
         let modeLabel = card.mode === 'auto' ? '🤖 Auto' : '✍️ Manuale'; const currentStageName = PRIZE_STAGES[currentStageIndex] || 'GIOCO'; const currentPrizeDesc = prizesConfig[currentStageName] || '';
-        document.getElementById('fs-card-title').innerHTML = `Cartella di ${card.name} ${card.vipNumber ? `— VIP #${card.vipNumber}/2000` : ''} <button class="mode-switch-btn" onclick="toggleCardMode('${cardKey}', '${card.mode}')">${modeLabel} ⚙️</button>`;
+        document.getElementById('fs-card-title').innerHTML = `Cartella di ${card.name} <button class="mode-switch-btn" onclick="toggleCardMode('${cardKey}', '${card.mode}')">${modeLabel} ⚙️</button>`;
         const container = document.getElementById('fs-card-grid-container');
         let html = `<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div>`;
-        if(card.vipPhoto) html += `<div style="display:flex; gap:8px; align-items:center; justify-content:center; margin-bottom:8px;"><img src="${card.vipPhoto}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:3px solid #38bdf8;" /><span style="color:#38bdf8; font-weight:900;">VIP #${card.vipNumber}/2000</span></div>`;
         if(card.mode === 'manual') html += `<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
         html += `<div class="tombola-classic-grid">`;
         for(let i = 0; i < 27; i++) { let val = card.grid[i]; let isMarked = (card.mode === 'auto' && drawnNumbers.includes(val)) || (card.marked && card.marked[i]); if(val === 0) { html += `<div class="tombola-cell empty"></div>`; } else { let markedClass = isMarked ? ' marked' : ''; let clickAttr = (card.approved && card.mode === 'manual') ? `onclick="toggleManualMark('${cardKey}', ${i}, ${val})"` : ''; html += `<div class="tombola-cell${markedClass}" ${clickAttr}>${val}</div>`; } }
@@ -568,7 +349,6 @@
       });
     }
     function closeFullscreenCard() { activeFullscreenKey = null; document.getElementById('fullscreen-card-overlay').style.display = 'none'; renderMyCards(); }
-
     function checkAutomaticWins() {
       db.ref('cards').once('value', snapshot => {
         const cardsObj = snapshot.val(); if(!cardsObj) return;
@@ -585,8 +365,7 @@
           if(currentStage === 'TOMBOLA' && totalMatches >= 15) hasWon = true;
           if(currentStage === 'TOMBOLINO' && totalMatches >= 15) hasWon = true;
           if(hasWon && !foundWinner) {
-            // USA IL VIP GIA' ABBINATO ALLA CARTELLA, NON NE GENERA UNO NUOVO
-            foundWinner = { cardId, name: card.name, photo: card.photo, cartoonUrl: card.vipPhoto || getVipUrlByIndex(0), vipIndex: card.vipIndex || 0, vipNumber: card.vipNumber || 1, stage: currentStage };
+            foundWinner = { cardId, name: card.name, photo: card.photo, cartoonUrl: card.vipPhoto || getVipUrlByIndex(0), stage: currentStage };
           }
         });
         if(foundWinner) { db.ref('currentWinner').set(foundWinner); }
@@ -601,12 +380,7 @@
         if(currentStageIndex >= PRIZE_STAGES.length) { db.ref('gameOver').set(true); }
       });
     }
-    function resetGame() {
-      if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")) {
-        stopAllAudioCompletely();
-        db.ref().set({ gameState: { currentStageIndex: 0, drawnNumbers: [], lastDrawn: 0 }, currentWinner: null, allWinnersList: null, gameOver: null }).then(() => { location.reload(); });
-      }
-    }
+    function resetGame() { if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")) { stopAllAudioCompletely(); db.ref().set({ gameState: { currentStageIndex: 0, drawnNumbers: [], lastDrawn: 0 }, currentWinner: null, allWinnersList: null, gameOver: null }).then(() => { location.reload(); }); } }
     db.ref('gameState').on('value', snapshot => {
       const state = snapshot.val() || {}; drawnNumbers = state.drawnNumbers || []; currentStageIndex = state.currentStageIndex || 0; updateStageVisuals();
       for(let i = 1; i <= 90; i++) { const ballEl = document.getElementById(`cell-${i}`); if(ballEl) { if(drawnNumbers.includes(i)) ballEl.classList.add('drawn'); else ballEl.classList.remove('drawn'); } }
@@ -628,13 +402,13 @@
             <div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">${winner.stage}: ${prizesConfig[winner.stage]}</div></div>
           </div>
           <div class="cartoon-slide-box" id="box-cartoon">
-            <div class="nfl-badge-label">VIP #${winner.vipNumber || 1}/2000</div>
-            <img src="${winner.cartoonUrl}" class="nfl-photo-cartoon" alt="Personaggio Famoso #${winner.vipNumber}" onerror="handleCartoonError(this)">
-            <div class="winner-info-overlay"><div class="winner-name-text">VIP Abbinato Unico</div><div class="winner-prize-text">Foto ${winner.vipNumber || 1} di 2000 — senza ripetizione</div></div>
+            <div class="nfl-badge-label">VIP ABBINATO</div>
+            <img src="${winner.cartoonUrl}" class="nfl-photo-cartoon" alt="Personaggio Famoso" onerror="handleCartoonError(this)">
+            <div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">¡Campione di ${winner.stage}!</div></div>
           </div>
         `;
         modal.style.display = 'flex';
-        if(regiaAuth) { regiaAlert.style.display = 'block'; document.getElementById('regia-win-alert-text').innerText = `${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})! VIP #${winner.vipNumber}/2000`; }
+        if(regiaAuth) { regiaAlert.style.display = 'block'; document.getElementById('regia-win-alert-text').innerText = `${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`; }
         setTimeout(() => { const selfieBox = document.getElementById('box-selfie'); const cartoonBox = document.getElementById('box-cartoon'); if(selfieBox) selfieBox.classList.add('slid-left'); if(cartoonBox) cartoonBox.classList.add('visible'); }, 500);
         if(typeof confetti === 'function') { confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } }); }
       } else { modal.style.display = 'none'; if(regiaAlert) regiaAlert.style.display = 'none'; stopAllAudioCompletely(); }
@@ -643,24 +417,13 @@
       const isOver = snapshot.val(); const gameOverOverlay = document.getElementById('game-over-overlay'); const nextGameOverlay = document.getElementById('next-game-overlay');
       if(isOver) {
         playWinMusic(); const finalContainer = document.getElementById('final-winners-container');
-        if(confirmedWinnersObjects && confirmedWinnersObjects.length > 0) {
-          let html = ''; confirmedWinnersObjects.forEach(w => { html += `<div class="final-winner-card"><img src="${w.photo}" class="final-winner-photo" alt="${w.name}" onerror="handlePhotoError(this)"><div class="final-winner-details"><div class="final-winner-name">${w.name} <span style="color:#38bdf8;">#${w.vipNumber || ''}</span></div><div class="final-winner-stage">${w.stage} (${prizesConfig[w.stage] || ''})</div></div></div>`; });
-          finalContainer.innerHTML = html;
-        } else finalContainer.innerHTML = `<div style="font-size: 1.4rem; color: var(--gold); font-weight: bold;">Tutti i premi sono stati assegnati con successo! 🏆</div>`;
+        if(confirmedWinnersObjects && confirmedWinnersObjects.length > 0) { let html = ''; confirmedWinnersObjects.forEach(w => { html += `<div class="final-winner-card"><img src="${w.photo}" class="final-winner-photo" alt="${w.name}" onerror="handlePhotoError(this)"><div class="final-winner-details"><div class="final-winner-name">${w.name}</div><div class="final-winner-stage">${w.stage} (${prizesConfig[w.stage] || ''})</div></div></div>`; }); finalContainer.innerHTML = html; }
+        else finalContainer.innerHTML = `<div style="font-size: 1.4rem; color: var(--gold); font-weight: bold;">Tutti i premi sono stati assegnati con successo! 🏆</div>`;
         gameOverOverlay.style.display = 'flex'; setTimeout(() => { gameOverOverlay.style.display = 'none'; nextGameOverlay.style.display = 'flex'; }, 15000);
       } else { gameOverOverlay.style.display = 'none'; nextGameOverlay.style.display = 'none'; }
     });
-    db.ref('config').on('value', snapshot => {
-      const cfg = snapshot.val(); if(cfg) {
-        if(cfg.brand) { document.getElementById('brand-header-title').innerText = cfg.brand; const cfgBrandInput = document.getElementById('cfg-brand'); if(cfgBrandInput) cfgBrandInput.value = cfg.brand; }
-        if(cfg.banner) { document.getElementById('banner-main-title').innerText = cfg.banner; const cfgBannerInput = document.getElementById('cfg-banner'); if(cfgBannerInput) cfgBannerInput.value = cfg.banner; }
-      }
-    });
-    db.ref('prizesConfig').on('value', snapshot => {
-      const pCfg = snapshot.val(); if(pCfg) {
-        prizesConfig = pCfg; ['ambo', 'terno', 'quaterna', 'cinquina', 'tombola', 'tombolino'].forEach(key => { const inputEl = document.getElementById('prize-' + key); if(inputEl && pCfg[key.toUpperCase()]) inputEl.value = pCfg[key.toUpperCase()]; }); updateStageVisuals();
-      }
-    });
+    db.ref('config').on('value', snapshot => { const cfg = snapshot.val(); if(cfg) { if(cfg.brand) { document.getElementById('brand-header-title').innerText = cfg.brand; const cfgBrandInput = document.getElementById('cfg-brand'); if(cfgBrandInput) cfgBrandInput.value = cfg.brand; } if(cfg.banner) { document.getElementById('banner-main-title').innerText = cfg.banner; const cfgBannerInput = document.getElementById('cfg-banner'); if(cfgBannerInput) cfgBannerInput.value = cfg.banner; } } });
+    db.ref('prizesConfig').on('value', snapshot => { const pCfg = snapshot.val(); if(pCfg) { prizesConfig = pCfg; ['ambo', 'terno', 'quaterna', 'cinquina', 'tombola', 'tombolino'].forEach(key => { const inputEl = document.getElementById('prize-' + key); if(inputEl && pCfg[key.toUpperCase()]) inputEl.value = pCfg[key.toUpperCase()]; }); updateStageVisuals(); } });
     window.onload = function() {
       initBoard(); updateStageVisuals();
       const baseUrl = window.location.origin + window.location.pathname; const playerUrl = baseUrl + "#giocatore";
