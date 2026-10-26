@@ -350,7 +350,8 @@
   <div id="view-regia" class="view-section">
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
-      <div class="form-group"><input type="password" id="regia-pass" placeholder="Password (es. 27)"></div>
+      <!-- CAMPO PASSWORD RIPULITO SENZA ALCUN INDIZIO -->
+      <div class="form-group"><input type="password" id="regia-pass" placeholder="Inserisci password"></div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
       
       <div style="margin-top: 15px; border-top: 1px solid #2a3b54; padding-top: 12px;">
@@ -575,7 +576,6 @@
 
     // ARCHIVIO DINAMICO DI 10.000 FOTO DI PERSONAGGI FAMOSI E STAR INTERNAZIONALI DA WIKIMEDIA COMMONS
     function getRandomCartoonUrl() {
-      // Genera un numero casuale univoco da 1 a 10000 per pescare all'istante tra 10.000 star differenti
       const starId = Math.floor(Math.random() * 10000) + 1;
       return `https://commons.wikimedia.org/wiki/Special:FilePath/CelebrityPortrait_${starId}.jpg` || 
              `https://picsum.photos/seed/celeb10k${starId}/600/600`;
@@ -644,7 +644,6 @@
 
     function handleCartoonError(img) {
       img.onerror = null;
-      // Backup di sicurezza con archivio alternativo di ritratti di star in HD
       const backupId = Math.floor(Math.random() * 5000) + 1;
       img.src = `https://picsum.photos/seed/vipfallback${backupId}/600/600`;
     }
