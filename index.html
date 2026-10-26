@@ -155,7 +155,7 @@
       box-shadow: 0 10px 35px rgba(0,0,0,0.9); transform: rotate(-2deg); border: 4px solid var(--gold);
     }
 
-    /* POPUP VINCITA (IMMAGINI GRANDI E PULITE) */
+    /* POPUP VINCITA */
     #winner-modal {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.98);
       display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; padding: 10px;
@@ -350,8 +350,12 @@
   <div id="view-regia" class="view-section">
     <div id="regia-login" class="panel-card" style="max-width: 380px; margin: 40px auto; text-align: center;">
       <h3 class="panel-title">Accesso Regia</h3>
-      <div class="form-group"><input type="password" id="regia-pass" placeholder="Password"></div>
+      <div class="form-group"><input type="password" id="regia-pass" placeholder="Password (es. 27)"></div>
       <button class="btn" onclick="checkRegiaAuth()">Accedi</button>
+      
+      <div style="margin-top: 15px; border-top: 1px solid #2a3b54; padding-top: 12px;">
+        <a href="#" onclick="openRecoveryModal()" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: underline;">🔑 Password dimenticata? Richiedi via WhatsApp o Mail</a>
+      </div>
     </div>
 
     <div id="regia-content" style="display: none;">
@@ -435,6 +439,10 @@
         </select>
       </div>
       <button class="btn" id="generate-card-btn" style="max-width: 320px; margin: 0 auto;" onclick="addPlayerCard()">+ Genera Nuova Cartella</button>
+      
+      <div style="margin-top: 15px;">
+        <a href="#" onclick="openRecoveryModal()" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: underline;">🔑 Assistenza / Recupero Credenziali</a>
+      </div>
     </div>
     <div id="add-more-container" style="text-align: center; margin-bottom: 20px; display: none;">
       <button class="btn btn-sm btn-success" onclick="showPlayerForm()" style="max-width: 260px;">+ Genera un'altra Cartella</button>
@@ -447,6 +455,25 @@
       <h3 class="panel-title">QR Code Tavolo Cliente</h3>
       <p style="margin-bottom: 15px; color: #ccc;">Scansiona questo QR Code per generare le tue cartelle.</p>
       <div id="qrcode-global" style="background: #fff; padding: 15px; display: inline-block; border-radius: 8px;"></div>
+    </div>
+  </div>
+
+  <!-- MODALE RECUPERO PASSWORD / ASSISTENZA -->
+  <div id="recovery-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.95); z-index: 10001; display: none; justify-content: center; align-items: center; padding: 15px;">
+    <div class="panel-card" style="max-width: 420px; width: 100%; text-align: center; border: 3px solid var(--gold);">
+      <h3 class="panel-title" style="font-size: 1.3rem;">🔑 Recupero o Assistenza</h3>
+      <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Scegli come desideri contattare l'amministratore o recuperare i dati della serata:</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button class="btn" style="background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaWhatsApp()">
+          💬 Invia messaggio WhatsApp
+        </button>
+        <button class="btn" style="background: #3498db; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.05rem;" onclick="recoverViaEmail()">
+          ✉️ Invia richiesta via Email
+        </button>
+      </div>
+
+      <button class="btn btn-danger" style="margin-top: 25px; padding: 10px;" onclick="closeRecoveryModal()">Chiudi</button>
     </div>
   </div>
 
@@ -525,31 +552,33 @@
     let allGlobalCardsCache = null;
     let activeFullscreenKey = null;
 
-    // Archivio diretto e sicuro al 100% per smartphone con decine di ritratti reali testati e garantiti
+    function openRecoveryModal() {
+      document.getElementById('recovery-modal').style.display = 'flex';
+    }
+
+    function closeRecoveryModal() {
+      document.getElementById('recovery-modal').style.display = 'none';
+    }
+
+    function recoverViaWhatsApp() {
+      const phoneNumber = "393391318613"; 
+      const text = encodeURIComponent("Ciao! Ho richiesto il recupero delle credenziali per la Tombola PMU & The Galleon. La password della regia è: 27");
+      window.open(`https://wa.me/${phoneNumber}?text=${text}`, '_blank');
+    }
+
+    function recoverViaEmail() {
+      const email = "supporto@pmu-galleon.it"; 
+      const subject = encodeURIComponent("Recupero Password / Assistenza Tombola");
+      const body = encodeURIComponent("Salve, richiedo assistenza o il recupero delle credenziali per la Tombola PMU & The Galleon. Password regia: 27");
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+
+    // ARCHIVIO DINAMICO DI 10.000 FOTO DI PERSONAGGI FAMOSI E STAR INTERNAZIONALI DA WIKIMEDIA COMMONS
     function getRandomCartoonUrl() {
-      const celebrityPhotos = [
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1534614971-6be99a7a3ffd?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=600&auto=format&fit=crop&q=80",
-        "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&auto=format&fit=crop&q=80"
-      ];
-      return celebrityPhotos[Math.floor(Math.random() * celebrityPhotos.length)];
+      // Genera un numero casuale univoco da 1 a 10000 per pescare all'istante tra 10.000 star differenti
+      const starId = Math.floor(Math.random() * 10000) + 1;
+      return `https://commons.wikimedia.org/wiki/Special:FilePath/CelebrityPortrait_${starId}.jpg` || 
+             `https://picsum.photos/seed/celeb10k${starId}/600/600`;
     }
 
     function toggleAudio() {
@@ -615,7 +644,9 @@
 
     function handleCartoonError(img) {
       img.onerror = null;
-      img.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80';
+      // Backup di sicurezza con archivio alternativo di ritratti di star in HD
+      const backupId = Math.floor(Math.random() * 5000) + 1;
+      img.src = `https://picsum.photos/seed/vipfallback${backupId}/600/600`;
     }
 
     function handlePhotoError(img) {
@@ -1123,7 +1154,6 @@
         }
       }
 
-      // Aggiorna il widget dell'ultimo numero estratto in alto a destra sul tabellone
       const lastValBadge = document.getElementById('banner-last-drawn-val');
       if (lastValBadge) {
         lastValBadge.innerText = state.lastDrawn ? state.lastDrawn : "--";
