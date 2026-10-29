@@ -48,7 +48,7 @@
     .banner-text{font-size:clamp(.85rem,1.2vw,1.3rem);color:#fff;font-weight:900;letter-spacing:1px;text-transform:uppercase}
     .last-drawn-widget{display:flex;align-items:center;gap:8px;background:rgba(243,156,18,.15);border:2px solid var(--gold);padding:2px 10px;border-radius:6px;height:32px}
     .last-drawn-label{font-size:.75rem;font-weight:900;color:var(--gold-light);text-transform:uppercase}
-    .last-drawn-number-badge{width:26px;height:26px;border-radius:50%;background:var(--oval-3d-orange);border:2.5px solid #fff;color:#fff;font-weight:900;font-size:.95rem;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 2px rgba(0,0,0,.8);box-shadow:0 0 10px rgba(255,128,0,.8)}
+    .last-drawn-number-badge{width:26px;height:26px;border-radius:50%;background:var(--oval-3d-orange);border:2px solid #fff;color:#fff;font-weight:900;font-size:.95rem;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 2px rgba(0,0,0,.8);box-shadow:0 0 10px rgba(255,128,0,.8)}
     .fullscreen-btn{background:var(--gold);color:#000;border:none;padding:4px 10px;font-weight:bold;border-radius:4px;cursor:pointer;font-size:.75rem}
     .grid-90{display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(9,1fr);gap:3px 4px;background:rgba(8,15,30,.4);padding:6px;border-radius:10px;border:2px solid rgba(255,255,255,.25);flex-grow:1;width:100%;height:100%;min-height:0;align-items:stretch;justify-items:stretch;transform:none!important;box-shadow:none!important}
     .grid-cell{display:flex;justify-content:center;align-items:center;width:100%;height:100%;padding:0}
@@ -69,7 +69,6 @@
     .intro-prize-stage{font-weight:900;color:var(--gold-light);display:flex;align-items:center;gap:12px}
     .intro-prize-name{font-weight:800;color:#fff;text-align:right}
 
-    /* Stile QR Code ampio e leggibile per maxischermo */
     .intro-qr-section{display:flex;align-items:center;gap:25px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(243,156,18,0.4);padding:12px 24px;border-radius:14px;margin-bottom:10px;width:100%;justify-content:space-between}
     .intro-qr-text{font-size:clamp(1rem,1.8vw,1.3rem);color:#cbd5e1;font-weight:700;text-align:left;line-height:1.4}
     .intro-qr-box{background:#fff;padding:8px;border-radius:10px;border:2.5px solid var(--gold);display:flex;justify-content:center;align-items:center;flex-shrink:0;box-shadow:0 6px 20px rgba(0,0,0,.6)}
@@ -372,7 +371,17 @@ function confirmAndCloseWinnerModal(){
     if(currentStageIndex>=PRIZE_STAGES.length){db.ref('gameOver').set(true)}
   });
 }
-function resetGame(){if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")){stopAllAudioCompletely();db.ref().set({gameState:{currentStageIndex:0,drawnNumbers:[],lastDrawn:0},currentWinner:null,allWinnersList:null,gameOver:null}).then(()=>{location.reload()})}}
+function resetGame(){
+  if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")){
+    stopAllAudioCompletely();
+    // Non azzeriamo più prizesConfig su Firebase per fare in modo che rimangano salvati gli ultimi premi inseriti
+    db.ref('gameState').set({currentStageIndex:0,drawnNumbers:[],lastDrawn:0});
+    db.ref('currentWinner').remove();
+    db.ref('allWinnersList').remove();
+    db.ref('gameOver').remove();
+    setTimeout(()=>{ location.reload(); }, 500);
+  }
+}
 db.ref('gameState').on('value',snapshot=>{const state=snapshot.val()||{};drawnNumbers=state.drawnNumbers||[];currentStageIndex=state.currentStageIndex||0;updateStageVisuals();for(let i=1;i<=90;i++){const ballEl=document.getElementById(`cell-${i}`);if(ballEl){if(drawnNumbers.includes(i))ballEl.classList.add('drawn');else ballEl.classList.remove('drawn')}}const lastValBadge=document.getElementById('banner-last-drawn-val');if(lastValBadge)lastValBadge.innerText=state.lastDrawn?state.lastDrawn:"--";if(state.lastDrawn)showExtractionAnimation(state.lastDrawn);renderMyCards();if(activeFullscreenKey)openFullscreenCard(activeFullscreenKey)});
 db.ref('cards').on('value',snap=>{allGlobalCardsCache=snap.val();renderRegiaCardsList(allGlobalCardsCache);renderMyCards();if(activeFullscreenKey)openFullscreenCard(activeFullscreenKey)});
 db.ref('allWinnersList').on('value',snapshot=>{const list=snapshot.val();confirmedWinnersObjects=list||[]});
@@ -408,7 +417,6 @@ window.onload=function(){
   else{if(window.location.hash==="#regia")switchView('regia');else switchView('tabellone')}
   new QRCode(document.getElementById("qrcode-global"),{text:playerUrl,width:160,height:160,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
   new QRCode(document.getElementById("qrcode-nextgame"),{text:playerUrl,width:200,height:200,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
-  // QR code dimensionato generosamente per lo schermo intero (140x140)
   new QRCode(document.getElementById("qrcode-intro"),{text:playerUrl,width:140,height:140,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
 };
 </script>
