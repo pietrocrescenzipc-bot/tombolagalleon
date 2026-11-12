@@ -897,36 +897,23 @@
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
-    // === FUNZIONE DI RESET / NUOVA PARTITA MODIFICATA COME RICHIESTO ===
+    // === FUNZIONE DI RESET / NUOVA PARTITA CORRETTA ===
     function resetGame() {
-      if (!confirm("Sei sicuro di voler azzerare la partita corrente? Tutti i dati e le cartelle attuali verranno eliminati.")) {
+      if (!confirm("Sei sicuro di voler azzerare la partita corrente?")) {
         return;
       }
 
-      // 1. Pulisci il localStorage dalle cartelle e dai dati dei partecipanti
+      // Rimuove dal localStorage i dati della partita precedente
       localStorage.removeItem("tombola_cards");
       localStorage.removeItem("tombola_participants");
-      
-      // 2. Resetta le variabili globali di gioco
+
       drawnNumbers = [];
       currentStageIndex = 0;
       playerCards = [];
       
-      // 3. Pulisci la UI delle cartelle del giocatore e della regia
-      const playerList = document.getElementById("player-cards-list");
-      if (playerList) playerList.innerHTML = "<i>Nessuna cartella generata.</i>";
-
-      const regiaList = document.getElementById("regia-cards-list");
-      if (regiaList) regiaList.innerHTML = "<i>Nessun partecipante registrato.</i>";
-
-      // Ripristina il form di creazione giocatore se nascosto
-      const formContainer = document.getElementById("player-form-container");
-      if (formContainer) formContainer.style.display = "block";
-      const addMoreContainer = document.getElementById("add-more-container");
-      if (addMoreContainer) addMoreContainer.style.display = "none";
-
-      // 4. Aggiorna il tabellone e ricarica la pagina per pulire completamente gli stati in memoria
       initBoard();
+      
+      // Ricarica la pagina per ripulire completamente lo stato
       location.reload();
     }
   </script>
