@@ -372,13 +372,14 @@ function confirmAndCloseWinnerModal(){
   });
 }
 function resetGame(){
-  if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")){
+  if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo? Verranno cancellate anche tutte le cartelle!")){
     stopAllAudioCompletely();
     // Non azzeriamo più prizesConfig su Firebase per fare in modo che rimangano salvati gli ultimi premi inseriti
     db.ref('gameState').set({currentStageIndex:0,drawnNumbers:[],lastDrawn:0});
     db.ref('currentWinner').remove();
     db.ref('allWinnersList').remove();
     db.ref('gameOver').remove();
+    db.ref('cards').remove(); // 👈 QUESTA È LA RIGA AGGIUNTA PER CANCELLARE TUTTE LE SCHEDE/CARTELLE
     setTimeout(()=>{ location.reload(); }, 500);
   }
 }
