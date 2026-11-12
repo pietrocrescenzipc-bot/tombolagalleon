@@ -180,742 +180,245 @@
   <div id="extraction-overlay"><div class="giant-ball-container"><div id="overlay-ball" class="giant-ball-10lotto">--</div></div><div id="overlay-smorfia" class="smorfia-sticker">--</div></div>
   <div id="winner-modal"><div class="winner-box"><div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div><div id="winners-container" class="winners-flex-row"></div><button class="btn btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button></div></div>
   <div id="game-over-overlay"><div class="game-over-title">GAME OVER!</div><div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div><div id="final-winners-container" class="final-winners-grid"></div><p style="color:var(--gold-light);font-size:1.1rem;margin-top:10px;">⏳ Preparazione prossima partita...</p></div>
-  <div id="next-game-overlay"><div class="rejoin-callout-box">⏳ LA PROSSIMA PARTITA INIZIERÀ TRA POCHISSIMO!<br/><span style="font-size:.6em;color:#fff;">SCANSIONA IL QR CODE QUI SOTTO E GENERA LE TUE CARTELLE:</span></div><div class="qr-container-nextgame"><div id="qrcode-nextgame"></div></div><button class="btn btn-sm btn-danger" style="width:90vw;max-width:420px;padding:18px;font-size:1.2rem;background:#900C3F;border-radius:12px;margin-top:5px;box-shadow:0 4px 15px rgba(0,0,0,.5);flex-shrink:0;" onclick="startNextGame()">🚀 AVVIA NUOVA PARTITA</button></div>
+  <div id="next-game-overlay"><div class="rejoin-callout-box">⏳ LA PROSSIMA PARTITA INIZIERÀ TRA POCHISSIMO!<br/><span style="font-size:.6em;color:#fff;">SCANSIONA IL QR CODE QUI SOTTO E GENERA LE TUE CARTELLE:</span></div><div class="qr-container-nextgame"><div id="qrcode-nextgame"></div></div><button class="btn btn-sm btn-danger" style="width:90vw;max-width:420px;padding:18px;font-size:1.2rem;background:#900C3F;border-radius:12px;margin-top:5px;box-shadow:0 4px 15px rgba(0,0,0,.5);flex-shrink:0;" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button></div>
+<script>
+const firebaseConfig={databaseURL:"https://tombola-galleon-default-rtdb.firebaseio.com"}; firebase.initializeApp(firebaseConfig); const db=firebase.database();
+const smorfia={1:"L'Italia",2:"'A piccerella",3:"'A gatta",4:"'O fierno",5:"'A mano",6:"Chella ca guarda 'n terra",7:"Rifutt' e miez'",8:"E' Sposaliz'",9:"Figlio 'e nnove mese",10:"'A fasula",11:"E' surice",12:"'E surdate",13:"Sant'Antoni'",14:"E' buco 'e culo",15:"Il ragazzo",16:"'O culo",17:"'A disgrazia",18:"'O sang",19:"E' risate",20:"La festa",21:"La donna nuda",22:"'O pazzo",23:"'O scemo",24:"Le guardie",25:"Natale",26:"Ninetta",27:"Il vaso",28:"I zizie",29:"Il padre dei bimbi",30:"Le palle del tenente",31:"Il padrone di casa",32:"Il capitone",33:"L'anni 'e Cristo",34:"La testa",35:"L'uccellino",36:"Le castagnette",37:"Il monaco",38:"Le mazzate",39:"La corda al collo",40:"Il secchio",41:"Il coltello",42:"Il caffè",43:"La donna di balcone",44:"Le prigioni",45:"Il vino buono",46:"I denari",47:"Il morto",48:"'O morte que parla",49:"La carne",50:"Il pane",51:"Il giardino",52:"La madre",53:"Il vecchio",54:"Il cappello",55:"La musica",56:"La caduta",57:"Il gobbo",58:"Il patto",59:"I peli",60:"Il lamento",61:"Il cacciatore",62:"Il morto acciso",63:"La sposa",64:"La marsina",65:"Il pianto",66:"Le due zitelle",67:"Il totano",68:"La zuppa cotta",69:"Sott'e 'ncoppa",70:"Il palazzo",71:"L'uomo di merda",72:"La meraviglia",73:"L'ospedale",74:"La grotta",75:"Pullecenella",76:"La fontana",77:"'E diavule",78:"La bella figliola",79:"Il ladro",80:"La bocca",81:"I fior",82:"La tavola imbandita",83:"Il maltempo",84:"La chiesa",85:"Le anime del purgatorio",86:"La bottega",87:"I pidocchi",88:"I caciocavalli",89:"La vecchia",90:"'A paura"};
+const PRIZE_STAGES=['AMBO','TERNO','QUATERNA','CINQUINA','TOMBOLA','TOMBOLINO'];
 
-  <script>
-    // === CONFIGURAZIONE E VARIABILI GLOBALI ===
-    let drawnNumbers = [];
-    let currentStageIndex = 0;
-    const stages = [
-      { key: 'ambo', name: 'AMBO', prizeKey: 'prize-ambo' },
-      { key: 'terno', name: 'TERNO', prizeKey: 'prize-terno' },
-      { key: 'quaterna', name: 'QUATERNA', prizeKey: 'prize-quaterna' },
-      { key: 'cinquina', name: 'CINQUINA', prizeKey: 'prize-cinquina' },
-      { key: 'tombola', name: 'TOMBOLA', prizeKey: 'prize-tombola' },
-      { key: 'tombolino', name: 'TOMBOLINO', prizeKey: 'prize-tombolino' }
-    ];
+const VIP_POOL_SIZE=2000;
+function getVipUrlByIndex(idx){
+  const safe = ((idx % VIP_POOL_SIZE) + VIP_POOL_SIZE) % VIP_POOL_SIZE;
+  const bucket = safe % 3;
+  if(bucket===0){
+    const g = (safe % 2===0)?'men':'women';
+    const n = safe % 100;
+    return `https://randomuser.me/api/portraits/${g}/${n}.jpg`;
+  } else if(bucket===1){
+    return `https://i.pravatar.cc/600?u=vip_galleon_${safe}&t=${safe}`;
+  } else {
+    return `https://api.dicebear.com/9.x/personas/jpeg?seed=vipCeleb${safe}&size=600&backgroundColor=ffdfbf,c0aede,d1d4f9`;
+  }
+}
 
-    let playerCards = [];
-    let pendingWinnersList = [];
-    let currentWinnerModalData = null;
-    let audioMusicPlaying = false;
+let currentStageIndex=0, drawnNumbers=[], confirmedWinnersObjects=[], prizesConfig={AMBO:"Buono Caffè",TERNO:"Birra Media",QUATERNA:"Pizza Omaggio",CINQUINA:"Menu Cena per 2",TOMBOLA:"Super Premio Finale",TOMBOLINO:"Cesto Natalizio / Speciale"}, regiaAuth=false, currentPlayerPhoto="", localMyCardsKeys=JSON.parse(localStorage.getItem('my_tombola_cards')||'[]'), activeWinnerObj=null, isMusicPlaying=false, allGlobalCardsCache=null, activeFullscreenKey=null;
 
-    // Inizializzazione all'avvio della pagina
-    window.onload = function() {
-      initBoard();
-      loadConfig();
-      loadIntroPrizes();
-      loadPlayerCardsFromStorage();
-      generateQRCodes();
-    };
+function openRecoveryModal(){document.getElementById('recovery-modal').style.display='flex'}
+function closeRecoveryModal(){document.getElementById('recovery-modal').style.display='none'}
+function openIntroOverlay(){document.getElementById('intro-overlay').style.display='flex'}
+function closeIntroOverlay(){document.getElementById('intro-overlay').style.display='none'}
 
-    // === GESTIONE TAB E INTERFACCIA ===
-    function switchView(viewId) {
-      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById('view-' + viewId).classList.add('active');
-      
-      // Evidenzia pulsante tab corrispondente se presente
-      const btnMap = { 'tabellone': 'btn-tabellone', 'regia': 'btn-regia', 'giocatore': 'btn-giocatore', 'stampa': 'btn-stampa' };
-      if (btnMap[viewId]) {
-        const btn = document.getElementById(btnMap[viewId]);
-        if (btn) btn.classList.add('active');
-      }
-    }
+function closeIntroOverlayAndFullscreen(){
+  closeIntroOverlay();
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log("Fullscreen consentito tramite interazione utente.");
+    });
+  }
+}
 
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          alert(`Errore attivazione schermo intero: ${err.message}`);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
+function recoverViaWhatsApp(){const phoneNumber="393391318613";const text=encodeURIComponent("Ciao! Ho richiesto il recupero delle credenziali per la Tombola PMU & The Galleon. La password della regia è: 27");window.open(`https://wa.me/${phoneNumber}?text=${text}`,'_blank')}
+function recoverViaEmail(){const email="supporto@pmu-galleon.it";const subject=encodeURIComponent("Recupero Password / Assistenza Tombola");const body=encodeURIComponent("Salve, richiedo assistenza o il recupero delle credenziali per la Tombola PMU & The Galleon. Password regia: 27");window.location.href=`mailto:${email}?subject=${subject}&body=${body}`}
+
+function toggleAudio(){const bgAudio=document.getElementById('audio-bg');const winAudio=document.getElementById('audio-win');const btn=document.getElementById('btn-audio');if(!isMusicPlaying){winAudio.pause();bgAudio.volume=.35;let playPromise=bgAudio.play();if(playPromise!==undefined){playPromise.then(()=>{isMusicPlaying=true;btn.innerText="🔊 Musica: ON";btn.style.background="var(--gold)";btn.style.color="#000"}).catch(e=>{alert("Fai un click sulla pagina prima di attivare l'audio.")})}}else{bgAudio.pause();isMusicPlaying=false;btn.innerText="🔇 Musica: OFF";btn.style.background="#222e42";btn.style.color="var(--gold-light)"}}
+function playWinMusic(){const bgAudio=document.getElementById('audio-bg');const winAudio=document.getElementById('audio-win');if(bgAudio)bgAudio.pause();if(winAudio){winAudio.currentTime=0;winAudio.volume=1;winAudio.play().catch(e=>console.log("Audio vincita avviato"))}}
+function stopAllAudioCompletely(){const bgAudio=document.getElementById('audio-bg');const winAudio=document.getElementById('audio-win');if(bgAudio){bgAudio.pause();bgAudio.currentTime=0}if(winAudio){winAudio.pause();winAudio.currentTime=0}}
+function resumeBgMusic(){stopAllAudioCompletely();const bgAudio=document.getElementById('audio-bg');if(bgAudio&&isMusicPlaying){bgAudio.volume=.35;bgAudio.play().catch(e=>console.log("Ripresa musica"))}}
+function handleCartoonError(img){
+  img.onerror=null;
+  const src = img.src;
+  if(src.includes('randomuser.me')){
+    const idx=Math.floor(Math.random()*2000);
+    img.src=`https://i.pravatar.cc/600?u=fallback_${idx}`;
+  } else if(src.includes('pravatar')){
+    const idx=Math.floor(Math.random()*2000);
+    img.src=`https://api.dicebear.com/9.x/personas/jpeg?seed=fallback${idx}`;
+  } else {
+    const idx=Math.floor(Math.random()*100);
+    img.src=`https://randomuser.me/api/portraits/men/${idx}.jpg`;
+  }
+}
+function handlePhotoError(img){img.onerror=null;img.src='https://via.placeholder.com/500/162232/ffffff?text=Selfie+Vincitore'}
+function switchView(viewId){document.querySelectorAll('.view-section').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));document.getElementById('view-'+viewId).classList.add('active');const tabBtn=document.getElementById('btn-'+viewId);if(tabBtn)tabBtn.classList.add('active');const backBtn=document.getElementById('btn-back-to-cards');if(backBtn){if(viewId==='tabellone'&&window.location.hash==="#giocatore")backBtn.style.display='inline-block';else backBtn.style.display='none'}window.scrollTo(0,0)}
+function initBoard(){const grid=document.getElementById('board-grid');if(!grid)return;grid.innerHTML='';for(let i=1;i<=90;i++){const cell=document.createElement('div');cell.className='grid-cell';cell.innerHTML=`<div class="lotto-ball" id="cell-${i}">${i}</div>`;grid.appendChild(cell)}}
+function toggleFullscreen(){if(!document.fullscreenElement){document.documentElement.requestFullscreen()}else{if(document.exitFullscreen)document.exitFullscreen()}}
+function handlePhotoUpload(event){const file=event.target.files[0];if(file){const reader=new FileReader();reader.onload=function(e){const img=new Image();img.onload=function(){const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');canvas.width=400;canvas.height=400;ctx.drawImage(img,0,0,400,400);currentPlayerPhoto=canvas.toDataURL('image/jpeg',.7);document.getElementById('player-photo-preview').src=currentPlayerPhoto};img.src=e.target.result};reader.readAsDataURL(file)}}
+function showPlayerForm(){document.getElementById('player-form-container').style.display='block';document.getElementById('add-more-container').style.display='none'}
+function generateTombolaClassicGrid(){let grid=Array(3).fill(null).map(()=>Array(9).fill(null));let rowCols=[];for(let r=0;r<3;r++){let cols=[];while(cols.length<5){let c=Math.floor(Math.random()*9);if(!cols.includes(c))cols.push(c)}cols.sort((a,b)=>a-b);rowCols.push(cols)}let colRows=Array(9).fill(null).map(()=>[]);for(let r=0;r<3;r++){rowCols[r].forEach(c=>colRows[c].push(r))}for(let c=0;c<9;c++){let count=colRows[c].length;if(count===0)continue;let min=(c===0)?1:c*10;let max=(c===8)?90:(c*10+9);let nums=[];while(nums.length<count){let n=Math.floor(Math.random()*(max-min+1))+min;if(!nums.includes(n))nums.push(n)}nums.sort((a,b)=>a-b);colRows[c].sort((a,b)=>a-b);colRows[c].forEach((r,idx)=>{grid[r][c]=nums[idx]})}let flatObj={};let index=0;for(let r=0;r<3;r++){for(let c=0;c<9;c++){flatObj[index]=grid[r][c]!==null?grid[r][c]:0;index++}}return flatObj}
+function updateStageVisuals(){
+  const stageName=PRIZE_STAGES[currentStageIndex]||'GIOCO FINITO';const prizeName=prizesConfig[stageName]||'';const displayRegia=document.getElementById('current-stage-display');if(displayRegia)displayRegia.innerText=stageName;const boardBanner=document.getElementById('board-current-prize-display');
+  if(boardBanner){if(currentStageIndex<PRIZE_STAGES.length)boardBanner.innerHTML=`🎯 SI GIOCA PER: <span style="color:#fff;">${stageName}</span> — PREMIO: <span style="color:var(--gold-light);">${prizeName}</span>`;else boardBanner.innerHTML=`🎯 <span style="color:#fff;">PARTITA CONCLUSA IN TUTTI I PREMI!</span>`}
+  renderIntroPrizes();
+  renderMyCards();
+}
+function renderIntroPrizes(){
+  const container=document.getElementById('intro-prizes-container');
+  if(!container)return;
+  const icons = {AMBO:'☕',TERNO:'🍺',QUATERNA:'🍕',CINQUINA:'🍽️',TOMBOLA:'🏆',TOMBOLINO:'🎁'};
+  let html='';
+  PRIZE_STAGES.forEach(stage=>{
+    const pName = prizesConfig[stage]||'';
+    const icon = icons[stage]||'⭐';
+    html+=`<div class="intro-prize-item"><span class="intro-prize-stage">${icon} ${stage}</span><span class="intro-prize-name">${pName}</span></div>`;
+  });
+  container.innerHTML=html;
+}
+function checkRegiaAuth(){const pass=document.getElementById('regia-pass').value;if(pass==="27"){regiaAuth=true;document.getElementById('regia-login').style.display='none';document.getElementById('regia-content').style.display='block';renderRegiaCardsList(allGlobalCardsCache)}else alert("Password non corretta!")}
+function saveOrganizersConfig(){const brand=document.getElementById('cfg-brand').value;const banner=document.getElementById('cfg-banner').value;db.ref('config').update({brand,banner});alert("Configurazione salvata!")}
+function savePrizesConfig(){prizesConfig.AMBO=document.getElementById('prize-ambo').value;prizesConfig.TERNO=document.getElementById('prize-terno').value;prizesConfig.QUATERNA=document.getElementById('prize-quaterna').value;prizesConfig.CINQUINA=document.getElementById('prize-cinquina').value;prizesConfig.TOMBOLA=document.getElementById('prize-tombola').value;prizesConfig.TOMBOLINO=document.getElementById('prize-tombolino').value;db.ref('prizesConfig').set(prizesConfig);updateStageVisuals();alert("Premi salvati!")}
+function drawNumber(){if(currentStageIndex>=PRIZE_STAGES.length){alert("La partita è già conclusa per tutti i premi!");return}let available=[];for(let i=1;i<=90;i++){if(!drawnNumbers.includes(i))available.push(i)}if(available.length===0){alert("Tutti i numeri sono stati estratti!");return}let drawn=available[Math.floor(Math.random()*available.length)];drawnNumbers.push(drawn);db.ref('gameState').set({drawnNumbers:drawnNumbers,currentStageIndex:currentStageIndex,lastDrawn:drawn,timestamp:Date.now()}).then(()=>{checkAutomaticWins()})}
+function showExtractionAnimation(num){const overlay=document.getElementById('extraction-overlay');const ball=document.getElementById('overlay-ball');const smorfiaText=document.getElementById('overlay-smorfia');ball.innerText=num;smorfiaText.innerText=num+" - "+(smorfia[num]||"Numero fortunato");overlay.style.display='flex';setTimeout(()=>{overlay.style.display='none'},3200)}
+
+function addPlayerCard(){
+  const nameInput=document.getElementById('player-name').value.trim();
+  if(!nameInput){alert("Inserisci il tuo Nome e Cognome.");return}
+  if(!currentPlayerPhoto){alert("È obbligatorio scattare un selfie!");return}
+  const playMode=document.getElementById('play-mode').value;
+  const btn=document.getElementById('generate-card-btn');
+  const originalText=btn.innerText; btn.disabled=true; btn.innerText="⏳ Genero cartella...";
+  db.ref('vipCounter').transaction(current=>{return (current||0)+1;},(error,committed,snapshot)=>{
+    btn.disabled=false; btn.innerText=originalText;
+    if(error||!committed){alert("Riprova, errore temporaneo.");return}
+    const newCounter=snapshot.val(); const vipIndex=(newCounter-1)%VIP_POOL_SIZE; const vipPhoto=getVipUrlByIndex(vipIndex);
+    const cardGrid=generateTombolaClassicGrid(); const cardRef=db.ref('cards').push();
+    const cardData={name:nameInput,photo:currentPlayerPhoto,vipPhoto:vipPhoto,vipIndex:vipIndex,mode:playMode,grid:cardGrid,marked:{},approved:false,createdAt:Date.now()};
+    cardRef.set(cardData).then(()=>{
+      localMyCardsKeys.push(cardRef.key); localStorage.setItem('my_tombola_cards',JSON.stringify(localMyCardsKeys));
+      document.getElementById('player-form-container').style.display='none'; document.getElementById('add-more-container').style.display='block'; document.getElementById('player-name').value=''; renderMyCards();
+    });
+  });
+}
+
+function toggleCardMode(cardKey,currentMode){const isGameStarted=drawnNumbers.length>0;const newMode=currentMode==='auto'?'manual':'auto';const labelNewMode=newMode==='auto'?'AUTOMATICA (segna il sistema)':'MANUALE (segni tu le caselle)';let confirmMsg=`Vuoi cambiare la marcatura della cartella in modalità ${labelNewMode}?`;if(isGameStarted)confirmMsg=`ATTENZIONE: La partita è già iniziata!\nSei sicuro di voler cambiare la marcatura in: ${labelNewMode}?`;if(confirm(confirmMsg)){db.ref(`cards/${cardKey}/mode`).set(newMode).then(()=>{renderMyCards();if(activeFullscreenKey===cardKey)openFullscreenCard(cardKey)})}}
+function approveCard(cardKey){db.ref(`cards/${cardKey}/approved`).set(true)}
+function rejectCard(cardKey){if(confirm("Sei sicuro di voler rifiutare ed eliminare questa cartella?")){db.ref(`cards/${cardKey}`).remove()}}
+function renderRegiaCardsList(cardsObj){
+  const listEl=document.getElementById('regia-cards-list');const countEl=document.getElementById('participants-count');const count=cardsObj?Object.keys(cardsObj).length:0;
+  if(countEl)countEl.innerText=`(Totale: ${count})`; if(!listEl||!regiaAuth)return;
+  if(!cardsObj||count===0){listEl.innerHTML='<i>Nessun partecipante registrato.</i>';return}
+  let listHtml=''; Object.keys(cardsObj).forEach(k=>{
+    let c=cardsObj[k]; let isApproved=c.approved===true;
+    listHtml+=`<div class="approval-card-item ${isApproved?'':'pending'}"><div style="display:flex;align-items:center;gap:12px;"><img src="${c.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);" onerror="handlePhotoError(this)" /><div><div style="font-size:1rem;font-weight:bold;color:#fff;">${c.name}</div><div style="font-size:.8rem;color:var(--gold-light);">Modalità: ${c.mode==='auto'?'🤖 Auto':'✍️ Manuale'}</div><div style="font-size:.75rem;color:${isApproved?'#2ecc71':'#f39c12'};font-weight:bold;margin-top:2px;">${isApproved?'✓ Cartella Approvata':'⏳ In attesa di verifica'}</div></div></div><div style="display:flex;flex-direction:column;gap:4px;">${!isApproved?`<button class="btn btn-sm btn-success" style="padding:6px 12px;font-size:.85rem;" onclick="approveCard('${k}')">✓ Approva</button><button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:.75rem;" onclick="rejectCard('${k}')">✕ Rifiuta</button>`:`<button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:.75rem;" onclick="rejectCard('${k}')">Elimina</button>`}</div></div>`;
+  }); listEl.innerHTML=listHtml;
+}
+function renderMyCards(){
+  const container=document.getElementById('player-cards-list');if(!container)return;container.innerHTML='';
+  if(localMyCardsKeys.length===0){container.innerHTML='<div style="text-align:center;color:#777;padding:20px;">Non hai ancora generato alcuna cartella.</div>';return}
+  const currentStageName=PRIZE_STAGES[currentStageIndex]||'GIOCO';const currentPrizeDesc=prizesConfig[currentStageName]||'';
+  localMyCardsKeys.forEach(key=>{
+    db.ref('cards/'+key).once('value',snapshot=>{
+      const card=snapshot.val();if(!card)return;
+      let isApproved=card.approved===true;let pendingClass=isApproved?'':' pending';let modeLabel=card.mode==='auto'?'🤖 Auto':'✍️ Manuale';
+      let html=`<div class="card-digital${pendingClass}">`;
+      if(!isApproved)html+=`<div class="pending-badge-banner">⏳ IN ATTESA DI APPROVAZIONE DALLA REGIA</div>`;
+      html+=`<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div><div class="card-header-info"><div><strong>${card.name}</strong> <button class="mode-switch-btn" onclick="toggleCardMode('${key}','${card.mode}')" title="Clicca per cambiare modalità">${modeLabel} ⚙️</button></div>${isApproved?`<button class="btn btn-sm" style="background:#38bdf8;color:#000;padding:4px 8px;font-size:.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>`:''}</div>`;
+      if(card.mode==='manual')html+=`<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
+      html+=`<div class="tombola-classic-grid">`;
+      for(let i=0;i<27;i++){let val=card.grid[i];let isMarked=(card.mode==='auto'&&drawnNumbers.includes(val))||(card.marked&&card.marked[i]);if(val===0){html+=`<div class="tombola-cell empty"></div>`}else{let markedClass=isMarked?' marked':'';let clickAttr=(isApproved&&card.mode==='manual')?`onclick="toggleManualMark('${key}',${i},${val})"`:'';html+=`<div class="tombola-cell${markedClass}" ${clickAttr}>${val}</div>`}}
+      html+=`</div></div>`;container.innerHTML+=html;
+    });
+  });
+}
+function toggleManualMark(cardKey,cellIndex,numVal){if(!drawnNumbers.includes(numVal)){alert("⚠️ Il numero "+numVal+" non è ancora uscito! Puoi cliccare solo i numeri estratti dalla regia.");return}db.ref(`cards/${cardKey}/marked/${cellIndex}`).once('value',snapshot=>{let currentStatus=snapshot.val();db.ref(`cards/${cardKey}/marked/${cellIndex}`).set(!currentStatus).then(()=>{renderMyCards();if(activeFullscreenKey===cardKey)openFullscreenCard(cardKey)})})}
+function openFullscreenCard(cardKey){
+  activeFullscreenKey=cardKey;
+  db.ref('cards/'+cardKey).once('value',snapshot=>{
+    const card=snapshot.val();if(!card||!card.approved)return;
+    let modeLabel=card.mode==='auto'?'🤖 Auto':'✍️ Manuale';const currentStageName=PRIZE_STAGES[currentStageIndex]||'GIOCO';const currentPrizeDesc=prizesConfig[currentStageName]||'';
+    document.getElementById('fs-card-title').innerHTML=`Cartella di ${card.name} <button class="mode-switch-btn" onclick="toggleCardMode('${cardKey}','${card.mode}')">${modeLabel} ⚙️</button>`;
+    const container=document.getElementById('fs-card-grid-container');
+    let html=`<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div>`;
+    if(card.mode==='manual')html+=`<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
+    html+=`<div class="tombola-classic-grid">`;
+    for(let i=0;i<27;i++){let val=card.grid[i];let isMarked=(card.mode==='auto'&&drawnNumbers.includes(val))||(card.marked&&card.marked[i]);if(val===0){html+=`<div class="tombola-cell empty"></div>`}else{let markedClass=isMarked?' marked':'';let clickAttr=(card.approved&&card.mode==='manual')?`onclick="toggleManualMark('${cardKey}',${i},${val})"` :'';html+=`<div class="tombola-cell${markedClass}" ${clickAttr}>${val}</div>`}}
+    html+=`</div>`;container.innerHTML=html;document.getElementById('fullscreen-card-overlay').style.display='flex';
+  });
+}
+function closeFullscreenCard(){activeFullscreenKey=null;document.getElementById('fullscreen-card-overlay').style.display='none';renderMyCards()}
+function checkAutomaticWins(){
+  db.ref('cards').once('value',snapshot=>{
+    const cardsObj=snapshot.val();if(!cardsObj)return;
+    let foundWinner=null;let currentStage=PRIZE_STAGES[currentStageIndex];
+    Object.keys(cardsObj).forEach(cardId=>{
+      let card=cardsObj[cardId];if(!card.approved)return;
+      let rowCounts=[0,0,0];let totalMatches=0;
+      for(let r=0;r<3;r++){for(let c=0;c<9;c++){let idx=r*9+c;let val=card.grid[idx];if(val!==0&&drawnNumbers.includes(val)){rowCounts[r]++;totalMatches++}}}
+      let maxInSingleRow=Math.max(...rowCounts);let hasWon=false;
+      if(currentStage==='AMBO'&&maxInSingleRow>=2)hasWon=true;
+      if(currentStage==='TERNO'&&maxInSingleRow>=3)hasWon=true;
+      if(currentStage==='QUATERNA'&&maxInSingleRow>=4)hasWon=true;
+      if(currentStage==='CINQUINA'&&maxInSingleRow>=5)hasWon=true;
+      if(currentStage==='TOMBOLA'&&totalMatches>=15)hasWon=true;
+      if(currentStage==='TOMBOLINO'&&totalMatches>=15)hasWon=true;
+      if(hasWon&&!foundWinner){
+        let vipUrl = card.vipPhoto;
+        if(!vipUrl || vipUrl.includes('vip_celebrity_1980_2026_pool') || vipUrl.includes('picsum.photos/seed/vip')){
+          const idx = card.vipIndex!=null?card.vipIndex:(Math.floor(Math.random()*2000));
+          vipUrl = getVipUrlByIndex(idx);
         }
+        foundWinner={cardId,name:card.name,photo:card.photo,cartoonUrl:vipUrl,stage:currentStage};
       }
-    }
-
-    function toggleAudio() {
-      const audio = document.getElementById('audio-bg');
-      const btn = document.getElementById('btn-audio');
-      if (audioMusicPlaying) {
-        audio.pause();
-        audioMusicPlaying = false;
-        btn.innerText = "🔇 Musica: OFF";
-        btn.style.background = "#222e42";
-      } else {
-        audio.play().catch(e => console.log("Audio play prevented:", e));
-        audioMusicPlaying = true;
-        btn.innerText = "🔊 Musica: ON";
-        btn.style.background = "var(--gold)";
-        btn.style.color = "#000";
-      }
-    }
-
-    // === SCHERMATA INTRO / HOME ===
-    function openIntroOverlay() {
-      document.getElementById('intro-overlay').style.display = 'flex';
-      loadIntroPrizes();
-    }
-
-    function closeIntroOverlayAndFullscreen() {
-      document.getElementById('intro-overlay').style.display = 'none';
-      switchView('tabellone');
-    }
-
-    function loadIntroPrizes() {
-      const container = document.getElementById('intro-prizes-container');
-      if (!container) return;
-      let html = '';
-      stages.forEach(st => {
-        const prizeVal = localStorage.getItem(st.prizeKey) || getDefaultPrize(st.key);
-        html += `<div class="intro-prize-item">
-          <div class="intro-prize-stage">🎯 ${st.name}</div>
-          <div class="intro-prize-name">${prizeVal}</div>
-        </div>`;
-      });
-      container.innerHTML = html;
-    }
-
-    function getDefaultPrize(key) {
-      const defaults = { ambo: 'Buono Caffè', terno: 'Birra Media', quaterna: 'Pizza Omaggio', cinquina: 'Menu Cena per 2', tombola: 'Super Premio Finale', tombolino: 'Cesto Natalizio / Speciale' };
-      return defaults[key] || 'Premio';
-    }
-
-    // === TABELLONE (GRIGLIA 1-90) ===
-    function initBoard() {
-      const grid = document.getElementById('board-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      for (let i = 1; i <= 90; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell';
-        const ball = document.createElement('div');
-        ball.className = 'lotto-ball';
-        ball.id = 'ball-' + i;
-        ball.innerText = i;
-        cell.appendChild(ball);
-        grid.appendChild(cell);
-      }
-      updateCurrentStageDisplay();
-    }
-
-    // === CONFIGURAZIONI E PREMI ===
-    function saveOrganizersConfig() {
-      const brand = document.getElementById('cfg-brand').value;
-      const banner = document.getElementById('cfg-banner').value;
-      localStorage.setItem('cfg_brand', brand);
-      localStorage.setItem('cfg_banner', banner);
-      applyConfigToUI();
-      alert("Configurazione organizzatori salvata!");
-    }
-
-    function savePrizesConfig() {
-      stages.forEach(st => {
-        const val = document.getElementById(st.prizeKey).value;
-        localStorage.setItem(st.prizeKey, val);
-      });
-      updateCurrentStageDisplay();
-      alert("Configurazione premi salvata!");
-    }
-
-    function loadConfig() {
-      const brand = localStorage.getItem('cfg_brand');
-      const banner = localStorage.getItem('cfg_banner');
-      if (brand) document.getElementById('cfg-brand').value = brand;
-      if (banner) document.getElementById('cfg-banner').value = banner;
-      applyConfigToUI();
-
-      stages.forEach(st => {
-        const val = localStorage.getItem(st.prizeKey);
-        if (val) {
-          const input = document.getElementById(st.prizeKey);
-          if (input) input.value = val;
-        }
-      });
-    }
-
-    function applyConfigToUI() {
-      const brand = localStorage.getItem('cfg_brand') || "PMU & The Galleon";
-      const banner = localStorage.getItem('cfg_banner') || "Pallavolo Media Umbra & The Galleon Pizzeria";
-      document.getElementById('brand-header-title').innerText = brand;
-      document.getElementById('banner-main-title').innerText = banner;
-    }
-
-    function updateCurrentStageDisplay() {
-      if (currentStageIndex >= stages.length) {
-        document.getElementById('board-current-prize-display').innerHTML = `🏆 <span style="color:#fff;">PARTITA CONCLUSA - TUTTI I PREMI ASSEGNATI</span>`;
-        document.getElementById('current-stage-display').innerText = "FINE PARTITA";
-        return;
-      }
-      const st = stages[currentStageIndex];
-      const prizeName = localStorage.getItem(st.prizeKey) || getDefaultPrize(st.key);
-      const text = `🎯 SI GIOCA PER: <span style="color:#fff;">${st.name}</span> — PREMIO: <span style="color:var(--gold-light);">${prizeName}</span>`;
-      document.getElementById('board-current-prize-display').innerHTML = text;
-      document.getElementById('current-stage-display').innerText = `${st.name} (${prizeName})`;
-    }
-
-    // === ESTRAZIONE NUMERI (REGIA) ===
-    const smorfiaNames = {
-      1: "L'Italia", 2: "La Piccola", 3: "La Gatta", 4: "Il Fornello", 5: "La Mano", 6: "Quella che guarda", 7: "Il Vasetto", 8: "La Madonna", 9: "La Figliolanza", 10: "I Fagioli",
-      11: "I Topolini", 12: "Il Soldato", 13: "Sant'Antonio", 14: "L'Ubriaco", 15: "Il Ragazzo", 16: "Il culo", 17: "La disgrazia", 18: "Il sangue", 19: "La risata", 20: "La festa",
-      21: "La donna nuda", 22: "Il pazzo", 23: "Lo scemo", 24: "Le guardie", 25: "Natale", 26: "La piccoletta", 27: "Il vaso", 28: "I seni", 29: "Il padre", 30: "Le palle",
-      31: "Il padrone di casa", 32: "Il capitone", 33: "Gli anni di Cristo", 34: "La testa", 35: "L'uccellino", 36: "Le nacchere", 37: "Il monaco", 38: "Le mazzate", 39: "La corda impiccata", 40: "Il ernia",
-      41: "Il coltello", 42: "Il caffè", 43: "La donna al balcone", 44: "I carcere", 45: "Il vino", 46: "Il denaro", 47: "Il morto", 48: "Il morto che parla", 49: "La carne", 50: "La pane",
-      51: "Il giardino", 52: "La madre", 53: "Il vecchio", 54: "Il cappello", 55: "La musica", 56: "La caduta", 57: "Il gobbo", 58: "Il patto", 59: "I peli", 60: "Il lamento",
-      61: "Il cacciatore", 62: "Il morto ammazzato", 63: "La sposa", 64: "La cialtrona", 65: "Il pianto", 66: "Le due zitelle", 67: "Il totano", 68: "La zuppa", 69: "Sottosopra", 70: "Il palazzo",
-      71: "L'uomo di merda", 72: "La stupenda", 73: "L'ospedale", 74: "La grotta", 75: "Pulcinella", 76: "La fontana", 77: "Le gambe delle donne", 78: "La bella", 79: "Il ladro", 80: "La bocca",
-      81: "I fiori", 82: "I piedi", 83: "Il maltempo", 84: "La chiesa", 85: "L'anima", 86: "La bottega", 87: "I pidocchi", 88: "I caciocavalli", 89: "La vecchia", 90: "La paura"
-    };
-
-    function drawNumber() {
-      if (drawnNumbers.length >= 90) {
-        alert("Tutti i 90 numeri sono stati estratti!");
-        return;
-      }
-      let num;
-      do {
-        num = Math.floor(Math.random() * 90) + 1;
-      } while (drawnNumbers.includes(num));
-
-      drawnNumbers.push(num);
-
-      // Aggiorna grafica maxischermo
-      const ballEl = document.getElementById('ball-' + num);
-      if (ballEl) ballEl.classList.add('drawn');
-
-      // Ultimo estratto badge
-      document.getElementById('banner-last-drawn-val').innerText = num;
-
-      // Mostra overlay estrazione gigante
-      showExtractionAnimation(num);
-
-      // Segna automaticamente sulle cartelle se in modalità auto
-      processAutomaticMarking(num);
-    }
-
-    function showExtractionAnimation(num) {
-      const overlay = document.getElementById('extraction-overlay');
-      const ball = document.getElementById('overlay-ball');
-      const smorfia = document.getElementById('overlay-smorfia');
-
-      ball.innerText = num;
-      smorfia.innerText = `${num} - ${smorfiaNames[num] || 'Numero estratto'}`;
-      overlay.style.display = 'flex';
-
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 3500);
-    }
-
-    // Autenticazione Regia
-    function checkRegiaAuth() {
-      const pass = document.getElementById('regia-pass').value;
-      if (pass === "pmu2026" || pass === "admin" || pass === "galleon") {
-        document.getElementById('regia-login').style.display = 'none';
-        document.getElementById('regia-content').style.display = 'block';
-        updateRegiaParticipantsList();
-      } else {
-        alert("Password non errata! Riprova.");
-      }
-    }
-
-    // === GESTIONE CARTELLE GIOCATORE ===
-    let currentPlayerPhoto = "https://via.placeholder.com/100/162232/ffffff?text=Selfie";
-
-    function handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        currentPlayerPhoto = e.target.result;
-        document.getElementById('player-photo-preview').src = currentPlayerPhoto;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function generateTombolaCardGrid() {
-      // Generatore cartella tombola classica 3 righe x 9 colonne con 5 numeri per riga
-      let cardRows = [];
-      let usedColsOverall = [];
-
-      for (let r = 0; r < 3; r++) {
-        let row = new Array(9).fill(0);
-        // Scegliamo 5 colonne casuali uniche per questa riga
-        let cols = [];
-        while (cols.length < 5) {
-          let c = Math.floor(Math.random() * 9);
-          if (!cols.includes(c)) cols.push(c);
-        }
-        cols.sort((a,b) => a - b);
-
-        cols.forEach(c => {
-          let min = c * 10 + (c === 0 ? 1 : 0);
-          let max = c === 8 ? 90 : (c * 10 + 9);
-          let val;
-          let attempts = 0;
-          do {
-            val = Math.floor(Math.random() * (max - min + 1)) + min;
-            attempts++;
-          } while (row.includes(val) && attempts < 50);
-          row[c] = val;
-        });
-        cardRows.push(row);
-      }
-      return cardRows;
-    }
-
-    function addPlayerCard() {
-      const nameInput = document.getElementById('player-name').value.trim();
-      if (!nameInput) {
-        alert("Inserisci il tuo Nome e Cognome per generare la cartella!");
-        return;
-      }
-      const playMode = document.getElementById('play-mode').value;
-      const cardData = {
-        id: 'card_' + Date.now() + '_' + Math.floor(Math.random()*1000),
-        name: nameInput,
-        photo: currentPlayerPhoto,
-        mode: playMode, // 'auto' o 'manual'
-        grid: generateTombolaCardGrid(),
-        marked: [], // numeri marcati
-        status: 'active' // 'active', 'pending_win', 'won'
-      };
-
-      playerCards.push(cardData);
-      savePlayerCardsToStorage();
-      renderPlayerCards();
-
-      // Nascondi form creazione iniziale, mostra tasto aggiungi un'altra
-      document.getElementById('player-form-container').style.display = 'none';
-      document.getElementById('add-more-container').style.display = 'block';
-      updateRegiaParticipantsList();
-    }
-
-    function showPlayerForm() {
-      document.getElementById('player-form-container').style.display = 'block';
-      document.getElementById('add-more-container').style.display = 'none';
-    }
-
-    function savePlayerCardsToStorage() {
-      localStorage.setItem('tombola_cards', JSON.stringify(playerCards));
-    }
-
-    function loadPlayerCardsFromStorage() {
-      const saved = localStorage.getItem('tombola_cards');
-      if (saved) {
-        try {
-          playerCards = JSON.parse(saved);
-          if (playerCards.length > 0) {
-            document.getElementById('player-form-container').style.display = 'none';
-            document.getElementById('add-more-container').style.display = 'block';
-            renderPlayerCards();
-          }
-        } catch(e) { console.error(e); }
-      }
-    }
-
-    function renderPlayerCards() {
-      const container = document.getElementById('player-cards-list');
-      if (!container) return;
-      if (playerCards.length === 0) {
-        container.innerHTML = "<i>Nessuna cartella generata.</i>";
-        return;
-      }
-
-      let html = '';
-      playerCards.forEach((card, idx) => {
-        const isManual = card.mode === 'manual';
-        html += `<div class="card-digital ${card.status === 'pending_win' ? 'pending' : ''}">
-          <div class="card-header-info">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <img src="${card.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);" alt="Selfie">
-              <div>
-                <strong style="font-size:1rem;color:#fff;">${card.name}</strong>
-                <div style="font-size:.75rem;color:#aaa;">Cartella #${idx+1}</div>
-              </div>
-            </div>
-            <div>
-              <button class="mode-switch-btn" onclick="toggleCardMode('${card.id}')">
-                ${isManual ? '✍️ Mod. Manuale' : '🤖 Mod. Automatica'}
-              </button>
-              <button class="btn btn-sm" style="background:#38bdf8;color:#000;margin-left:5px;font-weight:bold;" onclick="openFullscreenCard('${card.id}')">🔍 Schermo Intero</button>
-            </div>
-          </div>
-          
-          <div class="card-stage-banner">🎯 In gioco per: ${stages[currentStageIndex] ? stages[currentStageIndex].name : 'COMPLETATO'}</div>
-          ${isManual ? '<div class="manual-hint-banner">✍️ Tocca i numeri sulla tua cartella per segnarli man mano che vengono estratti!</div>' : ''}
-          ${card.status === 'pending_win' ? '<div class="pending-badge-banner">⏳ VINCITA IN ATTESA DI CONVALIDA DA PARTE DELLA REGIA!</div>' : ''}
-
-          <div class="tombola-classic-grid">`;
-
-        // Renderizza griglia cartella 3x9
-        card.grid.forEach((row, rIdx) => {
-          row.forEach((num, cIdx) => {
-            if (num === 0) {
-              html += `<div class="tombola-cell empty"></div>`;
-            } else {
-              const isMarked = card.marked.includes(num);
-              const markedClass = isMarked ? 'marked' : '';
-              html += `<div class="tombola-cell ${markedClass}" onclick="handleCellClick('${card.id}', ${num})">${num}</div>`;
-            }
-          });
-        });
-
-        html += `</div></div>`;
-      });
-      container.innerHTML = html;
-    }
-
-    function toggleCardMode(cardId) {
-      const card = playerCards.find(c => c.id === cardId);
-      if (card) {
-        card.mode = card.mode === 'auto' ? 'manual' : 'auto';
-        savePlayerCardsToStorage();
-        renderPlayerCards();
-      }
-    }
-
-    function handleCellClick(cardId, num) {
-      const card = playerCards.find(c => c.id === cardId);
-      if (!card) return;
-      if (card.mode !== 'manual') {
-        alert("Questa cartella è in modalità Automatica! Il sistema segna i numeri estratti. Puoi cambiare modalità in alto a destra sulla cartella.");
-        return;
-      }
-      // Verifica se il numero è stato estratto
-      if (!drawnNumbers.includes(num)) {
-        alert(`Il numero ${num} non è stato ancora estratto dalla regia!`);
-        return;
-      }
-
-      // Toggle marcatura manuale
-      const idx = card.marked.indexOf(num);
-      if (idx > -1) {
-        card.marked.splice(idx, 1);
-      } else {
-        card.marked.push(num);
-      }
-      savePlayerCardsToStorage();
-      renderPlayerCards();
-
-      // Verifica vincita automatica/manuale istantanea per questa cartella
-      checkCardWinCondition(card);
-    }
-
-    function processAutomaticMarking(drawnNum) {
-      let updated = false;
-      playerCards.forEach(card => {
-        if (card.mode === 'auto') {
-          // Controlla se il numero è nella cartella
-          let found = false;
-          card.grid.forEach(row => {
-            if (row.includes(drawnNum)) found = true;
-          });
-          if (found && !card.marked.includes(drawnNum)) {
-            card.marked.push(drawnNum);
-            updated = true;
-          }
-        }
-        // Dopo aver segnato (auto o manuale), verifica vincite
-        checkCardWinCondition(card);
-      });
-      if (updated) {
-        savePlayerCardsToStorage();
-        renderPlayerCards();
-      }
-    }
-
-    // === VERIFICA VINCITE (AMBO, TERNO, QUATERNA, CINQUINA, TOMBOLA) ===
-    function checkCardWinCondition(card) {
-      if (currentStageIndex >= stages.length) return;
-      if (card.status === 'pending_win' || card.status === 'won') return;
-
-      const currentStage = stages[currentStageIndex].key;
-
-      // Controlla per ogni riga quanti numeri marcati ci sono
-      let maxMarkedInARow = 0;
-      let totalMarkedCount = 0;
-
-      card.grid.forEach(row => {
-        let rowValidNumbers = row.filter(n => n > 0);
-        let rowMarkedCount = rowValidNumbers.filter(n => card.marked.includes(n)).length;
-        if (rowMarkedCount > maxMarkedInARow) maxMarkedInARow = rowMarkedCount;
-        totalMarkedCount += rowMarkedCount;
-      });
-
-      let hasWonStage = false;
-      if (currentStage === 'ambo' && maxMarkedInARow >= 2) hasWonStage = true;
-      if (currentStage === 'terno' && maxMarkedInARow >= 3) hasWonStage = true;
-      if (currentStage === 'quaterna' && maxMarkedInARow >= 4) hasWonStage = true;
-      if (currentStage === 'cinquina' && maxMarkedInARow >= 5) hasWonStage = true;
-      if (currentStage === 'tombola' && totalMarkedCount >= 15) hasWonStage = true;
-      if (currentStage === 'tombolino' && totalMarkedCount >= 15) hasWonStage = true;
-
-      if (hasWonStage) {
-        card.status = 'pending_win';
-        savePlayerCardsToStorage();
-        renderPlayerCards();
-
-        // Notifica la regia
-        triggerRegiaWinAlert(card, stages[currentStageIndex].name);
-      }
-    }
-
-    function checkAutomaticWins() {
-      playerCards.forEach(card => checkCardWinCondition(card));
-      alert("Scansione completata! Eventuali cartelle vincenti sono state segnalate alla regia.");
-      updateRegiaParticipantsList();
-    }
-
-    // === GESTIONE REGIA & SEGNALAZIONI VINCITE ===
-    function updateRegiaParticipantsList() {
-      const container = document.getElementById('regia-cards-list');
-      const countEl = document.getElementById('participants-count');
-      if (!container) return;
-
-      countEl.innerText = `(Totale: ${playerCards.length})`;
-      if (playerCards.length === 0) {
-        container.innerHTML = `<i>Nessun partecipante registrato.</i>`;
-        return;
-      }
-
-      let html = '';
-      playerCards.forEach((card, idx) => {
-        let statusBadge = `<span style="color:#2ecc71;">In Gioco</span>`;
-        if (card.status === 'pending_win') statusBadge = `<span style="color:var(--gold);font-weight:bold;">⏳ VINCITA IN ATTESA</span>`;
-        if (card.status === 'won') statusBadge = `<span style="color:#38bdf8;">🏆 Premiato</span>`;
-
-        html += `<div class="approval-card-item ${card.status === 'pending_win' ? 'pending' : ''}">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <img src="${card.photo}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold);" alt="Foto">
-            <div>
-              <strong style="color:#fff;font-size:.95rem;">${card.name}</strong>
-              <div style="font-size:.75rem;color:#aaa;">Cartella #${idx+1} - Stato: ${statusBadge}</div>
-            </div>
-          </div>
-          <div>
-            <button class="btn btn-sm btn-success" onclick="forceValidateCard('${card.id}')">Convalida</button>
-            <button class="btn btn-sm btn-danger" onclick="removeCard('${card.id}')">Elimina</button>
-          </div>
-        </div>`;
-      });
-      container.innerHTML = html;
-    }
-
-    function triggerRegiaWinAlert(card, stageName) {
-      currentWinnerModalData = { card: card, stageName: stageName };
-      const alertBox = document.getElementById('regia-win-alert');
-      const alertText = document.getElementById('regia-win-alert-text');
-      if (alertBox && alertText) {
-        alertText.innerHTML = `Il giocatore <b>${card.name}</b> ha fatto <b>${stageName}</b> con la sua cartella!`;
-        alertBox.style.display = 'block';
-      }
-
-      // Mostra modale vincita generale in sala
-      showWinnerModal(card, stageName);
-    }
-
-    function showWinnerModal(card, stageName) {
-      const modal = document.getElementById('winner-modal');
-      const container = document.getElementById('winners-container');
-      const prizeName = localStorage.getItem(stages[currentStageIndex].prizeKey) || getDefaultPrize(stages[currentStageIndex].key);
-
-      container.innerHTML = `
-        <div class="selfie-slide-box" id="winner-selfie-box">
-          <img src="${card.photo}" class="nfl-photo" alt="Foto Vincitore">
-          <div class="nfl-badge-label">🏆 ${stageName}</div>
-          <div class="winner-info-overlay">
-            <div class="winner-name-text">${card.name}</div>
-            <div class="winner-prize-text">Premio: ${prizeName}</div>
-          </div>
-        </div>
-      `;
-      modal.style.display = 'flex';
-
-      // Suono vittoria e coriandoli
-      const audioWin = document.getElementById('audio-win');
-      audioWin.play().catch(e => console.log(e));
-      launchConfetti();
-    }
-
-    function confirmAndCloseWinnerModal() {
-      const modal = document.getElementById('winner-modal');
-      const alertBox = document.getElementById('regia-win-alert');
-      if (modal) modal.style.display = 'none';
-      if (alertBox) alertBox.style.display = 'none';
-
-      if (currentWinnerModalData && currentWinnerModalData.card) {
-        currentWinnerModalData.card.status = 'won';
-        savePlayerCardsToStorage();
-      }
-
-      // Passa al premio/fase successiva
-      currentStageIndex++;
-      updateCurrentStageDisplay();
-      updateRegiaParticipantsList();
-      renderPlayerCards();
-
-      // Se abbiamo finito tutte le fasi (dopo Tombolino)
-      if (currentStageIndex >= stages.length) {
-        showGameOverOverlay();
-      }
-    }
-
-    function forceValidateCard(cardId) {
-      const card = playerCards.find(c => c.id === cardId);
-      if (card) {
-        card.status = 'pending_win';
-        triggerRegiaWinAlert(card, stages[currentStageIndex] ? stages[currentStageIndex].name : 'Vincita Speciale');
-      }
-    }
-
-    function removeCard(cardId) {
-      if (confirm("Vuoi eliminare questa cartella?")) {
-        playerCards = playerCards.filter(c => c.id !== cardId);
-        savePlayerCardsToStorage();
-        renderPlayerCards();
-        updateRegiaParticipantsList();
-      }
-    }
-
-    // === SCHERMO INTERO CARTELLA SINGOLA ===
-    function openFullscreenCard(cardId) {
-      const card = playerCards.find(c => c.id === cardId);
-      if (!card) return;
-      document.getElementById('fs-card-title').innerText = `Cartella di ${card.name}`;
-      const container = document.getElementById('fs-card-grid-container');
-      
-      let html = `<div class="tombola-classic-grid" style="padding:10px;">`;
-      card.grid.forEach(row => {
-        row.forEach(num => {
-          if (num === 0) {
-            html += `<div class="tombola-cell empty"></div>`;
-          } else {
-            const isMarked = card.marked.includes(num);
-            html += `<div class="tombola-cell ${isMarked ? 'marked' : ''}" onclick="handleCellClick('${card.id}', ${num})">${num}</div>`;
-          }
-        });
-      });
-      html += `</div>`;
-      container.innerHTML = html;
-      document.getElementById('fullscreen-card-overlay').style.display = 'flex';
-    }
-
-    function closeFullscreenCard() {
-      document.getElementById('fullscreen-card-overlay').style.display = 'none';
-      renderPlayerCards();
-    }
-
-    // === CONFETTI / EFFETTI VISIVI ===
-    function launchConfetti() {
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-      }
-    }
-
-    // === GAME OVER & PROSSIMA PARTITA ===
-    function showGameOverOverlay() {
-      const overlay = document.getElementById('game-over-overlay');
-      const container = document.getElementById('final-winners-container');
-      let html = '';
-      const winners = playerCards.filter(c => c.status === 'won');
-      winners.forEach(w => {
-        html += `<div class="final-winner-card">
-          <img src="${w.photo}" class="final-winner-photo" alt="Vincitore">
-          <div class="final-winner-details">
-            <div class="final-winner-name">${w.name}</div>
-            <div class="final-winner-stage">Campione Tombola</div>
-          </div>
-        </div>`;
-      });
-      container.innerHTML = html || '<p style="color:#fff;">Serata spettacolare con tutti i premi assegnati!</p>';
-      overlay.style.display = 'flex';
-
-      setTimeout(() => {
-        overlay.style.display = 'none';
-        showNextGameOverlay();
-      }, 7000);
-    }
-
-    function showNextGameOverlay() {
-      document.getElementById('next-game-overlay').style.display = 'flex';
-      generateQRCodes();
-    }
-
-    function startNextGame() {
-      resetGame();
-      document.getElementById('next-game-overlay').style.display = 'none';
-    }
-
-    // === QR CODE GENERATION ===
-    function generateQRCodes() {
-      const currentUrl = window.location.href.split('#')[0];
-      
-      // Pulisci e genera QR Code Intro
-      const qrIntro = document.getElementById('qrcode-intro');
-      if (qrIntro) {
-        qrIntro.innerHTML = '';
-        new QRCode(qrIntro, { text: currentUrl, width: 130, height: 130 });
-      }
-
-      // QR Code Global Stampa
-      const qrGlobal = document.getElementById('qrcode-global');
-      if (qrGlobal) {
-        qrGlobal.innerHTML = '';
-        new QRCode(qrGlobal, { text: currentUrl, width: 180, height: 180 });
-      }
-
-      // QR Code Next Game
-      const qrNext = document.getElementById('qrcode-nextgame');
-      if (qrNext) {
-        qrNext.innerHTML = '';
-        new QRCode(qrNext, { text: currentUrl, width: 160, height: 160 });
-      }
-    }
-
-    // === RECUPERO & ASSISTENZA ===
-    function openRecoveryModal() {
-      document.getElementById('recovery-modal').style.display = 'flex';
-    }
-
-    function closeRecoveryModal() {
-      document.getElementById('recovery-modal').style.display = 'none';
-    }
-
-    function recoverViaWhatsApp() {
-      const phone = "393331234567"; // Sostituire con numero reale se necessario
-      const text = encodeURIComponent("Salve, ho bisogno di assistenza per il recupero delle mie cartelle alla Tombola Evento.");
-      window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
-    }
-
-    function recoverViaEmail() {
-      const email = "assistenza@pmu.it";
-      const subject = encodeURIComponent("Assistenza Tombola Evento");
-      const body = encodeURIComponent("Salve, vorrei assistenza tecnica o recuperare le credenziali della mia cartella.");
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    }
-
-    // === FUNZIONE DI RESET / NUOVA PARTITA CORRETTA ===
-    function resetGame() {
-      if (!confirm("Sei sicuro di voler azzerare la partita corrente?")) {
-        return;
-      }
-
-      // Rimuove dal localStorage i dati della partita precedente
-      localStorage.removeItem("tombola_cards");
-      localStorage.removeItem("tombola_participants");
-
-      drawnNumbers = [];
-      currentStageIndex = 0;
-      playerCards = [];
-      
-      initBoard();
-      
-      // Ricarica la pagina per ripulire completamente lo stato
-      location.reload();
-    }
-  </script>
-</body>
+    });
+    if(foundWinner){db.ref('currentWinner').set(foundWinner)}
+  });
+}
+function confirmAndCloseWinnerModal(){
+  stopAllAudioCompletely();
+  if(activeWinnerObj){confirmedWinnersObjects.push(activeWinnerObj);db.ref('allWinnersList').set(confirmedWinnersObjects)}
+  db.ref('currentWinner').remove().then(()=>{
+    currentStageIndex++;db.ref('gameState/currentStageIndex').set(currentStageIndex);
+    document.getElementById('winner-modal').style.display='none';document.getElementById('regia-win-alert').style.display='none';resumeBgMusic();
+    if(currentStageIndex>=PRIZE_STAGES.length){db.ref('gameOver').set(true)}
+  });
+}
+function resetGame(){
+  if(confirm("Sei sicuro di voler azzerare la partita e iniziare da capo?")){
+    stopAllAudioCompletely();
+    // Non azzeriamo più prizesConfig su Firebase per fare in modo che rimangano salvati gli ultimi premi inseriti
+    db.ref('gameState').set({currentStageIndex:0,drawnNumbers:[],lastDrawn:0});
+    db.ref('currentWinner').remove();
+    db.ref('allWinnersList').remove();
+    db.ref('gameOver').remove();
+    setTimeout(()=>{ location.reload(); }, 500);
+  }
+}
+db.ref('gameState').on('value',snapshot=>{const state=snapshot.val()||{};drawnNumbers=state.drawnNumbers||[];currentStageIndex=state.currentStageIndex||0;updateStageVisuals();for(let i=1;i<=90;i++){const ballEl=document.getElementById(`cell-${i}`);if(ballEl){if(drawnNumbers.includes(i))ballEl.classList.add('drawn');else ballEl.classList.remove('drawn')}}const lastValBadge=document.getElementById('banner-last-drawn-val');if(lastValBadge)lastValBadge.innerText=state.lastDrawn?state.lastDrawn:"--";if(state.lastDrawn)showExtractionAnimation(state.lastDrawn);renderMyCards();if(activeFullscreenKey)openFullscreenCard(activeFullscreenKey)});
+db.ref('cards').on('value',snap=>{allGlobalCardsCache=snap.val();renderRegiaCardsList(allGlobalCardsCache);renderMyCards();if(activeFullscreenKey)openFullscreenCard(activeFullscreenKey)});
+db.ref('allWinnersList').on('value',snapshot=>{const list=snapshot.val();confirmedWinnersObjects=list||[]});
+db.ref('currentWinner').on('value',snapshot=>{
+  const winner=snapshot.val();activeWinnerObj=winner;
+  const modal=document.getElementById('winner-modal');const regiaAlert=document.getElementById('regia-win-alert');
+  if(winner){
+    playWinMusic();const container=document.getElementById('winners-container');
+    container.innerHTML=`
+      <div class="selfie-slide-box" id="box-selfie"><div class="nfl-badge-label">FOTO VINCITORE</div><img src="${winner.photo}" class="nfl-photo" alt="Foto Vincitore" onerror="handlePhotoError(this)"><div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">${winner.stage}: ${prizesConfig[winner.stage]}</div></div></div>
+      <div class="cartoon-slide-box" id="box-cartoon"><div class="nfl-badge-label">VIP ABBINATO</div><img src="${winner.cartoonUrl}" class="nfl-photo-cartoon" alt="VIP" onerror="handleCartoonError(this)"><div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">¡Campione di ${winner.stage}!</div></div></div>`;
+    modal.style.display='flex';
+    if(regiaAuth){regiaAlert.style.display='block';document.getElementById('regia-win-alert-text').innerText=`${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`}
+    setTimeout(()=>{const selfieBox=document.getElementById('box-selfie');const cartoonBox=document.getElementById('box-cartoon');if(selfieBox)selfieBox.classList.add('slid-left');if(cartoonBox)cartoonBox.classList.add('visible')},500);
+    if(typeof confetti==='function'){confetti({particleCount:150,spread:90,origin:{y:.6}})}
+  } else {modal.style.display='none';if(regiaAlert)regiaAlert.style.display='none';stopAllAudioCompletely()}
+});
+db.ref('gameOver').on('value',snapshot=>{
+  const isOver=snapshot.val();const gameOverOverlay=document.getElementById('game-over-overlay');const nextGameOverlay=document.getElementById('next-game-overlay');
+  if(isOver){
+    playWinMusic();const finalContainer=document.getElementById('final-winners-container');
+    if(confirmedWinnersObjects&&confirmedWinnersObjects.length>0){let html='';confirmedWinnersObjects.forEach(w=>{html+=`<div class="final-winner-card"><img src="${w.photo}" class="final-winner-photo" alt="${w.name}" onerror="handlePhotoError(this)"><div class="final-winner-details"><div class="final-winner-name">${w.name}</div><div class="final-winner-stage">${w.stage} (${prizesConfig[w.stage]||''})</div></div></div>`});finalContainer.innerHTML=html}
+    else finalContainer.innerHTML=`<div style="font-size:1.4rem;color:var(--gold);font-weight:bold;">Tutti i premi sono stati assegnati con successo! 🏆</div>`;
+    gameOverOverlay.style.display='flex';setTimeout(()=>{gameOverOverlay.style.display='none';nextGameOverlay.style.display='flex'},15000)
+  } else {gameOverOverlay.style.display='none';nextGameOverlay.style.display='none'}
+});
+db.ref('config').on('value',snapshot=>{const cfg=snapshot.val();if(cfg){if(cfg.brand){document.getElementById('brand-header-title').innerText=cfg.brand;const cfgBrandInput=document.getElementById('cfg-brand');if(cfgBrandInput)cfgBrandInput.value=cfg.brand}if(cfg.banner){document.getElementById('banner-main-title').innerText=cfg.banner;const cfgBannerInput=document.getElementById('cfg-banner');if(cfgBannerInput)cfgBannerInput.value=cfg.banner}}});
+db.ref('prizesConfig').on('value',snapshot=>{const pCfg=snapshot.val();if(pCfg){prizesConfig=pCfg;['ambo','terno','quaterna','cinquina','tombola','tombolino'].forEach(key=>{const inputEl=document.getElementById('prize-'+key);if(inputEl&&pCfg[key.toUpperCase()])inputEl.value=pCfg[key.toUpperCase()]});updateStageVisuals()}});
+window.onload=function(){
+  initBoard();updateStageVisuals();
+  const baseUrl=window.location.origin+window.location.pathname;const playerUrl=baseUrl+"#giocatore";
+  if(window.location.hash==="#giocatore"){document.getElementById('btn-regia').style.display='none';document.getElementById('btn-stampa').style.display='none';document.getElementById('btn-tabellone').style.display='none';switchView('giocatore');closeIntroOverlay()}
+  else{if(window.location.hash==="#regia")switchView('regia');else switchView('tabellone')}
+  new QRCode(document.getElementById("qrcode-global"),{text:playerUrl,width:160,height:160,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+  new QRCode(document.getElementById("qrcode-nextgame"),{text:playerUrl,width:200,height:200,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+  new QRCode(document.getElementById("qrcode-intro"),{text:playerUrl,width:140,height:140,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
+};
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
 </html>
