@@ -278,7 +278,7 @@ function showPolliBanner(kind,extra){
                     :`<button class="btn" onclick="goToPolliPanel()">${m[2]}</button>`);
   b.style.display='block';
 }
-function goToPolliPanel(){const m=document.getElementById("polli-panel");if(m)m.scrollIntoView({behavior:'smooth',block:'center'})}
+function goToPolliPanel(){const m=document.getElementById("polli-panel");if(m)m.scrollIntoView({behavior:'smooth',block:'center'});const c=document.querySelector('polli-connect');const b=c&&(c.querySelector('button')||(c.shadowRoot&&c.shadowRoot.querySelector('button')));if(b&&!getPolliKey())setTimeout(()=>b.click(),400)}
 let polliHealthTimer=null;
 async function checkPolliHealth(){
   if(!regiaAuth)return;
