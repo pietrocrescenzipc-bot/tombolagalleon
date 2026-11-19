@@ -385,9 +385,9 @@ const CARICATURE_MSGS=[
 let caricatureBarTimer=null;
 function startCaricatureSuspense(){
   stopCaricatureSuspense();let i=0;const t0=Date.now();
-  caricatureBarTimer=setInterval(()=>{const b=document.getElementById('caricature-bar');if(!b)return stopCaricatureSuspense();const sec=(Date.now()-t0)/1000;b.style.width=Math.min(95,3+92*(1-Math.exp(-sec/14)))+'%'},500);
+  caricatureBarTimer=setInterval(()=>{const b=document.getElementById('caricature-bar');if(!b)return stopCaricatureSuspense();const sec=(Date.now()-t0)/1000;b.style.width=Math.min(96,3+93*(1-Math.exp(-sec/7)))+'%'},500);
   caricatureMsgTimer=setInterval(()=>{const m=document.getElementById('caricature-msg'),e=document.getElementById('caricature-emoji');if(!m)return stopCaricatureSuspense();
-    const last=CARICATURE_MSGS.length-1;i=(Date.now()-t0)>27000?last:(i>=last-1?1:i+1);
+    const last=CARICATURE_MSGS.length-1;i=(Date.now()-t0)>20000?last:(i>=last-1?1:i+1);
     m.classList.add('fade');setTimeout(()=>{m.innerHTML=CARICATURE_MSGS[i][1];if(e)e.textContent=CARICATURE_MSGS[i][0];m.classList.remove('fade')},350)},3000);
 }
 function stopCaricatureSuspense(){clearInterval(caricatureMsgTimer);clearInterval(caricatureBarTimer);caricatureMsgTimer=caricatureBarTimer=null}
