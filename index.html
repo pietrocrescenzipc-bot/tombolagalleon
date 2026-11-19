@@ -267,6 +267,18 @@ async function checkPolliHealth(){
   }catch(e){/* rete assente: nessun allarme */}
 }
 function startPolliHealth(){checkPolliHealth();clearInterval(polliHealthTimer);polliHealthTimer=setInterval(checkPolliHealth,5*60*1000)}
+function friendlyPolliError(e){
+  const m=String(e&&e.message||e||'');const st=e&&e.status;
+  if(st===402&&/KEY_BUDGET/i.test(m))return '💳 Tetto di spesa del collegamento raggiunto: scollega e ricollega Pollinations.';
+  if(st===402)return '💳 Credito Pollinations a zero: ricarica su enter.pollinations.ai (Top up) e riprova.';
+  if(st===401)return '🔑 Collegamento scaduto o non valido: ricollega Pollinations.';
+  if(st===403)return '🔒 Il collegamento non ha il permesso per questo modello: scollega e ricollega Pollinations.';
+  if(st===422)return '🚫 Foto rifiutata dal controllo contenuti: prova con un altro selfie.';
+  if(st===429)return '⏳ Troppe richieste ravvicinate: aspetta qualche secondo e riprova.';
+  if(/abort/i.test(m))return '⏳ Pollinations non ha risposto in tempo: riprova.';
+  if(/Failed to fetch|NetworkError/i.test(m))return '📶 Connessione internet assente o instabile: riprova.';
+  return 'Caricatura non riuscita: '+m.slice(0,120);
+}
 function sameWinner(a,b){return a&&b&&a.cardId===b.cardId&&a.stage===b.stage}
 function maybeStartCaricature(winner){
   if(!regiaAuth||!winner||winner.caricatureUrl||winner.caricatureStatus||!getPolliKey())return;
@@ -279,7 +291,7 @@ function maybeStartCaricature(winner){
     }).catch(e=>{
       console.warn(e);
       db.ref('currentWinner').transaction(cur=>{if(!cur||!sameWinner(cur,winner))return;cur.caricatureStatus='failed';return cur});
-      const t=document.getElementById('regia-win-alert-text');if(t)t.innerText+=`\n(Caricatura non riuscita: ${e.message||e})`;
+      const t=document.getElementById('regia-win-alert-text');if(t)t.innerText+=`\n(${friendlyPolliError(e)})`;
     });
   });
 }
@@ -292,7 +304,7 @@ async function testCaricature(event){
     const photo=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>shrinkImage(e.target.result,400).then(res,rej);r.onerror=rej;r.readAsDataURL(f)});
     const t0=Date.now();const url=await generateAICaricature(photo);
     box.innerHTML=`<img src="${url}" style="max-width:100%;max-height:420px;border-radius:14px;border:4px solid #fff;box-shadow:0 0 0 3px var(--gold)"><div style="color:#2ecc71;font-weight:bold;margin-top:6px">✓ Fatta in ${Math.round((Date.now()-t0)/1000)} secondi</div>`;
-  }catch(e){box.innerHTML=`<b style="color:#e74c3c">Errore: ${e.message||e}</b>`}
+  }catch(e){box.innerHTML=`<b style="color:#e74c3c">${friendlyPolliError(e)}</b>`}
 }
 function hideCaricatureBox(){const c=document.getElementById('box-cartoon');const s=document.getElementById('box-selfie');if(c)c.classList.remove('visible');if(s)s.classList.remove('slid-left')}
 let caricatureWaitTimer=null;
