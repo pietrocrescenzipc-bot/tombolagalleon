@@ -153,6 +153,7 @@
     .caricature-msg.fade{opacity:0}
     .cbar{width:70%;height:16px;background:rgba(90,45,0,.2);border:2px solid #5a2d00;border-radius:10px;overflow:hidden}
     #caricature-bar{height:100%;width:3%;background:linear-gradient(90deg,#e74c3c,#f1c40f,#2ecc71);border-radius:8px;transition:width 1s linear}
+    body.is-player .btn-confirm-banner{display:none!important}
     .polli-status{margin:10px 0;padding:10px;border-radius:8px;font-weight:bold;font-size:.95rem}
     .polli-status.ok{background:rgba(46,204,113,.15);border:1px solid #2ecc71;color:#2ecc71}
     .polli-status.ko{background:rgba(243,156,18,.12);border:1px solid var(--gold);color:var(--gold-light)}
@@ -191,7 +192,7 @@
   <div id="recovery-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,.95);z-index:10001;display:none;justify-content:center;align-items:center;padding:15px;"><div class="panel-card" style="max-width:420px;width:100%;text-align:center;border:3px solid var(--gold);"><h3 class="panel-title" style="font-size:1.3rem;">🔑 Recupero o Assistenza</h3><p style="font-size:.9rem;color:#ccc;margin-bottom:20px;">Scegli come desideri contattare l'amministratore o recuperare i dati della serata:</p><div style="display:flex;flex-direction:column;gap:12px;"><button class="btn" style="background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:1.05rem;" onclick="recoverViaWhatsApp()">💬 Invia messaggio WhatsApp</button><button class="btn" style="background:#3498db;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:1.05rem;" onclick="recoverViaEmail()">✉️ Invia richiesta via Email</button></div><button class="btn btn-danger" style="margin-top:25px;padding:10px;" onclick="closeRecoveryModal()">Chiudi</button></div></div>
   <div id="fullscreen-card-overlay"><div class="fullscreen-card-box"><h3 id="fs-card-title" style="color:var(--gold);font-size:1.2rem;">--</h3><div id="fs-card-grid-container"></div><button class="btn btn-danger" style="padding:10px;" onclick="closeFullscreenCard()">Chiudi Schermo Intero</button></div></div>
   <div id="extraction-overlay"><div class="giant-ball-container"><div id="overlay-ball" class="giant-ball-10lotto">--</div></div><div id="overlay-smorfia" class="smorfia-sticker">--</div></div>
-  <div id="winner-modal"><div class="winner-box"><div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div><div id="winners-container" class="winners-flex-row"></div><button class="btn btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button></div></div>
+  <div id="winner-modal"><div class="winner-box"><div class="winner-title-header">🎉 VINCITA IN SALA! 🎉</div><div id="winners-container" class="winners-flex-row"></div><div id="my-caricature-save" style="display:none;width:100%;text-align:center;"></div><button class="btn btn-confirm-banner" onclick="confirmAndCloseWinnerModal()">✓ Convalida e Mostra sul Banner</button></div></div>
   <div id="game-over-overlay"><div class="game-over-title">GAME OVER!</div><div class="game-over-subtitle">🏆 I Nostri Grandi Vincitori della Partita 🏆</div><div id="final-winners-container" class="final-winners-grid"></div><p style="color:var(--gold-light);font-size:1.1rem;margin-top:10px;">⏳ Preparazione prossima partita...</p></div>
   <div id="next-game-overlay"><div class="rejoin-callout-box">⏳ LA PROSSIMA PARTITA INIZIERÀ TRA POCHISSIMO!<br/><span style="font-size:.6em;color:#fff;">SCANSIONA IL QR CODE QUI SOTTO E GENERA LE TUE CARTELLE:</span></div><div class="qr-container-nextgame"><div id="qrcode-nextgame"></div></div><button class="btn btn-sm btn-danger" style="width:90vw;max-width:420px;padding:18px;font-size:1.2rem;background:#900C3F;border-radius:12px;margin-top:5px;box-shadow:0 4px 15px rgba(0,0,0,.5);flex-shrink:0;" onclick="resetGame()">🔄 Inizia Nuova Partita (Area Regia)</button></div>
 <script>
@@ -290,6 +291,7 @@ function maybeStartCaricature(winner){
     if(err||!committed)return;
     generateAICaricature(winner.photo).then(url=>{
       db.ref('currentWinner').transaction(cur=>{if(!cur||!sameWinner(cur,winner))return;cur.caricatureUrl=url;cur.caricatureStatus='done';return cur});
+      db.ref('cards/'+winner.cardId).transaction(c=>{if(!c)return;c.caricatureUrl=url;return c});
       // se la vincita e' gia' stata convalidata, aggiorna anche l'elenco finale
       db.ref('allWinnersList').transaction(list=>{if(!list)return;let ch=false;(Array.isArray(list)?list:Object.values(list)).forEach(w=>{if(sameWinner(w,winner)&&!w.caricatureUrl){w.caricatureUrl=url;ch=true}});return ch?list:undefined});
     }).catch(e=>{
@@ -310,6 +312,24 @@ async function testCaricature(event){
     box.innerHTML=`<img src="${url}" style="max-width:100%;max-height:420px;border-radius:14px;border:4px solid #fff;box-shadow:0 0 0 3px var(--gold)"><div style="color:#2ecc71;font-weight:bold;margin-top:6px">✓ Fatta in ${Math.round((Date.now()-t0)/1000)} secondi</div>`;
   }catch(e){box.innerHTML=`<b style="color:#e74c3c">${friendlyPolliError(e)}</b>`}
 }
+function isMyCard(cardId){return Array.isArray(localMyCardsKeys)&&localMyCardsKeys.includes(cardId)}
+function esc(t){return String(t||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function caricatureButtons(url,name){const u=esc(url),n=esc(name);
+  return `<button class="btn btn-sm btn-success" style="padding:12px 18px;font-size:1.05rem;margin:4px" onclick="saveCaricature('${u}','${n}',false)">📥 Salva la tua caricatura</button>`+
+    (navigator.share?`<button class="btn btn-sm" style="padding:12px 18px;font-size:1.05rem;margin:4px;background:#38bdf8" onclick="saveCaricature('${u}','${n}',true)">📤 Condividi</button>`:'')}
+function showMyCaricatureSave(w){const box=document.getElementById('my-caricature-save');if(!box||!isMyCard(w.cardId))return;
+  box.innerHTML=`<div style="color:var(--gold-light);font-weight:900;font-size:1.1rem;margin-top:6px">🎉 Hai vinto! Questa caricatura è tua:</div>`+caricatureButtons(w.caricatureUrl,w.name);box.style.display='block'}
+async function saveCaricature(url,name,share){
+  const fname='caricatura-galleon-'+String(name||'vincitore').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.jpg';
+  try{
+    const blob=await (await fetch(url)).blob();const file=new File([blob],fname,{type:blob.type||'image/jpeg'});
+    if(share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'La mia caricatura al The Galleon',text:'Ho vinto alla Tombola del The Galleon! 🎉'});return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  }catch(e){
+    if(e&&e.name==='AbortError')return; // condivisione annullata dal cliente
+    window.open(url,'_blank');alert('Si è aperta la caricatura: tieni premuto sull\'immagine e scegli "Salva immagine".');
+  }
+}
 function hideCaricatureBox(){stopCaricatureSuspense();const c=document.getElementById('box-cartoon');const s=document.getElementById('box-selfie');if(c)c.classList.remove('visible');if(s)s.classList.remove('slid-left')}
 let caricatureWaitTimer=null,caricatureMsgTimer=null;
 const CARICATURE_MSGS=[
@@ -327,7 +347,7 @@ function startCaricatureSuspense(){
 function stopCaricatureSuspense(){clearInterval(caricatureMsgTimer);clearInterval(caricatureBarTimer);caricatureMsgTimer=caricatureBarTimer=null}
 function updateCaricatureBox(w){
   const img=document.getElementById('winner-caricature-img');const drawing=document.getElementById('caricature-drawing');if(!img)return;
-  if(w.caricatureUrl){if(img.getAttribute('src')!==w.caricatureUrl){img.onload=()=>{const b=document.getElementById('caricature-bar');if(b)b.style.width='100%';stopCaricatureSuspense();setTimeout(()=>{img.style.display='block';if(drawing)drawing.style.display='none'},400)};img.onerror=hideCaricatureBox;img.src=w.caricatureUrl}return}
+  if(w.caricatureUrl){showMyCaricatureSave(w);if(img.getAttribute('src')!==w.caricatureUrl){img.onload=()=>{const b=document.getElementById('caricature-bar');if(b)b.style.width='100%';stopCaricatureSuspense();setTimeout(()=>{img.style.display='block';if(drawing)drawing.style.display='none'},400)};img.onerror=hideCaricatureBox;img.src=w.caricatureUrl}return}
   if(w.caricatureStatus==='failed'){hideCaricatureBox();return}
 }
 function celebrateConfetti(){
@@ -429,6 +449,7 @@ function renderMyCards(){
       let isApproved=card.approved===true;let pendingClass=isApproved?'':' pending';let modeLabel=card.mode==='auto'?'🤖 Auto':'✍️ Manuale';
       let html=`<div class="card-digital${pendingClass}">`;
       if(!isApproved)html+=`<div class="pending-badge-banner">⏳ IN ATTESA DI APPROVAZIONE DALLA REGIA</div>`;
+      if(card.caricatureUrl)html+=`<div style="text-align:center;background:rgba(46,204,113,.12);border:2px solid #2ecc71;border-radius:12px;padding:10px;margin-bottom:10px"><div style="color:#2ecc71;font-weight:900;margin-bottom:6px">🏆 Hai vinto! Ecco la tua caricatura</div><img src="${card.caricatureUrl}" style="width:200px;max-width:80%;border-radius:12px;border:3px solid #fff;box-shadow:0 0 0 3px var(--gold)"><div>${caricatureButtons(card.caricatureUrl,card.name)}</div><div style="font-size:.75rem;color:#aaa">Salvala sul telefono: resta disponibile per 30 giorni.</div></div>`;
       html+=`<div class="card-stage-banner">🎯 In gioco per: ${currentStageName} — ${currentPrizeDesc}</div><div class="card-header-info"><div><strong>${card.name}</strong> <button class="mode-switch-btn" onclick="toggleCardMode('${key}','${card.mode}')" title="Clicca per cambiare modalità">${modeLabel} ⚙️</button></div>${isApproved?`<button class="btn btn-sm" style="background:#38bdf8;color:#000;padding:4px 8px;font-size:.75rem;" onclick="openFullscreenCard('${key}')">🔍 Schermo Intero</button>`:''}</div>`;
       if(card.mode==='manual')html+=`<div class="manual-hint-banner">💡 Modalità Manuale: i numeri non ancora usciti non si possono cliccare.</div>`;
       html+=`<div class="tombola-classic-grid">`;
@@ -519,7 +540,7 @@ db.ref('currentWinner').on('value',snapshot=>{
     }
     updateCaricatureBox(winner);
     maybeStartCaricature(winner);
-  } else {renderedWinnerKey=null;clearTimeout(caricatureWaitTimer);stopCaricatureSuspense();modal.style.display='none';if(regiaAlert)regiaAlert.style.display='none';stopAllAudioCompletely()}
+  } else {renderedWinnerKey=null;clearTimeout(caricatureWaitTimer);stopCaricatureSuspense();const ms=document.getElementById('my-caricature-save');if(ms){ms.style.display='none';ms.innerHTML=''}modal.style.display='none';if(regiaAlert)regiaAlert.style.display='none';stopAllAudioCompletely()}
 });
 db.ref('gameOver').on('value',snapshot=>{
   const isOver=snapshot.val();const gameOverOverlay=document.getElementById('game-over-overlay');const nextGameOverlay=document.getElementById('next-game-overlay');
@@ -537,7 +558,7 @@ window.onload=function(){
   const pp=document.getElementById('player-photo-preview');if(pp&&!pp.getAttribute('src'))pp.src=PLACEHOLDER_SELFIE;
   initBoard();updateStageVisuals();
   const baseUrl=window.location.origin+window.location.pathname;const playerUrl=baseUrl+"#giocatore";
-  if(window.location.hash==="#giocatore"){document.getElementById('btn-regia').style.display='none';document.getElementById('btn-stampa').style.display='none';document.getElementById('btn-tabellone').style.display='none';switchView('giocatore');closeIntroOverlay()}
+  if(window.location.hash==="#giocatore"){document.body.classList.add('is-player');document.getElementById('btn-regia').style.display='none';document.getElementById('btn-stampa').style.display='none';document.getElementById('btn-tabellone').style.display='none';switchView('giocatore');closeIntroOverlay()}
   else{if(window.location.hash==="#regia")switchView('regia');else switchView('tabellone')}
   new QRCode(document.getElementById("qrcode-global"),{text:playerUrl,width:160,height:160,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
   new QRCode(document.getElementById("qrcode-nextgame"),{text:playerUrl,width:200,height:200,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.H});
