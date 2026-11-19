@@ -149,6 +149,10 @@
     #polli-banner{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:3px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:15px;font-weight:bold;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.6)}
     #polli-banner .btn{background:#fff;color:#c0392b;max-width:340px;margin:10px auto 0 auto;display:block;text-decoration:none}
     #polli-banner.warn{background:linear-gradient(135deg,#f39c12,#d35400)}
+    .caricature-msg{min-height:2.6em;transition:opacity .35s}
+    .caricature-msg.fade{opacity:0}
+    .cbar{width:70%;height:16px;background:rgba(90,45,0,.2);border:2px solid #5a2d00;border-radius:10px;overflow:hidden}
+    #caricature-bar{height:100%;width:3%;background:linear-gradient(90deg,#e74c3c,#f1c40f,#2ecc71);border-radius:8px;transition:width 1s linear}
     .polli-status{margin:10px 0;padding:10px;border-radius:8px;font-weight:bold;font-size:.95rem}
     .polli-status.ok{background:rgba(46,204,113,.15);border:1px solid #2ecc71;color:#2ecc71}
     .polli-status.ko{background:rgba(243,156,18,.12);border:1px solid var(--gold);color:var(--gold-light)}
@@ -306,11 +310,24 @@ async function testCaricature(event){
     box.innerHTML=`<img src="${url}" style="max-width:100%;max-height:420px;border-radius:14px;border:4px solid #fff;box-shadow:0 0 0 3px var(--gold)"><div style="color:#2ecc71;font-weight:bold;margin-top:6px">✓ Fatta in ${Math.round((Date.now()-t0)/1000)} secondi</div>`;
   }catch(e){box.innerHTML=`<b style="color:#e74c3c">${friendlyPolliError(e)}</b>`}
 }
-function hideCaricatureBox(){const c=document.getElementById('box-cartoon');const s=document.getElementById('box-selfie');if(c)c.classList.remove('visible');if(s)s.classList.remove('slid-left')}
-let caricatureWaitTimer=null;
+function hideCaricatureBox(){stopCaricatureSuspense();const c=document.getElementById('box-cartoon');const s=document.getElementById('box-selfie');if(c)c.classList.remove('visible');if(s)s.classList.remove('slid-left')}
+let caricatureWaitTimer=null,caricatureMsgTimer=null;
+const CARICATURE_MSGS=[
+ ['🎨','Stiamo creando<br>la tua caricatura…'],['🧐','Il caricaturista<br>studia il tuo sorriso…'],['👃','Esageriamo<br>un pochino il naso…'],
+ ['💇','Sistemiamo<br>i capelli…'],['😁','Ingrandiamo<br>il sorriso…'],['🖍️','Ripassiamo<br>i contorni…'],['🌈','Aggiungiamo<br>un po\' di colore…'],
+ ['🍺','Il caricaturista<br>beve un sorso di birra…'],['🤫','Shhh…<br>è concentrato!'],['✨','Ultimi ritocchi…<br>quasi pronta!']];
+let caricatureBarTimer=null;
+function startCaricatureSuspense(){
+  stopCaricatureSuspense();let i=0;const t0=Date.now();
+  caricatureBarTimer=setInterval(()=>{const b=document.getElementById('caricature-bar');if(!b)return stopCaricatureSuspense();const sec=(Date.now()-t0)/1000;b.style.width=Math.min(95,3+92*(1-Math.exp(-sec/14)))+'%'},500);
+  caricatureMsgTimer=setInterval(()=>{const m=document.getElementById('caricature-msg'),e=document.getElementById('caricature-emoji');if(!m)return stopCaricatureSuspense();
+    const last=CARICATURE_MSGS.length-1;i=(Date.now()-t0)>27000?last:(i>=last-1?1:i+1);
+    m.classList.add('fade');setTimeout(()=>{m.innerHTML=CARICATURE_MSGS[i][1];if(e)e.textContent=CARICATURE_MSGS[i][0];m.classList.remove('fade')},350)},3000);
+}
+function stopCaricatureSuspense(){clearInterval(caricatureMsgTimer);clearInterval(caricatureBarTimer);caricatureMsgTimer=caricatureBarTimer=null}
 function updateCaricatureBox(w){
   const img=document.getElementById('winner-caricature-img');const drawing=document.getElementById('caricature-drawing');if(!img)return;
-  if(w.caricatureUrl){if(img.getAttribute('src')!==w.caricatureUrl){img.onload=()=>{img.style.display='block';if(drawing)drawing.style.display='none'};img.onerror=hideCaricatureBox;img.src=w.caricatureUrl}return}
+  if(w.caricatureUrl){if(img.getAttribute('src')!==w.caricatureUrl){img.onload=()=>{const b=document.getElementById('caricature-bar');if(b)b.style.width='100%';stopCaricatureSuspense();setTimeout(()=>{img.style.display='block';if(drawing)drawing.style.display='none'},400)};img.onerror=hideCaricatureBox;img.src=w.caricatureUrl}return}
   if(w.caricatureStatus==='failed'){hideCaricatureBox();return}
 }
 function celebrateConfetti(){
@@ -492,17 +509,17 @@ db.ref('currentWinner').on('value',snapshot=>{
       renderedWinnerKey=wkey;playWinMusic();const container=document.getElementById('winners-container');
       container.innerHTML=`
       <div class="selfie-slide-box" id="box-selfie"><div class="nfl-badge-label">FOTO VINCITORE</div><img src="${winner.photo}" class="nfl-photo" alt="Foto Vincitore" onerror="handlePhotoError(this)"><div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">${winner.stage}: ${prizesConfig[winner.stage]}</div></div></div>
-      <div class="cartoon-slide-box" id="box-cartoon"><div class="nfl-badge-label">🎨 LA SUA CARICATURA</div><div class="caricature-drawing" id="caricature-drawing"><div class="pencil">✏️</div><div>Il caricaturista<br>sta disegnando…</div></div><img id="winner-caricature-img" class="nfl-photo-cartoon" alt="Caricatura" style="display:none"><div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">🏆 Campione di ${winner.stage}!</div></div></div>`;
+      <div class="cartoon-slide-box" id="box-cartoon"><div class="nfl-badge-label">🎨 LA SUA CARICATURA</div><div class="caricature-drawing" id="caricature-drawing"><div class="pencil" id="caricature-emoji">🎨</div><div id="caricature-msg" class="caricature-msg">Stiamo creando<br>la tua caricatura…</div><div class="cbar"><div id="caricature-bar"></div></div></div><img id="winner-caricature-img" class="nfl-photo-cartoon" alt="Caricatura" style="display:none"><div class="winner-info-overlay"><div class="winner-name-text">${winner.name}</div><div class="winner-prize-text">🏆 Campione di ${winner.stage}!</div></div></div>`;
       modal.style.display='flex';
       if(regiaAuth){regiaAlert.style.display='block';document.getElementById('regia-win-alert-text').innerText=`${winner.name} ha fatto ${winner.stage} (${prizesConfig[winner.stage]})!`}
       setTimeout(()=>{const w=activeWinnerObj;if(!w||w.caricatureStatus==='failed')return;const selfieBox=document.getElementById('box-selfie');const cartoonBox=document.getElementById('box-cartoon');if(selfieBox)selfieBox.classList.add('slid-left');if(cartoonBox)cartoonBox.classList.add('visible')},500);
-      celebrateConfetti();
+      celebrateConfetti();startCaricatureSuspense();
       // se nessuna Regia collegata inizia a disegnare entro 12 secondi, resta solo il selfie
       clearTimeout(caricatureWaitTimer);caricatureWaitTimer=setTimeout(()=>{const w=activeWinnerObj;if(w&&w.cardId+'|'+w.stage===wkey&&!w.caricatureStatus&&!w.caricatureUrl)hideCaricatureBox()},12000);
     }
     updateCaricatureBox(winner);
     maybeStartCaricature(winner);
-  } else {renderedWinnerKey=null;clearTimeout(caricatureWaitTimer);modal.style.display='none';if(regiaAlert)regiaAlert.style.display='none';stopAllAudioCompletely()}
+  } else {renderedWinnerKey=null;clearTimeout(caricatureWaitTimer);stopCaricatureSuspense();modal.style.display='none';if(regiaAlert)regiaAlert.style.display='none';stopAllAudioCompletely()}
 });
 db.ref('gameOver').on('value',snapshot=>{
   const isOver=snapshot.val();const gameOverOverlay=document.getElementById('game-over-overlay');const nextGameOverlay=document.getElementById('next-game-overlay');
